@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-08-14T10:31:24.958Z",
+  "totalTests": 5,
+  "passed": 2,
+  "failed": 3,
+  "results": [
+    {
+      "name": "Admin login for dashboard access",
+      "status": "FAILED",
+      "error": "Login failed - not redirected to admin",
+      "duration": "4322ms",
+      "timestamp": "2025-08-14T10:31:22.772Z"
+    },
+    {
+      "name": "Navigate to dashboard",
+      "status": "FAILED",
+      "error": "No element found for selector: a[href*=\"dashboard\"]",
+      "duration": "7ms",
+      "timestamp": "2025-08-14T10:31:23.036Z"
+    },
+    {
+      "name": "Check Market Insights section",
+      "status": "FAILED",
+      "error": "testRunner.page.waitForTimeout is not a function",
+      "duration": "2ms",
+      "timestamp": "2025-08-14T10:31:23.304Z"
+    },
+    {
+      "name": "Debug page content",
+      "status": "PASSED",
+      "duration": "223ms",
+      "timestamp": "2025-08-14T10:31:23.771Z"
+    },
+    {
+      "name": "Check for errors in console/network",
+      "status": "PASSED",
+      "duration": "1186ms",
+      "timestamp": "2025-08-14T10:31:24.957Z"
+    }
+  ]
+}
