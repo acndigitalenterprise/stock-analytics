@@ -1,41 +1,21 @@
 {
-  "timestamp": "2025-08-14T10:31:24.958Z",
-  "totalTests": 5,
-  "passed": 2,
-  "failed": 3,
+  "timestamp": "2025-08-15T00:14:10.479Z",
+  "totalTests": 2,
+  "passed": 1,
+  "failed": 1,
   "results": [
     {
-      "name": "Admin login for dashboard access",
-      "status": "FAILED",
-      "error": "Login failed - not redirected to admin",
-      "duration": "4322ms",
-      "timestamp": "2025-08-14T10:31:22.772Z"
-    },
-    {
-      "name": "Navigate to dashboard",
-      "status": "FAILED",
-      "error": "No element found for selector: a[href*=\"dashboard\"]",
-      "duration": "7ms",
-      "timestamp": "2025-08-14T10:31:23.036Z"
-    },
-    {
-      "name": "Check Market Insights section",
-      "status": "FAILED",
-      "error": "testRunner.page.waitForTimeout is not a function",
-      "duration": "2ms",
-      "timestamp": "2025-08-14T10:31:23.304Z"
-    },
-    {
-      "name": "Debug page content",
+      "name": "Quick Smoke Test - Homepage loads",
       "status": "PASSED",
-      "duration": "223ms",
-      "timestamp": "2025-08-14T10:31:23.771Z"
+      "duration": "804ms",
+      "timestamp": "2025-08-15T00:14:06.773Z"
     },
     {
-      "name": "Check for errors in console/network",
-      "status": "PASSED",
-      "duration": "1186ms",
-      "timestamp": "2025-08-14T10:31:24.957Z"
+      "name": "Quick Smoke Test - Admin login",
+      "status": "FAILED",
+      "error": "Login failed, current URL: http://127.0.0.1:8000/stock-analytics",
+      "duration": "3537ms",
+      "timestamp": "2025-08-15T00:14:10.311Z"
     }
   ]
 }

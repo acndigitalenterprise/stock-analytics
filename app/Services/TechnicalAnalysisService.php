@@ -808,8 +808,8 @@ class TechnicalAnalysisService
             $recentLows = array_slice($validLows, -5); // Last 5 valid lows
             $recentLow = min($recentLows);
             
-            // Use the higher of: recent low or 2% below current
-            return round(max($recentLow, $percentageStop), 2);
+            // Use the LOWER of: recent low or 2% below current (stop loss must be below entry)
+            return round(min($recentLow, $percentageStop), 2);
         } else {
             // Fallback: just use 2% below current price
             return round($percentageStop, 2);

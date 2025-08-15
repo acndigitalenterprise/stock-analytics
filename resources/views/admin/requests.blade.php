@@ -47,7 +47,7 @@
         <form method="GET" action="{{ route('stock-analytics.admin.requests') }}" class="admin-filter-bar">
             <div class="admin-filter-bar-inner">
                 <div class="form-group" style="width:300px;">
-                    <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="{{ isset($user) && $user->role === 'admin' ? 'Search by name, email, stock code...' : 'Search by stock code...' }}">
+                    <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? 'Search by name, email, stock code...' : 'Search by stock code...' }}">
                 </div>
                 <div class="admin-filter-actions">
                     <button type="submit" class="btn">Search</button>
@@ -70,7 +70,7 @@
                             @endif
                         </span>
                     </th>
-                    @if(isset($user) && $user->role === 'admin')
+                    @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
                     <th class="sortable" data-sort="full_name">
                         Full Name
                         <span class="sort-indicator">
@@ -125,7 +125,7 @@
                 @forelse($requests as $request)
                     <tr class="row-link" data-href="{{ route('stock-analytics.admin.detail', $request->id) }}">
                         <td style="font-size: 0.75em;">{{ $request->created_at ? \Carbon\Carbon::parse($request->created_at)->setTimezone('Asia/Jakarta')->format('d/m/y H:i') : '-' }}</td>
-                        @if(isset($user) && $user->role === 'admin')
+                        @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
                         <td>{{ $request->full_name }}</td>
                         @endif
                         <td>{{ $request->stock_code }}</td>
@@ -201,7 +201,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ isset($user) && $user->role === 'admin' ? '8' : '7' }}" style="text-align:center;padding:32px;">
+                        <td colspan="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? '8' : '7' }}" style="text-align:center;padding:32px;">
                             No requests found.
                         </td>
                     </tr>
@@ -222,7 +222,7 @@
                 </div>
                 
                 <div class="mobile-card-info">
-                    @if(isset($user) && $user->role === 'admin')
+                    @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
                     <div class="mobile-card-item">
                         <div class="mobile-card-label">Full Name</div>
                         <div class="mobile-card-value">{{ $request->full_name }}</div>
