@@ -71,7 +71,10 @@
       "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, role FROM stock_analytics.users WHERE role = ''super_admin'';\")",
       "Bash(while true)",
       "Bash(do php artisan stock:monitor-prices)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git branch:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git remote remove:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
