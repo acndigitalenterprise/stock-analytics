@@ -74,9 +74,18 @@
       "Bash(done)",
       "Bash(git branch:*)",
       "Bash(git remote set-url:*)",
-      "Bash(git remote remove:*)"
+      "Bash(git remote remove:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"DESCRIBE stock_analytics.sessions;\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, full_name, stock_code, LEFT(advice, 100) as advice_preview FROM stock_analytics.requests ORDER BY id DESC LIMIT 3;\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, stock_code, advice IS NOT NULL as has_advice, LENGTH(advice) as advice_length FROM stock_analytics.requests WHERE full_name = ''Dewi'' ORDER BY id DESC;\")",
+      "Bash(cp:*)"
     ],
     "deny": [],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "C:\\c\\xampp\\htdocs"
+    ]
   }
 }

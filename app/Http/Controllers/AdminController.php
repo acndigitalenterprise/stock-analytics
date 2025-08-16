@@ -28,26 +28,33 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        // Check trading hours (09:00-16:00 WIB)
-        $currentHour = now()->setTimezone('Asia/Jakarta')->format('H');
-        $isTradingHours = $currentHour >= 9 && $currentHour < 16;
-        
-        if (!$isTradingHours) {
-            $currentTime = now()->setTimezone('Asia/Jakarta')->format('H:i');
-            return response()->json([
-                'error' => "Market is closed. Trading hours: 09:00-16:00 WIB (Current: {$currentTime} WIB)"
-            ], 403);
-        }
+        try {
+            Log::info('Store method called', ['data' => $request->all()]);
+            
+            // Check trading hours (09:00-16:00 WIB)
+            $currentHour = now()->setTimezone('Asia/Jakarta')->format('H');
+            $isTradingHours = $currentHour >= 9 && $currentHour < 16;
+            
+            if (!$isTradingHours) {
+                $currentTime = now()->setTimezone('Asia/Jakarta')->format('H:i');
+                Log::info('Trading hours check failed', ['current_time' => $currentTime]);
+                return response()->json([
+                    'error' => "Market is closed. Trading hours: 09:00-16:00 WIB (Current: {$currentTime} WIB)"
+                ], 403);
+            }
 
-        $validated = $request->validate([
-            'stock_code' => 'required|string|max:10',
-            'timeframe' => 'required|in:1h,1d',
-        ]);
+            $validated = $request->validate([
+                'stock_code' => 'required|string|max:10',
+                'timeframe' => 'required|in:1h,1d',
+            ]);
+            Log::info('Validation passed', ['validated' => $validated]);
 
-        $user = session('user');
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+            $user = session('user');
+            if (!$user) {
+                Log::error('No user in session');
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            Log::info('User found in session', ['user_id' => $user->id]);
 
         $stockRequest = \App\Models\Request::create([
             'full_name' => $user->name,
@@ -89,10 +96,15 @@ class AdminController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'New request created successfully! Email will be sent shortly and AI advice will be generated in the background.'
-        ]);
+            Log::info('Request created successfully', ['request_id' => $stockRequest->id]);
+            return response()->json([
+                'success' => true,
+                'message' => 'New request created successfully! Email will be sent shortly and AI advice will be generated in the background.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in store method', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Internal server error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function edit($id)

@@ -758,10 +758,12 @@ class TechnicalAnalysisService
     {
         $score = $this->calculateScalpingScore($ohlcvData, $stockSymbol);
         
-        if ($score >= 8) return 'STRONG BUY';
-        if ($score >= 6) return 'BUY';
-        if ($score >= 4) return 'WEAK BUY';
-        return 'HOLD';
+        // More balanced thresholds for Indonesian market
+        if ($score >= 7) return 'STRONG BUY';
+        if ($score >= 5) return 'BUY';
+        if ($score >= 3) return 'WEAK BUY';
+        if ($score >= 1) return 'HOLD';
+        return 'WEAK SELL';
     }
 
     public function calculateEntryPrice(array $ohlcvData): ?float

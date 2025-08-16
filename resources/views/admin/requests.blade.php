@@ -341,19 +341,20 @@ document.getElementById('newRequestForm').addEventListener('submit', function(e)
     
     fetch('{{ route("stock-analytics.admin.request") }}', {
         method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-        }
+        body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // Close popup and reload page directly
             closePopup('new-request');
             window.location.reload();
         } else {
-            alert('Error: ' + data.error);
+            alert('Error: ' + (data.error || 'Unknown error'));
         }
     })
     .catch(error => {
