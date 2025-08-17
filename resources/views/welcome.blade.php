@@ -41,14 +41,6 @@
                         @enderror
                     </div>
                     
-                    <div class="form-group">
-                        <label for="mobile_number">Mobile Number</label>
-                        <input type="text" id="mobile_number" name="mobile_number" value="{{ old('mobile_number') }}" required>
-                        @error('mobile_number')
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
                     <div class="info-note">
                         <strong>Note:</strong> Your password will be automatically generated and sent to your email address.
                     </div>

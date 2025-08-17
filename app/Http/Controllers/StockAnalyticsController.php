@@ -299,20 +299,22 @@ class StockAnalyticsController extends Controller
             $isNewUser = false;
             $password = null;
 
-            // If user doesn't exist, check if mobile number is already taken
+            // If user doesn't exist, check if mobile number is already taken (if provided)
             if (!$user) {
-                // Check if mobile number is already registered
-                $existingUserWithMobile = User::where('mobile_number', $validated['mobile_number'])->first();
-                if ($existingUserWithMobile) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors(['mobile_number' => 'This mobile number is already registered. Please use a different mobile number or sign in with your existing account.']);
+                // Check if mobile number is already registered (only if mobile number is provided)
+                if (!empty($validated['mobile_number'])) {
+                    $existingUserWithMobile = User::where('mobile_number', $validated['mobile_number'])->first();
+                    if ($existingUserWithMobile) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->withErrors(['mobile_number' => 'This mobile number is already registered. Please use a different mobile number or sign in with your existing account.']);
+                    }
                 }
 
                 $password = Str::random(10); // Generate random password
                 $user = User::create([
                     'name' => $validated['full_name'],
-                    'mobile_number' => $validated['mobile_number'],
+                    'mobile_number' => $validated['mobile_number'] ?? null,
                     'email' => $validated['email'],
                     'password' => Hash::make($password),
                     'role' => 'user',
@@ -323,7 +325,7 @@ class StockAnalyticsController extends Controller
             // Create stock request
             $stockRequest = StockRequest::create([
                 'full_name' => $validated['full_name'],
-                'mobile_number' => $validated['mobile_number'],
+                'mobile_number' => $validated['mobile_number'] ?? null,
                 'email' => $validated['email'],
                 'stock_code' => StockService::ensureJKFormat($validated['stock_code']),
                 'company_name' => StockService::getCompanyName($validated['stock_code']),

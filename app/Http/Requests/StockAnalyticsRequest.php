@@ -37,7 +37,7 @@ class StockAnalyticsRequest extends FormRequest
                 'regex:/^[a-zA-Z\s\.\-\']+$/', // Only letters, spaces, dots, hyphens, apostrophes
             ],
             'mobile_number' => [
-                'required',
+                'nullable',
                 'string',
                 'regex:/^(\+62|62|08)\d{8,12}$/', // Indonesian mobile format
                 'unique:users,mobile_number',
@@ -75,7 +75,6 @@ class StockAnalyticsRequest extends FormRequest
             'full_name.max' => 'Full name must not exceed 100 characters.',
             'full_name.regex' => 'Full name can only contain letters, spaces, dots, hyphens, and apostrophes.',
             
-            'mobile_number.required' => 'Mobile number is required.',
             'mobile_number.regex' => 'Please enter a valid Indonesian mobile number (e.g., +6281234567890 or 081234567890).',
             'mobile_number.unique' => 'This mobile number is already registered.',
             
