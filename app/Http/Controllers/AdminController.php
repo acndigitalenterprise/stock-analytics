@@ -356,8 +356,8 @@ class AdminController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'mobile_number' => 'required|string|max:20',
-            'password' => 'required|string|min:6',
+            'mobile_number' => 'nullable|string|max:20',
+            'password' => 'required|string|min:6|confirmed',
             'role' => 'nullable|in:user,admin',
         ]);
 
@@ -374,7 +374,7 @@ class AdminController extends Controller
         $newUser = User::create([
             'name' => $validated['full_name'], // Use name instead of full_name
             'email' => $validated['email'],
-            'mobile_number' => $validated['mobile_number'],
+            'mobile_number' => $validated['mobile_number'] ?? null,
             'password' => bcrypt($validated['password']),
             'role' => $newUserRole,
         ]);
@@ -398,7 +398,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'mobile_number' => 'required|string|max:20',
+            'mobile_number' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6',
             'role' => 'nullable|in:user,admin',
         ]);
@@ -419,8 +419,9 @@ class AdminController extends Controller
             unset($validated['role']);
         }
 
-        // Map full_name to name field
+        // Map full_name to name field and handle nullable mobile_number
         $validated['name'] = $validated['full_name'];
+        $validated['mobile_number'] = $validated['mobile_number'] ?? null;
         unset($validated['full_name']);
 
         $targetUser->update($validated);
@@ -470,6 +471,30 @@ class AdminController extends Controller
 
         return redirect()->route('stock-analytics.admin.users')
                          ->with('success', $message);
+    }
+
+    public function verifyUser($id)
+    {
+        $user = session('user');
+        if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
+            return redirect()->route('stock-analytics.admin.users');
+        }
+
+        $targetUser = User::findOrFail($id);
+        
+        // Check if user is already verified
+        if ($targetUser->email_verified_at) {
+            return redirect()->route('stock-analytics.admin.users')
+                           ->with('error', 'User is already verified.');
+        }
+
+        // Verify the user
+        $targetUser->update([
+            'email_verified_at' => now()
+        ]);
+
+        return redirect()->route('stock-analytics.admin.users')
+                         ->with('success', "User {$targetUser->name} has been verified successfully!");
     }
 
     /**

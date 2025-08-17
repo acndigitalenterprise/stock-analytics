@@ -37,7 +37,7 @@
                 
                 <div class="form-group">
                     <label for="mobile_number">Mobile Number</label>
-                    <input type="text" name="mobile_number" id="mobile_number" value="{{ old('mobile_number', $targetUser->mobile_number) }}" required>
+                    <input type="text" name="mobile_number" id="mobile_number" value="{{ old('mobile_number', $targetUser->mobile_number) }}" placeholder="Optional">
                     @error('mobile_number')<div class="error">{{ $message }}</div>@enderror
                 </div>
             </div>

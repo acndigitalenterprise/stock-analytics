@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT name, email, mobile_number FROM stock_analytics.users LIMIT 3;\")"
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT name, email, mobile_number FROM stock_analytics.users LIMIT 3;\")",
+      "WebFetch(domain:themewagon.com)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email FROM stock_analytics.users WHERE email = ''acndigitalenterprise@gmail.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, full_name, email FROM stock_analytics.requests WHERE email = ''acndigitalenterprise@gmail.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"UPDATE stock_analytics.users SET email_verified_at = NOW() WHERE email = ''acndigitalenterprise@gmail.com''; SELECT id, name, email, email_verified_at FROM stock_analytics.users WHERE email = ''acndigitalenterprise@gmail.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, email_verified_at, remember_token FROM stock_analytics.users WHERE id = 21;\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"INSERT INTO stock_analytics.users (name, email, password, role, email_verified_at, remember_token) VALUES (''Test User'', ''test@example.com'', ''$2y$10$examplehash'', ''user'', NULL, ''test-token-123''); SELECT id, name, email, remember_token FROM stock_analytics.users WHERE email = ''test@example.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"INSERT INTO stock_analytics.users (name, email, password, role, email_verified_at, remember_token) VALUES (''Test Bug Fix'', ''testbugfix@example.com'', ''$2y$10$examplehash'', ''user'', NULL, ''token-bug-fix-test-123456789012345678901234567890''); SELECT id, name, email, email_verified_at, LEFT(remember_token, 20) as token_preview FROM stock_analytics.users WHERE email = ''testbugfix@example.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"DELETE FROM stock_analytics.users WHERE email = ''testbugfix@example.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, role, email_verified_at FROM stock_analytics.users WHERE email = ''coretechlead@gmail.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"UPDATE stock_analytics.users SET email_verified_at = NOW() WHERE email = ''coretechlead@gmail.com''; SELECT id, name, email, role, email_verified_at FROM stock_analytics.users WHERE email = ''coretechlead@gmail.com'';\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"ALTER TABLE stock_analytics.requests MODIFY COLUMN mobile_number VARCHAR(255) NULL;\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, role FROM stock_analytics.users WHERE role IN (''admin'', ''super_admin'');\")"
     ],
     "deny": [],
     "ask": []

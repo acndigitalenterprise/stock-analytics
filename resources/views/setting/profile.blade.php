@@ -13,9 +13,6 @@
         @if(session('error'))
             <div class="error-message">{{ session('error') }}</div>
         @endif
-        @if(session('password_error'))
-            <div class="error-message">{{ session('password_error') }}</div>
-        @endif
         
         <form action="{{ route('stock-analytics.setting.user.update') }}" method="POST">
             @csrf
@@ -24,20 +21,20 @@
             <div style="margin-bottom: 32px;">
                 
                 <div class="form-group">
-                    <label for="full_name">Full Name</label>
+                    <label for="full_name">Full Name<span style="color: red;">*</span></label>
                     <input type="text" name="full_name" id="full_name" value="{{ old('full_name', $user->name) }}" required>
                     @error('full_name')<div class="error">{{ $message }}</div>@enderror
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
+                    <label for="email">Email Address<span style="color: red;">*</span></label>
                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required>
                     @error('email')<div class="error">{{ $message }}</div>@enderror
                 </div>
                 
                 <div class="form-group">
                     <label for="mobile_number">Mobile Number</label>
-                    <input type="text" name="mobile_number" id="mobile_number" value="{{ old('mobile_number', $user->mobile_number) }}" required>
+                    <input type="text" name="mobile_number" id="mobile_number" value="{{ old('mobile_number', $user->mobile_number) }}" placeholder="Optional">
                     @error('mobile_number')<div class="error">{{ $message }}</div>@enderror
                 </div>
             </div>
@@ -49,12 +46,7 @@
                 
                 <div class="form-group">
                     <label for="new_password">New Password</label>
-                    <div style="position:relative;">
-                        <input type="password" name="new_password" id="new_password" style="padding-right:36px;">
-                        <span class="toggle-password" onclick="togglePassword('new_password', this)" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
-                            <svg id="icon-new_password" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </span>
-                    </div>
+                    <input type="password" name="new_password" id="new_password" placeholder="Enter new password">
                     @error('new_password')<div class="error">{{ $message }}</div>@enderror
                 </div>
             </div>
@@ -79,9 +71,3 @@
         </div>
     </div>
 @endsection
-
-@section('scripts')
-<script>
-// Using common togglePassword function from app.js
-</script>
-@endsection 

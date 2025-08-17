@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -27,6 +28,18 @@ class AuthController extends Controller
             $user = User::where('email', $validated['email'])->first();
 
             if ($user && Hash::check($validated['password'], $user->password)) {
+                // Check if email is verified
+                if (!$user->email_verified_at) {
+                    \Log::warning('Sign-in attempt with unverified email', [
+                        'email' => $user->email,
+                        'user_id' => $user->id
+                    ]);
+                    
+                    return redirect()->back()
+                        ->withErrors(['signin_error' => 'Please verify your email address before signing in. Check your email for the verification link.'])
+                        ->withInput(['email' => $validated['email']]);
+                }
+                
                 // Clear any existing session data first
                 session()->flush();
                 session()->regenerate();
@@ -70,44 +83,54 @@ class AuthController extends Controller
         }
     }
 
-    public function signup(Request $request)
+    public function signup(SignUpRequest $request)
     {
-        // Check if email already exists
-        $emailExists = User::where('email', $request->email)->exists();
-        $mobileExists = User::where('mobile_number', $request->mobile_number)->exists();
-        
-        $errors = [];
-        if ($emailExists) {
-            $errors['email'] = 'Email Address already registered';
+        try {
+            \Log::info('Sign-up attempt', [
+                'email' => $request->email,
+                'full_name' => $request->full_name,
+                'user_agent' => $request->userAgent(),
+                'ip' => $request->ip()
+            ]);
+
+            // Get validated data from form request
+            $validated = $request->validated();
+
+            // Generate random password and verification token
+            $password = Str::random(12);
+            $verificationToken = Str::random(64);
+
+            // Create inactive user account
+            $user = User::create([
+                'name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']), // Use user's chosen password
+                'role' => 'user',
+                'email_verified_at' => null, // Account starts as unverified
+                'remember_token' => $verificationToken, // Use remember_token for verification
+            ]);
+
+            \Log::info('User account created successfully', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+
+            // Send verification email with login info
+            $this->sendVerificationEmail($user, $verificationToken);
+
+            return redirect()->back()->with('success', 'Account created successfully! Please check your email to verify your account before signing in.');
+
+        } catch (\Exception $e) {
+            \Log::error('Sign-up error', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->withErrors(['signup_error' => 'An error occurred during sign-up. Please try again.'])
+                ->withInput($request->except(['password', 'password_confirmation']));
         }
-        if ($mobileExists) {
-            $errors['mobile_number'] = 'Mobile Number already registered';
-        }
-        
-        if (!empty($errors)) {
-            return redirect()->back()->withErrors($errors)->withInput();
-        }
-
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'mobile_number' => 'required|string|max:20',
-            'email' => 'required|email',
-        ]);
-
-        $password = Str::random(10);
-
-        $user = User::create([
-            'name' => $validated['full_name'],
-            'mobile_number' => $validated['mobile_number'],
-            'email' => $validated['email'],
-            'password' => Hash::make($password),
-            'role' => 'user',
-        ]);
-
-        // Send email with login info
-        $this->sendSignupEmail($user, $password);
-
-        return redirect()->route('stock-analytics.registration-success');
     }
 
     public function logout(Request $request)
@@ -117,6 +140,45 @@ class AuthController extends Controller
         session()->regenerate();
         
         return redirect()->route('stock-analytics.index');
+    }
+
+    private function sendVerificationEmail($user, $token)
+    {
+        $data = [
+            'user' => $user,
+            'verificationUrl' => route('stock-analytics.verify-email', $token),
+        ];
+
+        Mail::send('emails.verification', $data, function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Verify Your Email - Stock Analytics');
+        });
+    }
+
+    public function verifyEmail($token)
+    {
+        $user = User::where('remember_token', $token)->first();
+
+        if (!$user) {
+            return redirect()->route('stock-analytics.index')->with('error', 'Invalid or expired verification link. Please sign up again or contact support.');
+        }
+
+        if ($user->email_verified_at) {
+            return redirect()->route('stock-analytics.index')->with('success', 'Email already verified. You can now sign in to your account.');
+        }
+
+        // Verify the email
+        $user->update([
+            'email_verified_at' => now(),
+            'remember_token' => null,
+        ]);
+
+        \Log::info('Email verified successfully', [
+            'user_id' => $user->id,
+            'email' => $user->email
+        ]);
+
+        return redirect()->route('stock-analytics.index')->with('success', 'Email verified successfully! You can now sign in to your account.');
     }
 
     private function sendSignupEmail($user, $password)

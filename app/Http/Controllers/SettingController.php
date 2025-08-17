@@ -31,22 +31,18 @@ class SettingController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile_number' => 'required|string|max:20|unique:users,mobile_number,' . $user->id,
+            'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $user->id,
         ]);
         
         $user->name = $validated['full_name'];
         $user->email = $validated['email'];
-        $user->mobile_number = $validated['mobile_number'];
+        $user->mobile_number = $validated['mobile_number'] ?? null;
         
         // Handle password change if provided
         if ($request->filled('new_password')) {
             $passwordValidated = $request->validate([
                 'new_password' => 'required|min:8',
             ]);
-            
-            if (Hash::check($passwordValidated['new_password'], $user->password)) {
-                return back()->with('password_error', 'New password must be different from the current password.');
-            }
             
             $user->password = Hash::make($passwordValidated['new_password']);
         }
@@ -60,7 +56,7 @@ class SettingController extends Controller
         \App\Models\Request::where('user_id', $user->id)->update([
             'full_name' => $user->name,
             'email' => $user->email,
-            'mobile_number' => $user->mobile_number,
+            'mobile_number' => $user->mobile_number ?? null,
         ]);
         
         $message = 'Profile updated successfully.';

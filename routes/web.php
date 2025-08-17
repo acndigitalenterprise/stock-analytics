@@ -49,6 +49,10 @@ Route::post('/stock-analytics/forgot-password', [AuthController::class, 'forgotP
     ->middleware('rate_limit:auth')
     ->name('stock-analytics.forgot-password');
 
+// Email verification route
+Route::get('/stock-analytics/verify-email/{token}', [AuthController::class, 'verifyEmail'])
+    ->name('stock-analytics.verify-email');
+
 // Reset password routes without CSRF protection
 Route::group(['middleware' => []], function () {
     Route::get('/stock-analytics/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('stock-analytics.reset-password');
@@ -69,6 +73,7 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/stock-analytics/admin/users', [AdminController::class, 'createUser'])->name('stock-analytics.admin.users.create');
     Route::post('/stock-analytics/admin/users/{id}/update', [AdminController::class, 'updateUser'])->name('stock-analytics.admin.users.update');
     Route::post('/stock-analytics/admin/users/{id}/delete', [AdminController::class, 'deleteUser'])->name('stock-analytics.admin.users.delete');
+    Route::post('/stock-analytics/admin/users/{id}/verify', [AdminController::class, 'verifyUser'])->name('stock-analytics.admin.users.verify');
     
     // Existing stock routes (keep for backward compatibility)
     Route::post('/stock-analytics/admin/request', [AdminController::class, 'store'])->name('stock-analytics.admin.request');

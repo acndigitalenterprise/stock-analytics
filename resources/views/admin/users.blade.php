@@ -88,6 +88,16 @@
                         @endif
                     </span>
                 </th>
+                <th style="width: 100px;" class="sortable" data-sort="role">
+                    Role
+                    <span class="sort-indicator">
+                        @if(request('sort') == 'role')
+                            {{ request('order') == 'asc' ? '↑' : '↓' }}
+                        @else
+                            ↕
+                        @endif
+                    </span>
+                </th>
                 <th style="width: 100px;">Action</th>
             </tr>
         </thead>
@@ -99,6 +109,7 @@
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->mobile_number ?? '-' }}</td>
                 <td>{{ $user->requests_count }}</td>
+                <td style="text-transform: capitalize;">{{ $user->role ?? 'user' }}</td>
                 <td onclick="event.stopPropagation();" style="text-align: center;">
                     <div style="display: flex; flex-direction: column; gap: 1px; align-items: center;">
                         <a href="{{ route('stock-analytics.admin.users.detail', $user->id) }}" class="btn" style="padding:2px 4px;font-size:0.7em;background:#007bff;text-decoration:none;width:40px;text-align:center;border:none;display:inline-block;box-sizing:border-box;">View</a>
@@ -106,12 +117,20 @@
                             @csrf
                             <button type="submit" class="btn" style="padding:2px 4px;font-size:0.7em;background:#dc3545;width:40px;text-align:center;border:none;display:inline-block;box-sizing:border-box;">Delete</button>
                         </form>
+                        @if($user->email_verified_at)
+                            <button class="btn" style="padding:2px 4px;font-size:0.7em;background:#6c757d;width:40px;text-align:center;border:none;display:inline-block;box-sizing:border-box;cursor:not-allowed;" disabled>Verified</button>
+                        @else
+                            <form action="{{ route('stock-analytics.admin.users.verify', $user->id) }}" method="POST" style="margin:0;">
+                                @csrf
+                                <button type="submit" class="btn" style="padding:2px 4px;font-size:0.7em;background:#28a745;width:40px;text-align:center;border:none;display:inline-block;box-sizing:border-box;">Verify</button>
+                            </form>
+                        @endif
                     </div>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="no-results">No users found</td>
+                <td colspan="7" class="no-results">No users found</td>
             </tr>
             @endforelse
         </tbody>
@@ -159,26 +178,36 @@
             <form id="newUserForm">
                 @csrf
                 <div class="form-group">
-                    <label for="new_full_name">Full Name</label>
+                    <label for="new_full_name">Full Name<span style="color: red;">*</span></label>
                     <input type="text" name="full_name" id="new_full_name" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="new_email">Email Address</label>
+                    <label for="new_email">Email Address<span style="color: red;">*</span></label>
                     <input type="email" name="email" id="new_email" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="new_mobile_number">Mobile Number</label>
-                    <input type="text" name="mobile_number" id="new_mobile_number" required>
+                    <input type="text" name="mobile_number" id="new_mobile_number" placeholder="Optional">
                 </div>
                 
                 <div class="form-group">
-                    <label for="new_password">Password</label>
+                    <label for="new_password">Password<span style="color: red;">*</span></label>
                     <div style="position:relative;">
                         <input type="password" name="password" id="new_password" required style="padding-right:36px;">
                         <span class="toggle-password" onclick="togglePassword('new_password', this)" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
                             <svg id="icon-new_password" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password_confirmation">Confirm Password<span style="color: red;">*</span></label>
+                    <div style="position:relative;">
+                        <input type="password" name="password_confirmation" id="new_password_confirmation" required style="padding-right:36px;">
+                        <span class="toggle-password" onclick="togglePassword('new_password_confirmation', this)" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
+                            <svg id="icon-new_password_confirmation" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 616 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </span>
                     </div>
                 </div>
