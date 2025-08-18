@@ -13,7 +13,17 @@
       "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, role, email_verified_at FROM stock_analytics.users WHERE email = ''coretechlead@gmail.com'';\")",
       "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"UPDATE stock_analytics.users SET email_verified_at = NOW() WHERE email = ''coretechlead@gmail.com''; SELECT id, name, email, role, email_verified_at FROM stock_analytics.users WHERE email = ''coretechlead@gmail.com'';\")",
       "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"ALTER TABLE stock_analytics.requests MODIFY COLUMN mobile_number VARCHAR(255) NULL;\")",
-      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, role FROM stock_analytics.users WHERE role IN (''admin'', ''super_admin'');\")"
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT id, name, email, role FROM stock_analytics.users WHERE role IN (''admin'', ''super_admin'');\")",
+      "Bash(notepad:*)",
+      "Bash(ping:*)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SHOW TABLES FROM stock_analytics;\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT COUNT(*) FROM stock_analytics.sessions;\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"DELETE FROM stock_analytics.sessions WHERE last_activity < UNIX_TIMESTAMP(NOW() - INTERVAL 1 HOUR);\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"SELECT COUNT(*) FROM stock_analytics.sessions;\")",
+      "Bash(php artisan config:clear:*)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"TRUNCATE TABLE stock_analytics.sessions;\")",
+      "Bash(php artisan:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

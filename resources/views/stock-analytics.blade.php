@@ -1,5 +1,7 @@
 @extends('layout')
 
+@section('title', 'AI Stock Analytics - Home')
+
 @section('head')
 <style>
 /* Using consolidated CSS from layout.blade.php */
@@ -123,6 +125,16 @@
         <strong>📈 Real-time Monitoring:</strong> Win/Loss tracking for {{ config('services.openai.model') === 'gpt-4' ? 'AI' : 'hybrid' }} recommendations
     </p>
 </div>
+
+<!-- Tab Navigation -->
+<div style="text-align: center; margin-bottom: 24px;">
+    <div style="display: inline-flex; background: #f8f9fa; border-radius: 8px; padding: 4px; border: 1px solid #e9ecef;">
+        <button class="tab-btn active" onclick="showTab('request')" style="padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; margin-right: 4px;">New Request</button>
+        <button class="tab-btn" onclick="showTab('signin')" style="padding: 12px 24px; background: transparent; color: #666; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; margin-right: 4px;">Sign In</button>
+        <button class="tab-btn" onclick="showTab('signup')" style="padding: 12px 24px; background: transparent; color: #666; border: none; border-radius: 6px; font-weight: 500; cursor: pointer;">Sign Up</button>
+    </div>
+</div>
+
 <div style="padding: 0 32px;">
     @if(session('success'))
         <div id="confirmation-popup" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:2000;display:flex;align-items:center;justify-content:center;">
@@ -138,6 +150,8 @@
     @if(session('error'))
         <div class="error-message">{{ session('error') }}</div>
     @endif
+    <!-- Tab Content: New Request -->
+    <div id="tab-request" class="tab-content" style="display: block;">
     <form action="{{ route('stock-analytics.submit') }}" method="POST" id="requestForm" autocomplete="off">
         @csrf
         <div class="form-group">
@@ -188,12 +202,53 @@
             </button>
         @endif
     </form>
+    </div>
+
+    <!-- Tab Content: Sign In -->
+    <div id="tab-signin" class="tab-content" style="display: none;">
+        <form action="{{ route('stock-analytics.signin') }}" method="POST" id="signinFormTab">
+            @csrf
+            <div class="form-group">
+                <label for="signin_email_tab">Email Address</label>
+                <input type="email" name="email" id="signin_email_tab" required>
+            </div>
+            <div class="form-group">
+                <label for="signin_password_tab">Password</label>
+                <input type="password" name="password" id="signin_password_tab" required>
+            </div>
+            <button type="submit" class="btn">Sign In</button>
+        </form>
+    </div>
+
+    <!-- Tab Content: Sign Up -->
+    <div id="tab-signup" class="tab-content" style="display: none;">
+        <form action="{{ route('stock-analytics.signup') }}" method="POST" id="signupFormTab">
+            @csrf
+            <div class="form-group">
+                <label for="signup_full_name_tab">Full Name</label>
+                <input type="text" name="full_name" id="signup_full_name_tab" required>
+            </div>
+            <div class="form-group">
+                <label for="signup_mobile_number_tab">Mobile Number</label>
+                <input type="text" name="mobile_number" id="signup_mobile_number_tab" required>
+            </div>
+            <div class="form-group">
+                <label for="signup_email_tab">Email Address</label>
+                <input type="email" name="email" id="signup_email_tab" required>
+            </div>
+            <div class="form-group">
+                <label for="signup_password_tab">Password</label>
+                <input type="password" name="password" id="signup_password_tab" required>
+            </div>
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+    </div>
 
     <!-- Sign In Popup -->
     <div class="popup" id="signin-popup" style="display:none;">
         <div class="popup-content" style="position:relative;">
             <button type="button" onclick="closePopup('signin')" style="position:absolute;top:10px;right:10px;background:transparent;border:none;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
-            <h3>Sign In</h3>
+            <h3 style="margin-bottom: 20px; color: #333; text-align: center;">Sign In</h3>
             @if($errors->has('signin_error'))
                 <div style="color: #dc3545; font-size: 14px; margin-top: 5px; margin-bottom: 15px;">{{ $errors->first('signin_error') }}</div>
             @endif
@@ -224,7 +279,7 @@
     <!-- Sign Up Popup -->
     <div class="popup" id="signup-popup" style="display:none;">
         <div class="popup-content">
-            <h3>Sign Up</h3>
+            <h3 style="margin-bottom: 20px; color: #333; text-align: center;">Sign Up</h3>
             <form action="{{ route('stock-analytics.signup') }}" method="POST" id="signupForm">
                 @csrf
                 <div class="form-group">
@@ -398,16 +453,41 @@ function validateForm() {
     return valid;
 }
 
+// Tab switching function
+function showTab(tabName) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+        btn.style.color = '#666';
+    });
+    
+    // Show selected tab content
+    document.getElementById('tab-' + tabName).style.display = 'block';
+    
+    // Add active class to clicked tab button
+    event.target.classList.add('active');
+    event.target.style.background = '#007bff';
+    event.target.style.color = 'white';
+}
+
 // Using common togglePassword function from app.js
 
 // Auto-open popup if there are validation errors
 document.addEventListener('DOMContentLoaded', function() {
     @if($errors->has('signin_error'))
-        showPopup('signin');
+        showTab('signin');
     @endif
     
     @if($errors->has('email') || $errors->has('mobile_number'))
-        showPopup('signup');
+        showTab('signup');
     @endif
 });
 </script>

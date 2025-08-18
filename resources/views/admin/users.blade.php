@@ -10,8 +10,19 @@
         <div>
             <h2>Users</h2>
         </div>
-        <button class="btn" onclick="showNewUserModal()" style="margin-bottom:20px;">New User</button>
+        <div style="flex-shrink: 0; margin-left: auto;">
+            <button class="btn" onclick="showNewUserModal()" style="margin-bottom:20px; background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; width: auto !important; display: inline-block !important; flex-shrink: 0;">New User</button>
+        </div>
     </div>
+
+<style>
+@media (max-width: 768px) {
+    .flex-between > div:last-child {
+        align-self: flex-start !important;
+        width: auto !important;
+    }
+}
+</style>
 
     @if(session('success'))
         <div style="color:green;margin-bottom:16px;">{{ session('success') }}</div>
@@ -23,13 +34,12 @@
 
     <!-- Search Form -->
     <form method="GET" action="{{ route('stock-analytics.admin.users') }}" class="admin-filter-bar">
-        <div class="admin-filter-bar-inner">
-            <div class="form-group" style="width:300px;">
+        <div class="admin-filter-bar-inner" style="display: flex; gap: 8px; align-items: center; margin-bottom: 24px;">
+            <div class="form-group" style="width:300px; margin-bottom: 0;">
                 <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by name, email, mobile number...">
             </div>
-            <div class="admin-filter-actions">
-                <button type="submit" class="btn">Search</button>
-                <a href="{{ route('stock-analytics.admin.users') }}" class="btn secondary">Clear</a>
+            <div>
+                <button type="submit" class="btn" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; width: auto !important;">Search</button>
             </div>
         </div>
     </form>
@@ -135,6 +145,70 @@
             @endforelse
         </tbody>
     </table>
+
+    <!-- Mobile Cards -->
+    @forelse($users as $user)
+        <div class="mobile-card">
+            <div class="mobile-detail">
+                <!-- Date -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                    <b>Date</b><br>
+                    {{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->setTimezone('Asia/Jakarta')->format('d M Y H:i T') : '-' }}
+                </div>
+                
+                <!-- Full Name -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                    <b>Full Name</b><br>
+                    {{ $user->full_name ?? $user->name }}
+                </div>
+                
+                <!-- Email -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                    <b>Email Address</b><br>
+                    {{ $user->email }}
+                </div>
+                
+                <!-- Mobile Number -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                    <b>Mobile Number</b><br>
+                    {{ $user->mobile_number ?? '-' }}
+                </div>
+                
+                <!-- Total Request -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                    <b>Total Request</b><br>
+                    {{ $user->requests_count }}
+                </div>
+                
+                <!-- Role -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>Role</b><br>
+                    {{ ucfirst($user->role ?? 'user') }}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;" onclick="event.stopPropagation();">
+                    <a href="{{ route('stock-analytics.admin.users.detail', $user->id) }}" class="btn" style="padding:6px 12px;font-size:0.8em;background:#007bff;text-decoration:none;flex:1;text-align:center;">View</a>
+                    <form action="{{ route('stock-analytics.admin.users.delete', $user->id) }}" method="POST" style="margin:0;flex:1;">
+                        @csrf
+                        <button type="submit" class="btn" style="padding:6px 12px;font-size:0.8em;background:#dc3545;width:100%;" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                    </form>
+                    @if($user->email_verified_at)
+                        <button class="btn" style="padding:6px 12px;font-size:0.8em;background:#6c757d;flex:1;cursor:not-allowed;" disabled>Verified</button>
+                    @else
+                        <form action="{{ route('stock-analytics.admin.users.verify', $user->id) }}" method="POST" style="margin:0;flex:1;">
+                            @csrf
+                            <button type="submit" class="btn" style="padding:6px 12px;font-size:0.8em;background:#28a745;width:100%;">Verify</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="mobile-card" style="text-align:center;padding:32px;">
+            No users found.
+        </div>
+    @endforelse
 
 <!-- Pagination -->
 <div class="pagination-container">

@@ -113,7 +113,7 @@
                         </div>
                         
                         <div class="info-note">
-                            <strong>Note:</strong> After registration, please check your email to verify your account before signing in.
+                            <strong>Note:</strong> Check your email to verify your account before signing in
                         </div>
                         
                         <button type="submit" class="btn btn-primary">Sign Up</button>
@@ -160,33 +160,41 @@
     
     /* Tab Navigation */
     .tab-navigation {
-        display: flex;
-        background: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
+        display: flex !important;
+        background: #007bff !important;
+        border: none !important;
+        border-radius: 8px 8px 0 0 !important;
+        margin-bottom: 0 !important;
     }
     
     .tab-btn {
-        flex: 1;
-        padding: 16px 24px;
-        background: none;
-        border: none;
-        font-size: 16px;
-        font-weight: 500;
-        color: #6c757d;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-bottom: 3px solid transparent;
+        flex: 1 !important;
+        padding: 16px 24px !important;
+        background: #ffffff !important;
+        border: none !important;
+        border-right-width: medium;
+        border-right-style: none;
+        border-right-color: currentcolor;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #000000 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .tab-btn:last-child {
+        border-right: none !important;
     }
     
     .tab-btn:hover {
-        background: #e9ecef;
-        color: #495057;
+        background: #cccccc !important;
+        color: #000000 !important;
     }
     
     .tab-btn.active {
-        background: #fff;
-        color: #007bff;
-        border-bottom-color: #007bff;
+        background: #000000 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
     
     /* Tab Content */
@@ -241,13 +249,13 @@
     }
     
     .info-note {
-        background: #e3f2fd;
-        border: 1px solid #bbdefb;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
         border-radius: 6px;
         padding: 16px;
         margin: 20px 0;
         font-size: 14px;
-        color: #1976d2;
+        color: #6c757d;
     }
     
     @media (max-width: 768px) {
@@ -282,6 +290,21 @@ function switchTab(tabName) {
     document.getElementById(tabName + '-panel').classList.add('active');
     document.getElementById(tabName + '-tab').classList.add('active');
 }
+
+// Check for signup errors and show appropriate tab on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if there are any signup validation errors
+    const hasSignupErrors = document.querySelector('#signup-panel .error-message') !== null;
+    const hasEmailError = {{ $errors->has('email') ? 'true' : 'false' }};
+    const hasFullNameError = {{ $errors->has('full_name') ? 'true' : 'false' }};
+    const hasPasswordError = {{ $errors->has('password') ? 'true' : 'false' }};
+    const hasSignupError = {{ $errors->has('signup_error') ? 'true' : 'false' }};
+    
+    // If there are signup-related errors, show signup tab
+    if (hasSignupErrors || hasEmailError || hasFullNameError || hasPasswordError || hasSignupError) {
+        switchTab('signup');
+    }
+});
 
 // Password toggle functionality
 function togglePassword(inputId, toggleElement) {

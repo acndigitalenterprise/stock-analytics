@@ -25,15 +25,26 @@
                 $currentTime = now()->setTimezone('Asia/Jakarta')->format('H:i');
             @endphp
             
-            @if($isTradingHours)
-                <button class="btn" onclick="showPopup('new-request')" style="margin-bottom:20px;">New Request</button>
-            @else
-                <button class="btn" disabled style="margin-bottom:20px; background-color:#ccc; cursor:not-allowed; opacity:0.6;" 
-                        title="Trading hours: 09:00-16:00 WIB (Current: {{ $currentTime }} WIB)">
-                    New Request (Market Closed)
-                </button>
-            @endif
+            <div style="flex-shrink: 0; margin-left: auto;">
+                @if($isTradingHours)
+                    <button class="btn" onclick="showPopup('new-request')" style="margin-bottom:20px; background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; width: auto !important; display: inline-block !important; flex-shrink: 0;">New Request</button>
+                @else
+                    <button class="btn" disabled style="margin-bottom:20px; background: #ccc; color: #666; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: not-allowed; width: auto !important; display: inline-block !important; flex-shrink: 0;" 
+                            title="Trading hours: 09:00-16:00 WIB (Current: {{ $currentTime }} WIB)">
+                        New Request (Market Closed)
+                    </button>
+                @endif
+            </div>
         </div>
+
+<style>
+@media (max-width: 768px) {
+    .flex-between > div:last-child {
+        align-self: flex-start !important;
+        width: auto !important;
+    }
+}
+</style>
 
         @if(session('success'))
             <div style="color:green;margin-bottom:16px;">{{ session('success') }}</div>
@@ -45,13 +56,12 @@
 
         <!-- Search Form -->
         <form method="GET" action="{{ route('stock-analytics.admin.requests') }}" class="admin-filter-bar">
-            <div class="admin-filter-bar-inner">
-                <div class="form-group" style="width:300px;">
+            <div class="admin-filter-bar-inner" style="display: flex; gap: 8px; align-items: center; margin-bottom: 24px;">
+                <div class="form-group" style="width:300px; margin-bottom: 0;">
                     <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? 'Search by name, email, stock code...' : 'Search by stock code...' }}">
                 </div>
-                <div class="admin-filter-actions">
-                    <button type="submit" class="btn">Search</button>
-                    <a href="{{ route('stock-analytics.admin.requests') }}" class="btn secondary">Clear</a>
+                <div>
+                    <button type="submit" class="btn" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; width: auto !important;">Search</button>
                 </div>
             </div>
         </form>
@@ -211,48 +221,56 @@
 
         <!-- Mobile Cards -->
         @forelse($requests as $request)
-            <div class="mobile-card" onclick="window.location='{{ route('stock-analytics.admin.detail', $request->id) }}'" style="cursor:pointer;">
-                <div class="mobile-card-header">
-                    <div class="mobile-card-date">
-                        {{ $request->created_at ? \Carbon\Carbon::parse($request->created_at)->setTimezone('Asia/Jakarta')->format('d/m/y H:i') : '-' }}
+            <div class="mobile-card">
+                <div class="mobile-detail">
+                    <!-- Date -->
+                    <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                        <b>Date</b><br>
+                        {{ $request->created_at ? \Carbon\Carbon::parse($request->created_at)->setTimezone('Asia/Jakarta')->format('d M Y H:i T') : '-' }}
                     </div>
-                    <div class="mobile-card-actions" onclick="event.stopPropagation();">
-                        <a href="{{ route('stock-analytics.admin.detail', $request->id) }}" class="btn" style="padding:4px 8px;font-size:0.8em;background:#007bff;text-decoration:none;">View</a>
-                    </div>
-                </div>
-                
-                <div class="mobile-card-info">
+                    
+                    <!-- User Name (Admin only) -->
                     @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
-                    <div class="mobile-card-item">
-                        <div class="mobile-card-label">Full Name</div>
-                        <div class="mobile-card-value">{{ $request->full_name }}</div>
+                    <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                        <b>Full Name</b><br>
+                        {{ $request->full_name }}
                     </div>
                     @endif
-                    <div class="mobile-card-item">
-                        <div class="mobile-card-label">Stock Code</div>
-                        <div class="mobile-card-value">{{ $request->stock_code }}</div>
+                    
+                    <!-- Stock Code -->
+                    <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                        <b>Stock Code</b><br>
+                        {{ $request->stock_code }}
                     </div>
-                    <div class="mobile-card-item">
-                        <div class="mobile-card-label">Company</div>
-                        <div class="mobile-card-value">{{ $request->company_name }}</div>
+                    
+                    <!-- Company Name -->
+                    <div style="font-size: 0.9em; color: #000000; margin-bottom: 8px;">
+                        <b>Company Name</b><br>
+                        {{ $request->company_name }}
                     </div>
-                    <div class="mobile-card-item">
-                        <div class="mobile-card-label">Timeframe</div>
-                        <div class="mobile-card-value">{{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}</div>
+                    
+                    <!-- Timeframe -->
+                    <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                        <b>Timeframe</b><br>
+                        {{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;" onclick="event.stopPropagation();">
+                        <a href="{{ route('stock-analytics.admin.detail', $request->id) }}" class="btn" style="padding:6px 12px;font-size:0.8em;background:#007bff;text-decoration:none;flex:1;text-align:center;">View</a>
+                        <form action="{{ route('stock-analytics.admin.delete', $request->id) }}" method="POST" style="margin:0;flex:1;">
+                            @csrf
+                            <button type="submit" class="btn" style="padding:6px 12px;font-size:0.8em;background:#dc3545;width:100%;" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                        <button type="button" class="btn advice-btn" 
+                                style="padding:6px 12px;font-size:0.8em;background:{{ !empty($request->advice) ? '#6c757d' : '#17a2b8' }};flex:1;cursor:{{ !empty($request->advice) ? 'not-allowed' : 'pointer' }};"
+                                data-request-id="{{ $request->id }}" 
+                                {{ !empty($request->advice) ? 'disabled' : '' }}
+                                onclick="checkAdvice({{ $request->id }})">
+                            Advice
+                        </button>
                     </div>
                 </div>
-
-                @if($request->advice)
-                <div class="mobile-card-advice">
-                    <div class="mobile-card-advice-label">AI Advice</div>
-                    <div class="mobile-card-advice-content advice-content" id="mobile-advice-{{ $request->id }}" style="max-height: 60px; overflow: hidden;">
-                        {!! nl2br(e(str_replace('```markdown', '', $request->advice))) !!}
-                    </div>
-                    <div class="mobile-card-advice-toggle" onclick="toggleAdvice({{ $request->id }})">
-                        Show More
-                    </div>
-                </div>
-                @endif
             </div>
         @empty
             <div class="mobile-card" style="text-align:center;padding:32px;">

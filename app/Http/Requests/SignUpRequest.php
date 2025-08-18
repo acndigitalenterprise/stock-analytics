@@ -71,7 +71,7 @@ class SignUpRequest extends FormRequest
             'email.required' => 'Email address is required.',
             'email.email' => 'Please enter a valid email address.',
             'email.max' => 'Email address must not exceed 255 characters.',
-            'email.unique' => 'This email address is already registered.',
+            'email.unique' => 'Email Address Already Registered',
             'email.not_regex' => 'Email address contains invalid characters.',
             
             'password.required' => 'Password is required.',

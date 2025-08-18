@@ -32,6 +32,9 @@ class SettingController extends Controller
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $user->id,
+        ], [
+            'email.unique' => 'Email Address Already Registered',
+            'mobile_number.unique' => 'Mobile Number Already Registered',
         ]);
         
         $user->name = $validated['full_name'];

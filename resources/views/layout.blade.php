@@ -4,13 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Stock Analytics</title>
+    <title>@yield('title', 'Stock Analytics')</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
             background: #f8f8f8; 
+            color: #000000;
+        }
+        
+        /* Global text color override */
+        * {
+            color: #000000 !important;
+        }
+        
+        /* Exception for buttons to keep their readable colors */
+        .btn, button, a.btn {
+            color: white !important;
+        }
+        
+        /* Exception for specific button types */
+        .btn.secondary {
+            color: #333 !important;
+        }
+        
+        /* Exception for error messages to stay red */
+        .error, .error-message {
+            color: #dc3545 !important;
         }
         
         /* Main Container */
@@ -145,7 +166,6 @@
         }
         
         .error { 
-            color: #b00; 
             font-size: 0.95em; 
         }
         
@@ -471,7 +491,10 @@
         }
 
         @media (max-width: 768px) {
-          .main-container, .flex, .flex-between {
+          .main-container {
+            display: block !important;
+          }
+          .flex, .flex-between {
             flex-direction: column !important;
             align-items: stretch !important;
           }
@@ -484,12 +507,7 @@
             margin-left: 0 !important;
           }
           .sidebar {
-            width: 100% !important;
-            min-width: 0 !important;
-            border-right: none;
-            border-bottom: 1px solid #ddd;
-            flex-direction: row !important;
-            overflow-x: auto;
+            display: none !important;
           }
           .sidebar-content, .sidebar-signout {
             padding: 8px 0;
@@ -530,6 +548,73 @@
             font-size: 14px;
             color: #6c757d;
             margin-bottom: 5px;
+            line-height: 1.5;
+        }
+        
+        /* Mobile Navigation Styles */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 8px 0;
+            z-index: 1000;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666 !important;
+            padding: 8px 4px;
+            border-radius: 4px;
+            min-width: 60px;
+            transition: all 0.2s;
+        }
+        
+        .mobile-nav-item span:first-child {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+        
+        .mobile-nav-item span:last-child {
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .mobile-nav-item.active {
+            color: #007bff !important;
+            background: #f0f8ff;
+        }
+        
+        .mobile-nav-item:hover {
+            color: #007bff !important;
+            background: #f8f9fa;
+        }
+
+        /* Mobile Footer Styles */
+        @media (max-width: 768px) {
+            .mobile-nav {
+                display: flex !important;
+            }
+            
+            .footer {
+                padding: 16px 0 80px 0; /* Add bottom padding for mobile nav */
+                margin-top: 20px;
+            }
+            .footer-content {
+                padding: 0 16px;
+            }
+            .copyright {
+                font-size: 12px;
+                line-height: 1.6;
+            }
         }
 
         .powered-by {
@@ -740,10 +825,66 @@
         </div>
     </div>
     
+    <!-- Mobile Navigation -->
+    @if(isset($isAdminLayout) && $isAdminLayout)
+    <div class="mobile-nav">
+        @php
+            $user = session('user');
+            $isUserRole = $user && $user->role === 'user';
+            $isAdminRole = $user && in_array($user->role, ['admin', 'super_admin']);
+        @endphp
+        
+        @if($isUserRole)
+            <a href="/stock-analytics/admin" class="mobile-nav-item {{ 
+                request()->is('stock-analytics/admin/dashboard*') || 
+                request()->is('stock-analytics/admin') ? 'active' : '' 
+            }}">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="/stock-analytics/admin/requests" class="mobile-nav-item {{ 
+                request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
+            }}">
+                <span>📊</span>
+                <span>Requests</span>
+            </a>
+        @else
+            <a href="/stock-analytics/admin/dashboard" class="mobile-nav-item {{ 
+                request()->is('stock-analytics/admin/dashboard*') ? 'active' : '' 
+            }}">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="/stock-analytics/admin/requests" class="mobile-nav-item {{ 
+                request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
+            }}">
+                <span>📊</span>
+                <span>Requests</span>
+            </a>
+        @endif
+        
+        @if($isAdminRole)
+        <a href="/stock-analytics/admin/users" class="mobile-nav-item {{ request()->is('stock-analytics/admin/users*') ? 'active' : '' }}">
+            <span>👥</span>
+            <span>Users</span>
+        </a>
+        @endif
+        
+        <a href="/stock-analytics/setting/profile" class="mobile-nav-item {{ request()->is('stock-analytics/setting*') ? 'active' : '' }}">
+            <span>⚙️</span>
+            <span>Profile</span>
+        </a>
+    </div>
+    @endif
+    
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <div class="copyright">© 2025 AI Stock Analytics. All Rights Reserved.<br>Developed By ACN Digital Enterprise</div>
+            <div class="copyright">
+                © 2025 AI Stock Analytics.<br>
+                All Rights Reserved.<br>
+                Developed By ACN Digital Enterprise
+            </div>
         </div>
     </footer>
     

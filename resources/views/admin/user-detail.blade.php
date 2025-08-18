@@ -71,7 +71,9 @@
             </div>
             
             <button type="submit" class="btn">Update</button>
-            <a href="{{ route('stock-analytics.admin.users') }}" class="btn secondary" style="margin-left: 12px;">Back</a>
+            <div style="margin-top: 12px;">
+                <a href="{{ route('stock-analytics.admin.users') }}" class="btn secondary">Back</a>
+            </div>
         </form>
         
         <!-- User Role Information -->
@@ -88,6 +90,89 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Layout -->
+    <div class="mobile-card">
+        <div class="mobile-detail" style="display:none;">
+            <form action="{{ route('stock-analytics.admin.users.update', $targetUser->id) }}" method="POST">
+                @csrf
+                
+                <!-- Full Name -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>Full Name</b><br>
+                    <input type="text" name="full_name" value="{{ old('full_name', $targetUser->name) }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    @error('full_name')<div style="color: #dc3545; font-size: 0.8em; margin-top: 4px;">{{ $message }}</div>@enderror
+                </div>
+                
+                <!-- Email Address -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>Email Address</b><br>
+                    <input type="email" name="email" value="{{ old('email', $targetUser->email) }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    @error('email')<div style="color: #dc3545; font-size: 0.8em; margin-top: 4px;">{{ $message }}</div>@enderror
+                </div>
+                
+                <!-- Mobile Number -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>Mobile Number</b><br>
+                    <input type="text" name="mobile_number" value="{{ old('mobile_number', $targetUser->mobile_number) }}" placeholder="Optional" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    @error('mobile_number')<div style="color: #dc3545; font-size: 0.8em; margin-top: 4px;">{{ $message }}</div>@enderror
+                </div>
+                
+                <!-- New Password -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>New Password</b><br>
+                    <div style="color: #666; font-size: 0.8em; margin-bottom: 8px;">Leave empty if you don't want to change password</div>
+                    <input type="password" name="password" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    @error('password')<div style="color: #dc3545; font-size: 0.8em; margin-top: 4px;">{{ $message }}</div>@enderror
+                </div>
+                
+                @if(isset($user) && $user->role === 'super_admin')
+                <!-- Role -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>Role</b><br>
+                    <select name="role" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        <option value="">-- Pilih --</option>
+                        <option value="user" {{ $targetUser->role == 'user' ? 'selected' : '' }}>User</option>
+                        <option value="admin" {{ $targetUser->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                    </select>
+                </div>
+                @endif
+                
+                <!-- Current Role Info -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 16px;">
+                    <b>Current Role</b><br>
+                    {{ ucfirst($targetUser->role ?? 'User') }}
+                    @if($targetUser->role === 'admin')
+                        (Administrator)
+                    @endif
+                </div>
+                
+                <!-- Member Since -->
+                <div style="font-size: 0.9em; color: #000000; margin-bottom: 20px;">
+                    <b>Member Since</b><br>
+                    {{ $targetUser->created_at->format('F j, Y') }}
+                </div>
+                
+                <!-- Action Buttons -->
+                <button type="submit" class="btn" style="width: 100%; margin-bottom: 12px;">Update</button>
+                <a href="{{ route('stock-analytics.admin.users') }}" class="btn secondary" style="width: 100%; text-decoration: none; text-align: center; display: block;">Back</a>
+            </form>
+        </div>
+    </div>
+
+<style>
+@media (max-width: 768px) {
+    .admin-content-container > div:first-child {
+        display: none !important;
+    }
+    .mobile-card {
+        display: block !important;
+    }
+    .mobile-card .mobile-detail {
+        display: block !important;
+    }
+}
+</style>
 @endsection
 
 @section('scripts')
