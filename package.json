@@ -1,5 +1,26 @@
 {
+  "name": "ai-stock-analytics",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acndigitalenterprise/stock-analytics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/acndigitalenterprise/stock-analytics/issues"
+  },
+  "homepage": "https://github.com/acndigitalenterprise/stock-analytics#readme",
+  "description": "",
   "dependencies": {
-    "puppeteer": "^24.16.2"
+    "puppeteer": "^24.17.0"
   }
 }

@@ -45,29 +45,32 @@ class YahooFinanceService
     {
         $result = $yahooData['chart']['result'][0];
         $meta = $result['meta'];
-        $indicators = $result['indicators']['quote'][0];
         
-        // Get latest price data
-        $latestIndex = count($indicators['close']) - 1;
+        // Check if indicators and quote data exist
+        $indicators = $result['indicators']['quote'][0] ?? [];
+        $closeData = $indicators['close'] ?? [];
+        
+        // Get latest price data - fallback to meta if indicators not available
+        $latestIndex = !empty($closeData) ? count($closeData) - 1 : 0;
         
         return [
-            'symbol' => $meta['symbol'],
-            'currency' => $meta['currency'],
-            'exchange' => $meta['exchangeName'],
-            'company_name' => $meta['longName'],
-            'current_price' => $meta['regularMarketPrice'],
-            'previous_close' => $meta['previousClose'] ?? $meta['regularMarketPrice'],
-            'day_high' => $meta['regularMarketDayHigh'] ?? $meta['regularMarketPrice'],
-            'day_low' => $meta['regularMarketDayLow'] ?? $meta['regularMarketPrice'],
+            'symbol' => $meta['symbol'] ?? 'N/A',
+            'currency' => $meta['currency'] ?? 'IDR',
+            'exchange' => $meta['exchangeName'] ?? 'IDX',
+            'company_name' => $meta['longName'] ?? $meta['symbol'] ?? 'N/A',
+            'current_price' => $meta['regularMarketPrice'] ?? 0,
+            'previous_close' => $meta['previousClose'] ?? $meta['regularMarketPrice'] ?? 0,
+            'day_high' => $meta['regularMarketDayHigh'] ?? $meta['regularMarketPrice'] ?? 0,
+            'day_low' => $meta['regularMarketDayLow'] ?? $meta['regularMarketPrice'] ?? 0,
             'volume' => $meta['regularMarketVolume'] ?? 0,
-            'fifty_two_week_high' => $meta['fiftyTwoWeekHigh'] ?? $meta['regularMarketPrice'],
-            'fifty_two_week_low' => $meta['fiftyTwoWeekLow'] ?? $meta['regularMarketPrice'],
-            'latest_close' => $indicators['close'][$latestIndex] ?? $meta['regularMarketPrice'],
-            'latest_high' => $indicators['high'][$latestIndex] ?? $meta['regularMarketPrice'],
-            'latest_low' => $indicators['low'][$latestIndex] ?? $meta['regularMarketPrice'],
-            'latest_open' => $indicators['open'][$latestIndex] ?? $meta['regularMarketPrice'],
-            'latest_volume' => $indicators['volume'][$latestIndex] ?? 0,
-            'timestamp' => $result['timestamp'][$latestIndex] ?? null,
+            'fifty_two_week_high' => $meta['fiftyTwoWeekHigh'] ?? $meta['regularMarketPrice'] ?? 0,
+            'fifty_two_week_low' => $meta['fiftyTwoWeekLow'] ?? $meta['regularMarketPrice'] ?? 0,
+            'latest_close' => $closeData[$latestIndex] ?? $meta['regularMarketPrice'] ?? 0,
+            'latest_high' => ($indicators['high'][$latestIndex] ?? null) ?? $meta['regularMarketPrice'] ?? 0,
+            'latest_low' => ($indicators['low'][$latestIndex] ?? null) ?? $meta['regularMarketPrice'] ?? 0,
+            'latest_open' => ($indicators['open'][$latestIndex] ?? null) ?? $meta['regularMarketPrice'] ?? 0,
+            'latest_volume' => ($indicators['volume'][$latestIndex] ?? null) ?? 0,
+            'timestamp' => ($result['timestamp'][$latestIndex] ?? null) ?? time(),
             'timezone' => $meta['timezone'] ?? 'WIB',
         ];
     }

@@ -1,0 +1,390 @@
+/* =================================
+   SETTINGS PAGE STYLES
+   ================================= */
+
+/* Settings Container */
+.settings-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Settings Page Title */
+.settings-title {
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.settings-section-title {
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.settings-section-title:not(:first-of-type) {
+    margin-top: 40px;
+}
+
+/* Settings Form */
+.settings-form {
+    width: 100%;
+}
+
+.settings-field {
+    margin-bottom: 15px;
+}
+
+.settings-label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.settings-label .required {
+    color: #dc3545;
+}
+
+.settings-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.settings-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.settings-input:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Settings Validation Errors */
+.settings-error {
+    color: #dc3545 !important;
+    font-size: 0.85em;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Settings Note */
+.settings-note {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #007bff;
+}
+
+/* Settings Actions */
+.settings-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.settings-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    font-weight: 500;
+}
+
+.settings-btn-primary {
+    background: #333;
+    color: white !important;
+}
+
+.settings-btn-primary:hover:not(:disabled) {
+    background: #555;
+}
+
+.settings-btn-primary:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.settings-btn-secondary {
+    background: #6c757d;
+    color: white !important;
+}
+
+.settings-btn-secondary:hover:not(:disabled) {
+    background: #545b62;
+}
+
+.settings-btn-success {
+    background: #28a745;
+    color: white !important;
+}
+
+.settings-btn-success:hover:not(:disabled) {
+    background: #218838;
+}
+
+/* Settings Messages */
+.settings-message {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.settings-message.settings-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724 !important;
+}
+
+.settings-message.settings-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24 !important;
+}
+
+.settings-message.settings-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460 !important;
+}
+
+.settings-message.settings-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404 !important;
+}
+
+/* Settings Password Field */
+.settings-password-container {
+    position: relative;
+}
+
+.settings-password-field {
+    padding-right: 40px !important;
+}
+
+.settings-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.settings-password-toggle:hover {
+    color: #333;
+}
+
+.settings-password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Settings Card Layout */
+.settings-card {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #eee;
+}
+
+/* Settings Mobile Responsive */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 16px;
+        margin: 0 16px;
+    }
+    
+    .settings-card {
+        padding: 20px;
+    }
+    
+    .settings-title {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+    
+    .settings-section-title {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+    
+    .settings-section-title:not(:first-of-type) {
+        margin-top: 30px;
+    }
+    
+    .settings-actions {
+        flex-direction: column;
+        margin-top: 20px;
+    }
+    
+    .settings-btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .settings-field {
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-container {
+        padding: 12px;
+        margin: 0 8px;
+    }
+    
+    .settings-card {
+        padding: 16px;
+    }
+    
+    .settings-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .settings-btn {
+        padding: 14px 20px;
+    }
+}
+
+/* Settings Loading State */
+.settings-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.settings-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: settings-spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes settings-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Settings Utility Classes */
+.settings-text-center {
+    text-align: center;
+}
+
+.settings-text-left {
+    text-align: left;
+}
+
+.settings-text-right {
+    text-align: right;
+}
+
+.settings-mb-small {
+    margin-bottom: 8px;
+}
+
+.settings-mb-medium {
+    margin-bottom: 16px;
+}
+
+.settings-mb-large {
+    margin-bottom: 24px;
+}
+
+.settings-mt-small {
+    margin-top: 8px;
+}
+
+.settings-mt-medium {
+    margin-top: 16px;
+}
+
+.settings-mt-large {
+    margin-top: 24px;
+}
+
+/* Settings Focus States */
+.settings-form:focus-within .settings-input {
+    transition: all 0.3s ease;
+}
+
+/* Settings Animation */
+.settings-fade-in {
+    animation: settings-fadeIn 0.3s ease-in;
+}
+
+@keyframes settings-fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Settings Accessibility */
+.settings-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Settings Dark Mode Support (Future) */
+@media (prefers-color-scheme: dark) {
+    .settings-card {
+        background: #1a1a1a;
+        border-color: #333;
+        color: #fff;
+    }
+    
+    .settings-input {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #fff;
+    }
+    
+    .settings-input:focus {
+        border-color: #007bff;
+    }
+    
+    .settings-title,
+    .settings-section-title,
+    .settings-label {
+        color: #fff;
+    }
+    
+    .settings-note {
+        background-color: #2a2a2a;
+        color: #ccc;
+    }
+}

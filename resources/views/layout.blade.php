@@ -4,19 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://*.tradingview.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://*.tradingview.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: https:; media-src 'self'; object-src 'none'; frame-src https://*.tradingview.com;">
     <title>@yield('title', 'Stock Analytics')</title>
+    <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}?v={{ time() }}">
     <style>
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
             background: #f8f8f8; 
-            color: #000000;
+            color: #ffffff;
         }
         
         /* Global text color override */
         * {
-            color: #000000 !important;
+            color: #ffffff !important;
         }
         
         /* Exception for buttons to keep their readable colors */
@@ -26,7 +28,7 @@
         
         /* Exception for specific button types */
         .btn.secondary {
-            color: #333 !important;
+            color: #ffffff !important;
         }
         
         /* Exception for error messages to stay red */
@@ -58,7 +60,7 @@
         
         .sidebar a { 
             display: block; 
-            color: #333; 
+            color: #ffffff; 
             text-decoration: none; 
             padding: 12px 24px; 
             margin-bottom: 4px;
@@ -148,7 +150,7 @@
             display: block; 
             margin-bottom: 6px; 
             font-weight: bold;
-            color: #333;
+            color: #ffffff;
         }
         
         input, select, textarea { 
@@ -189,7 +191,7 @@
         .table th { 
             background: #f8f8f8; 
             font-weight: bold;
-            color: #333;
+            color: #ffffff;
         }
         
         .table tr:hover {
@@ -255,7 +257,7 @@
         .loading-indicator {
             text-align: center;
             padding: 10px;
-            color: #666;
+            color: #cccccc;
             font-style: italic;
         }
         
@@ -307,7 +309,7 @@
         }
         
         .autocomplete-item .stock-name {
-            color: #666;
+            color: #cccccc;
             font-size: 0.9em;
         }
 
@@ -355,7 +357,7 @@
 
         .mobile-card-date {
             font-size: 0.85em;
-            color: #666;
+            color: #cccccc;
             font-weight: bold;
         }
 
@@ -378,7 +380,7 @@
 
         .mobile-card-label {
             font-size: 0.75em;
-            color: #666;
+            color: #cccccc;
             margin-bottom: 4px;
             text-transform: uppercase;
             font-weight: bold;
@@ -386,7 +388,7 @@
 
         .mobile-card-value {
             font-size: 0.9em;
-            color: #333;
+            color: #ffffff;
             font-weight: 500;
         }
 
@@ -400,14 +402,14 @@
 
         .mobile-card-advice-label {
             font-size: 0.8em;
-            color: #666;
+            color: #cccccc;
             margin-bottom: 8px;
             font-weight: bold;
         }
 
         .mobile-card-advice-content {
             font-size: 0.85em;
-            color: #333;
+            color: #ffffff;
             line-height: 1.4;
             max-height: 80px;
             overflow: hidden;
@@ -429,19 +431,19 @@
         /* Markdown Rendering Styles */
         .advice-content {
             line-height: 1.6;
-            color: #333;
+            color: #ffffff;
         }
 
         .advice-content strong {
             font-weight: bold;
-            color: #000;
+            color: #ffffff;
         }
 
         .advice-content h3 {
             font-size: 1.1em;
             font-weight: bold;
             margin: 16px 0 8px 0;
-            color: #000;
+            color: #ffffff;
             border-bottom: 1px solid #eee;
             padding-bottom: 4px;
         }
@@ -553,7 +555,7 @@
         
         /* Mobile Navigation Styles */
         .mobile-nav {
-            display: none;
+            display: none !important; /* Force hide on desktop */
             position: fixed;
             bottom: 0;
             left: 0;
@@ -571,7 +573,7 @@
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: #666 !important;
+            color: #cccccc !important;
             padding: 8px 4px;
             border-radius: 4px;
             min-width: 60px;
@@ -763,143 +765,401 @@
     @yield('head')
 </head>
 <body class="@yield('body-class')">
-    @include('partials.header')
-    {{-- @yield('header-right') --}}
-    {{-- @yield('after-header') --}}
-    <!-- Main Container -->
-    <div class="main-container">
-        @if(isset($isAdminLayout) && $isAdminLayout)
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-content">
+    @php
+        $isAdminPage = request()->is('stock-analytics/admin*') || request()->is('stock-analytics/setting*');
+    @endphp
+    
+    @if($isAdminPage && session()->has('user'))
+        <!-- MOBILE ADMIN LAYOUT -->
+        <div class="mobile-admin-container">
+            <!-- Mobile Header -->
+            <header class="mobile-admin-header">
+                <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <h1 class="mobile-header-title">AI Insights</h1>
+                <div class="mobile-welcome-text">
+                    Welcome,<br>{{ session('user')->name ?? session('user')->email ?? 'User' }}
+                </div>
+            </header>
+            
+            <!-- Mobile Sidebar Overlay -->
+            <div class="mobile-sidebar-overlay" onclick="closeMobileSidebar()"></div>
+            
+            <!-- Mobile Sidebar -->
+            <nav class="mobile-sidebar" id="mobileSidebar">
+                <div class="mobile-sidebar-header">
+                    <h3>Navigation</h3>
+                    <button class="mobile-sidebar-close" onclick="closeMobileSidebar()">&times;</button>
+                </div>
+                <div class="mobile-sidebar-menu">
                     @php
                         $user = session('user');
                         $isUserRole = $user && $user->role === 'user';
                         $isAdminRole = $user && in_array($user->role, ['admin', 'super_admin']);
                     @endphp
                     
-                    @if($isUserRole)
-                        <a href="/stock-analytics/admin" class="{{ 
-                            request()->is('stock-analytics/admin/dashboard*') || 
-                            request()->is('stock-analytics/admin') ? 'active' : '' 
-                        }}">
-                            Home
-                        </a>
-                        <a href="/stock-analytics/admin/requests" class="{{ 
+                    <!-- Stock Group Menu -->
+                    <div class="mobile-menu-group">
+                        <div class="mobile-menu-group-title">Stocks</div>
+                        
+                        @if($isUserRole)
+                            <a href="/stock-analytics/admin" class="mobile-sidebar-link mobile-submenu-link {{ 
+                                request()->is('stock-analytics/admin/dashboard*') || 
+                                request()->is('stock-analytics/admin') ? 'active' : '' 
+                            }}">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="/stock-analytics/admin/dashboard" class="mobile-sidebar-link mobile-submenu-link {{ 
+                                request()->is('stock-analytics/admin/dashboard*') ? 'active' : '' 
+                            }}">
+                                Dashboard
+                            </a>
+                        @endif
+                        
+                        <a href="/stock-analytics/admin/requests" class="mobile-sidebar-link mobile-submenu-link {{ 
                             request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
                         }}">
                             Requests
                         </a>
-                    @else
-                        <a href="/stock-analytics/admin/dashboard" class="{{ 
-                            request()->is('stock-analytics/admin/dashboard*') ? 'active' : '' 
-                        }}">
-                            Home
+                        
+                        @if($isAdminRole)
+                        <a href="/stock-analytics/admin/users" class="mobile-sidebar-link mobile-submenu-link {{ request()->is('stock-analytics/admin/users*') ? 'active' : '' }}">
+                            Users
                         </a>
-                        <a href="/stock-analytics/admin/requests" class="{{ 
-                            request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
-                        }}">
-                            Requests
-                        </a>
-                    @endif
-                    @if(session('user') && in_array(session('user')->role, ['admin', 'super_admin']))
-                    <a href="/stock-analytics/admin/users" class="{{ request()->is('stock-analytics/admin/users*') ? 'active' : '' }}">
-                        Users
+                        @endif
+                    </div>
+                    
+                    <!-- Other Menu Items -->
+                    <a href="/stock-analytics/setting" class="mobile-sidebar-link {{ request()->is('stock-analytics/setting*') ? 'active' : '' }}">
+                        Setting
                     </a>
-                    @endif
-                    <div class="sidebar-menu-group">
-                        <a href="#" class="{{ request()->is('stock-analytics/setting*') ? 'active' : '' }}" onclick="toggleSettingMenu(event)">
-                            Setting
-                        </a>
-                        <div id="setting-submenu" class="sidebar-submenu" style="display: {{ request()->is('stock-analytics/setting*') ? 'block' : 'none' }};">
-                            <a href="/stock-analytics/setting/profile" class="{{ request()->is('stock-analytics/setting/profile') ? 'active' : '' }}">Profile</a>
+                    
+                    <!-- Sign Out -->
+                    <form action="{{ route('stock-analytics.logout') }}" method="POST" class="mobile-signout-form">
+                        @csrf
+                        <button type="submit" class="mobile-sidebar-link mobile-signout-btn">
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
+            </nav>
+
+            <!-- Mobile Content -->
+            <main class="mobile-admin-content">
+                @yield('content')
+            </main>
+            
+            <!-- Mobile Footer -->
+            <footer class="mobile-footer">
+                <div class="mobile-footer-content">
+                    &copy; {{ date('Y') }} AI Insights - AI Stock Analytics. All rights reserved.
+                </div>
+            </footer>
+        </div>
+        
+        <!-- DESKTOP ADMIN LAYOUT -->
+        <div class="admin-layout-container">
+                <!-- Admin Header -->
+                <header class="admin-header">
+                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <h1 class="admin-header-title">AI Insights</h1>
+                    <div class="admin-header-center">
+                        <span class="admin-user-info">
+                            Welcome, {{ session('user')->name ?? session('user')->email ?? 'User' }}
+                        </span>
+                    </div>
+                    <div class="admin-header-actions">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-btn" onclick="toggleUserDropdown()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="user-dropdown-menu" id="userDropdownMenu">
+                                <a href="/stock-analytics/setting" class="user-dropdown-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    Setting
+                                </a>
+                                <form action="{{ route('stock-analytics.logout') }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    <button type="submit" class="user-dropdown-item">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Sign Out
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
+                </header>
+                
+                <!-- Mobile Sidebar Overlay -->
+                <div class="mobile-sidebar-overlay" onclick="closeMobileMenu()"></div>
+                
+                <!-- Main Content Area -->
+                <div class="admin-main-content">
+                    <!-- Admin Sidebar -->
+                    <nav class="admin-sidebar" id="adminSidebar">
+                        <div class="admin-sidebar-menu">
+                            @php
+                                $user = session('user');
+                                $isUserRole = $user && $user->role === 'user';
+                                $isAdminRole = $user && in_array($user->role, ['admin', 'super_admin']);
+                            @endphp
+                            
+                            <!-- Stocks Group -->
+                            <div class="admin-menu-group">
+                                <div class="admin-menu-group-title">Stocks</div>
+                                <div class="admin-menu-group-items">
+                                    @if($isUserRole)
+                                        <a href="/stock-analytics/admin" class="admin-menu-item {{ 
+                                            request()->is('stock-analytics/admin/dashboard*') || 
+                                            request()->is('stock-analytics/admin') ? 'active' : '' 
+                                        }}">
+                                            Dashboard
+                                        </a>
+                                    @else
+                                        <a href="/stock-analytics/admin/dashboard" class="admin-menu-item {{ 
+                                            request()->is('stock-analytics/admin/dashboard*') ? 'active' : '' 
+                                        }}">
+                                            Dashboard
+                                        </a>
+                                    @endif
+                                    <a href="/stock-analytics/admin/requests" class="admin-menu-item {{ 
+                                        request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
+                                    }}">
+                                        Requests
+                                    </a>
+                                    @if($isAdminRole)
+                                    <a href="/stock-analytics/admin/users" class="admin-menu-item {{ request()->is('stock-analytics/admin/users*') ? 'active' : '' }}">
+                                        Users
+                                    </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    <!-- Admin Body Content -->
+                    <main class="admin-body">
+                        @yield('content')
+                    </main>
                 </div>
-            </div>
-        @endif
-        
-        <!-- Content Area -->
-        <div class="content @if(isset($isAdminLayout) && $isAdminLayout) admin-layout @endif">
-            @yield('content')
+                
+                <!-- Admin Footer -->
+                <footer class="admin-footer">
+                    <div class="admin-footer-content">
+                        &copy; {{ date('Y') }} AI Insights - AI Stock Analytics. All rights reserved.
+                    </div>
+                </footer>
         </div>
-    </div>
-    
-    <!-- Mobile Navigation -->
-    @if(isset($isAdminLayout) && $isAdminLayout)
-    <div class="mobile-nav">
-        @php
-            $user = session('user');
-            $isUserRole = $user && $user->role === 'user';
-            $isAdminRole = $user && in_array($user->role, ['admin', 'super_admin']);
-        @endphp
-        
-        @if($isUserRole)
-            <a href="/stock-analytics/admin" class="mobile-nav-item {{ 
-                request()->is('stock-analytics/admin/dashboard*') || 
-                request()->is('stock-analytics/admin') ? 'active' : '' 
-            }}">
-                <span>🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="/stock-analytics/admin/requests" class="mobile-nav-item {{ 
-                request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
-            }}">
-                <span>📊</span>
-                <span>Requests</span>
-            </a>
-        @else
-            <a href="/stock-analytics/admin/dashboard" class="mobile-nav-item {{ 
-                request()->is('stock-analytics/admin/dashboard*') ? 'active' : '' 
-            }}">
-                <span>🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="/stock-analytics/admin/requests" class="mobile-nav-item {{ 
-                request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
-            }}">
-                <span>📊</span>
-                <span>Requests</span>
-            </a>
-        @endif
-        
-        @if($isAdminRole)
-        <a href="/stock-analytics/admin/users" class="mobile-nav-item {{ request()->is('stock-analytics/admin/users*') ? 'active' : '' }}">
-            <span>👥</span>
-            <span>Users</span>
-        </a>
-        @endif
-        
-        <a href="/stock-analytics/setting/profile" class="mobile-nav-item {{ request()->is('stock-analytics/setting*') ? 'active' : '' }}">
-            <span>⚙️</span>
-            <span>Profile</span>
-        </a>
-    </div>
+    @else
+        <!-- Default Layout for non-admin pages -->
+        @include('Partials.header')
+        <div class="main-container">
+            @include('Partials.sidebar')
+            <div class="content @if(isset($isAdminLayout) && $isAdminLayout) admin-layout @endif">
+                @yield('content')
+            </div>
+        </div>
+        @include('Partials.footer')
     @endif
-    
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="copyright">
-                © 2025 AI Stock Analytics.<br>
-                All Rights Reserved.<br>
-                Developed By ACN Digital Enterprise
-            </div>
-        </div>
-    </footer>
     
     <script src="{{ asset('js/app.js') }}"></script>
     @yield('scripts')
+    
+    <!-- Mobile Layout Detection Script -->
     <script>
-function toggleSettingMenu(e) {
-    e.preventDefault();
-    var submenu = document.getElementById('setting-submenu');
-    if (submenu.style.display === 'block') {
-        submenu.style.display = 'none';
-    } else {
-        submenu.style.display = 'block';
+    function initMobileLayout() {
+        const isMobile = window.innerWidth <= 768 || 
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        const mobileContainer = document.querySelector('.mobile-admin-container');
+        const desktopContainer = document.querySelector('.admin-layout-container');
+        
+        if (mobileContainer && desktopContainer) {
+            if (isMobile || window.innerWidth <= 768) {
+                // Force mobile layout
+                mobileContainer.style.display = 'flex';
+                mobileContainer.style.flexDirection = 'column';
+                mobileContainer.style.minHeight = '100vh';
+                desktopContainer.style.display = 'none';
+                document.body.classList.add('mobile-layout-active');
+            } else {
+                // Force desktop layout  
+                mobileContainer.style.display = 'none';
+                desktopContainer.style.display = 'flex';
+                desktopContainer.style.flexDirection = 'column';
+                desktopContainer.style.minHeight = '100vh';
+                document.body.classList.remove('mobile-layout-active');
+            }
+        }
     }
-}
+    
+    // Optimized: Only run once, use CSS for responsive behavior
+    </script>
+    
+    <script>
+    // Sidebar Accordion Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Debug: Check if elements exist
+        const groupTitles = document.querySelectorAll('.admin-menu-group-title');
+        const groupItems = document.querySelectorAll('.admin-menu-group-items');
+        
+        console.log('Group titles found:', groupTitles.length);
+        console.log('Group items found:', groupItems.length);
+        
+        if (groupTitles.length === 0) {
+            console.log('No group titles found, sidebar accordion not initialized');
+            return;
+        }
+        
+        // Set default state - Stocks open, Life closed
+        groupTitles.forEach(function(title, index) {
+            const items = title.nextElementSibling;
+            
+            if (index === 0) {
+                // First group (Stocks) - open
+                title.classList.remove('collapsed');
+                if (items) items.classList.remove('collapsed');
+            } else {
+                // Other groups - closed
+                title.classList.add('collapsed');
+                if (items) items.classList.add('collapsed');
+            }
+        });
+        
+        // Add click handlers
+        groupTitles.forEach(function(title) {
+            title.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Group clicked:', this.textContent);
+                
+                const currentItems = this.nextElementSibling;
+                const isCurrentlyOpen = !this.classList.contains('collapsed');
+                
+                // Close all groups first
+                groupTitles.forEach(function(otherTitle) {
+                    const otherItems = otherTitle.nextElementSibling;
+                    
+                    otherTitle.classList.add('collapsed');
+                    if (otherItems) otherItems.classList.add('collapsed');
+                });
+                
+                // If the clicked group was closed, open it
+                if (!isCurrentlyOpen) {
+                    this.classList.remove('collapsed');
+                    if (currentItems) currentItems.classList.remove('collapsed');
+                }
+            });
+        });
+    });
+    </script>
+    
+    <script>
+    // User Dropdown Functionality
+    function toggleUserDropdown() {
+        const dropdown = document.getElementById('userDropdownMenu');
+        dropdown.classList.toggle('show');
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('userDropdownMenu');
+        const button = document.querySelector('.user-dropdown-btn');
+        
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // Close dropdown when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const dropdown = document.getElementById('userDropdownMenu');
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // Mobile Menu Functionality
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.querySelector('.mobile-sidebar-overlay');
+        
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+    }
+    
+    function closeMobileMenu() {
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.querySelector('.mobile-sidebar-overlay');
+        
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+    }
+    
+    // Mobile Sidebar Functionality (for mobile layout)
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('mobileSidebar');
+        const overlay = document.querySelector('.mobile-sidebar-overlay');
+        
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+    }
+    
+    function closeMobileSidebar() {
+        const sidebar = document.getElementById('mobileSidebar');
+        const overlay = document.querySelector('.mobile-sidebar-overlay');
+        
+        if (sidebar && overlay) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+    }
+    
+    // Close mobile menu when window is resized to desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            closeMobileMenu();
+        }
+    });
+    </script>
+    
+    <script>
+// Page titles management
+document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname;
+    let title = 'Stock Analytics';
+    
+    if (path.includes('/admin/users')) {
+        title = 'Users - Stock Analytics';
+    } else if (path.includes('/admin/requests') || path.includes('/admin/stocks')) {
+        title = 'Requests - Stock Analytics';
+    } else if (path.includes('/admin')) {
+        title = 'Dashboard - Stock Analytics';
+    } else if (path.includes('/setting')) {
+        title = 'Setting - Stock Analytics';
+    }
+    
+    document.title = title;
+});
 </script>
 </body>
 </html> 

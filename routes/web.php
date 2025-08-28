@@ -12,8 +12,37 @@ Route::get('/', function () {
     if (session()->has('user')) {
         return redirect()->route('stock-analytics.admin');
     }
-    return view('welcome');
+    return view('Homepage.homepage');
 })->name('home');
+
+// ✅ Separate Sign Up and Sign In pages
+Route::get('/sign-up', function () {
+    // Check if user is logged in
+    if (session()->has('user')) {
+        return redirect()->route('stock-analytics.admin');
+    }
+    return view('Auth.signup');
+})->name('signup.page');
+
+Route::get('/sign-in', function () {
+    // Check if user is logged in
+    if (session()->has('user')) {
+        return redirect()->route('stock-analytics.admin');
+    }
+    return view('Auth.signin');
+})->name('signin.page');
+
+Route::get('/forgot-password', function () {
+    // Check if user is logged in
+    if (session()->has('user')) {
+        return redirect()->route('stock-analytics.admin');
+    }
+    return view('Auth.forgot-password');
+})->name('forgot-password.page');
+
+Route::get('/email-verified', function () {
+    return view('Auth.verify-email');
+})->name('email-verified.page');
 
 // Public Stock Analytics page - now shows welcome page
 Route::get('/stock-analytics', function () {
@@ -21,7 +50,7 @@ Route::get('/stock-analytics', function () {
     if (session()->has('user')) {
         return redirect()->route('stock-analytics.admin');
     }
-    return view('welcome');
+    return view('Homepage.homepage');
 })->name('stock-analytics.index');
 Route::post('/stock-analytics', [StockAnalyticsController::class, 'submit'])
     ->middleware('rate_limit:stock_submit')
@@ -83,12 +112,9 @@ Route::middleware('auth.session')->group(function () {
     // Detail request (admin) - update title in view
     Route::get('/stock-analytics/admin/request/{id}/detail', [App\Http\Controllers\AdminController::class, 'detail'])->name('stock-analytics.admin.detail');
     
-    // Setting submenu - update profile route
-    Route::get('/stock-analytics/setting/profile', [SettingController::class, 'profile'])->name('stock-analytics.setting.profile');
-    Route::post('/stock-analytics/setting/profile', [SettingController::class, 'updateProfile'])->name('stock-analytics.setting.profile.update');
-    // Keep legacy route for backward compatibility
-    Route::get('/stock-analytics/setting/user', [SettingController::class, 'profile'])->name('stock-analytics.setting.user');
-    Route::post('/stock-analytics/setting/user', [SettingController::class, 'updateProfile'])->name('stock-analytics.setting.user.update');
+    // Setting menu (independent)
+    Route::get('/stock-analytics/setting', [SettingController::class, 'profile'])->name('stock-analytics.setting');
+    Route::post('/stock-analytics/setting', [SettingController::class, 'updateProfile'])->name('stock-analytics.setting.update');
     
     // Get advice
     Route::get('/stock-analytics/admin/request/{id}/advice', [AdminController::class, 'getAdvice'])->name('stock-analytics.admin.advice');
@@ -102,6 +128,15 @@ Route::get('/stock-analytics/confirmation', function() {
 Route::get('/stock-analytics/registration-success', function() {
     return view('registration-success');
 })->name('stock-analytics.registration-success');
+
+// Privacy Policy and Disclaimer pages
+Route::get('/privacy-policy', function() {
+    return view('privacy-policy');
+})->name('privacy-policy');
+
+Route::get('/disclaimer', function() {
+    return view('disclaimer');
+})->name('disclaimer');
 
 // Route to view sent emails (for testing)
 Route::get('/stock-analytics/view-emails', function() {

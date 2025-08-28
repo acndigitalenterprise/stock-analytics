@@ -149,9 +149,19 @@ class SignUpRequest extends FormRequest
             'input' => $this->except(['password', 'password_confirmation']),
         ]);
 
-        // Add signup_error to redirect back with proper error handling
+        // Check if email validation failed and add specific message
         $errors = $validator->errors();
-        $errors->add('signup_error', 'Please correct the errors below and try again.');
+        
+        if ($errors->has('email')) {
+            // If email error exists, replace generic message with specific one
+            if ($errors->first('email') === 'Email Address Already Registered') {
+                $errors->add('signup_error', 'Email Address Already Registered');
+            } else {
+                $errors->add('signup_error', 'Please correct the errors below and try again.');
+            }
+        } else {
+            $errors->add('signup_error', 'Please correct the errors below and try again.');
+        }
 
         throw new \Illuminate\Validation\ValidationException($validator);
     }

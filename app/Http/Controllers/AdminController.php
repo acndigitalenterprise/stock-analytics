@@ -182,7 +182,7 @@ class AdminController extends Controller
         if (!in_array($user->role, ['admin', 'super_admin']) && $stockRequest->user_id !== $user->id) {
             return redirect()->route('stock-analytics.admin.requests')->withErrors(['error' => 'Unauthorized.']);
         }
-        return view('admin.detail', compact('stockRequest', 'user'));
+        return view('Requests.request-detail', compact('stockRequest', 'user'));
     }
 
     // ensureJKFormat and getCompanyName moved to StockService
@@ -232,59 +232,94 @@ class AdminController extends Controller
             return redirect()->route('stock-analytics.index');
         }
 
-        // Calculate role-based metrics
-        $isAdminOrSuperAdmin = in_array($user->role, ['admin', 'super_admin']);
+        // Cache key for metrics based on user role and ID
+        $cacheKey = "dashboard_metrics_{$user->role}_{$user->id}";
+        $cacheDuration = 300; // 5 minutes
         
-        if ($isAdminOrSuperAdmin) {
-            // Admin metrics - all data
-            $totalRequests = \App\Models\Request::count();
-            $totalStocks = \App\Models\Request::distinct('stock_code')->count('stock_code');
-            $totalWins = \App\Models\Request::where('result', 'WIN')->count();
-            $totalLoss = \App\Models\Request::where('result', 'LOSS')->count();
-            $totalTimeout = \App\Models\Request::where('result', 'TIMEOUT')->count();
-            $totalUsers = User::count();
+        $metrics = \Cache::remember($cacheKey, $cacheDuration, function() use ($user) {
+            $isAdminOrSuperAdmin = in_array($user->role, ['admin', 'super_admin']);
             
-            // Active users (users who made requests in last 30 days)
-            $activeUsers = User::whereHas('requests', function($query) {
-                $query->where('created_at', '>=', now()->subDays(30));
-            })->count();
-            $inactiveUsers = $totalUsers - $activeUsers;
-        } else {
-            // User metrics - only their own data
-            $totalRequests = \App\Models\Request::where('user_id', $user->id)->count();
-            $totalStocks = \App\Models\Request::where('user_id', $user->id)->distinct('stock_code')->count('stock_code');
-            $totalWins = \App\Models\Request::where('user_id', $user->id)->where('result', 'WIN')->count();
-            $totalLoss = \App\Models\Request::where('user_id', $user->id)->where('result', 'LOSS')->count();
-            $totalTimeout = \App\Models\Request::where('user_id', $user->id)->where('result', 'TIMEOUT')->count();
-            
-            // User role doesn't see user management metrics
-            $totalUsers = null;
-            $activeUsers = null;
-            $inactiveUsers = null;
-        }
-
-        // Get market insights (cached or fresh if requested)
-        $marketInsights = null;
-        try {
-            $cacheService = app(\App\Services\CacheService::class);
-            
-            // Check if user requested fresh data
-            if (request()->has('refresh_market')) {
-                $marketInsights = $cacheService->refreshMarketInsights();
+            if ($isAdminOrSuperAdmin) {
+                // Admin metrics - optimized single query where possible
+                $requestStats = \App\Models\Request::selectRaw('
+                    COUNT(*) as total_requests,
+                    COUNT(DISTINCT stock_code) as total_stocks,
+                    SUM(CASE WHEN result = "WIN" THEN 1 ELSE 0 END) as total_wins,
+                    SUM(CASE WHEN result = "LOSS" THEN 1 ELSE 0 END) as total_loss,
+                    SUM(CASE WHEN result = "TIMEOUT" THEN 1 ELSE 0 END) as total_timeout
+                ')->first();
+                
+                $userStats = User::selectRaw('
+                    COUNT(*) as total_users,
+                    SUM(CASE WHEN EXISTS (
+                        SELECT 1 FROM requests r WHERE r.user_id = users.id AND r.created_at >= ?
+                    ) THEN 1 ELSE 0 END) as active_users
+                ', [now()->subDays(30)])->first();
+                
+                return [
+                    'totalRequests' => $requestStats->total_requests,
+                    'totalStocks' => $requestStats->total_stocks,
+                    'totalWins' => $requestStats->total_wins,
+                    'totalLoss' => $requestStats->total_loss,
+                    'totalTimeout' => $requestStats->total_timeout,
+                    'totalUsers' => $userStats->total_users,
+                    'activeUsers' => $userStats->active_users,
+                    'inactiveUsers' => $userStats->total_users - $userStats->active_users,
+                ];
             } else {
-                $marketInsights = $cacheService->getMarketInsights();
+                // User metrics - single optimized query
+                $userStats = \App\Models\Request::where('user_id', $user->id)
+                    ->selectRaw('
+                        COUNT(*) as total_requests,
+                        COUNT(DISTINCT stock_code) as total_stocks,
+                        SUM(CASE WHEN result = "WIN" THEN 1 ELSE 0 END) as total_wins,
+                        SUM(CASE WHEN result = "LOSS" THEN 1 ELSE 0 END) as total_loss,
+                        SUM(CASE WHEN result = "TIMEOUT" THEN 1 ELSE 0 END) as total_timeout
+                    ')->first();
+                
+                return [
+                    'totalRequests' => $userStats->total_requests,
+                    'totalStocks' => $userStats->total_stocks,
+                    'totalWins' => $userStats->total_wins,
+                    'totalLoss' => $userStats->total_loss,
+                    'totalTimeout' => $userStats->total_timeout,
+                    'totalUsers' => null,
+                    'activeUsers' => null,
+                    'inactiveUsers' => null,
+                ];
             }
-        } catch (\Exception $e) {
-            \Log::error('Failed to load market insights', ['error' => $e->getMessage()]);
-            $marketInsights = [
-                'success' => false,
-                'error' => 'Market data temporarily unavailable',
-                'top_active' => [],
-                'top_promising' => []
-            ];
+        });
+        
+        // Extract metrics from cache
+        extract($metrics);
+
+        // Get market insights - cached with longer duration for faster loading
+        $marketInsights = \Cache::remember('market_insights', 1800, function() { // 30 minutes cache
+            try {
+                $cacheService = app(\App\Services\CacheService::class);
+                return $cacheService->getMarketInsights();
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => 'Market data temporarily unavailable',
+                    'top_active' => [],
+                    'top_promising' => []
+                ];
+            }
+        });
+        
+        // Allow manual refresh if requested
+        if (request()->has('refresh_market')) {
+            try {
+                $cacheService = app(\App\Services\CacheService::class);
+                $marketInsights = $cacheService->refreshMarketInsights();
+                \Cache::put('market_insights', $marketInsights, 1800);
+            } catch (\Exception $e) {
+                // Keep cached version if refresh fails
+            }
         }
 
-        return view('admin.dashboard', compact(
+        return view('Dashboard.dashboard', compact(
             'totalRequests', 'totalStocks', 'totalWins', 'totalLoss', 'totalTimeout',
             'totalUsers', 'activeUsers', 'inactiveUsers', 'marketInsights', 'user'
         ));
@@ -293,7 +328,7 @@ class AdminController extends Controller
     public function stocks(Request $request)
     {
         $data = $this->getRequestsData($request);
-        return view('admin.requests', $data);
+        return view('Requests.requests', $data);
     }
 
     public function users(Request $request)
@@ -314,7 +349,7 @@ class AdminController extends Controller
         if ($request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('full_name', 'LIKE', "%{$search}%")
+                $q->where('name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
                   ->orWhere('mobile_number', 'LIKE', "%{$search}%");
             });
@@ -331,7 +366,7 @@ class AdminController extends Controller
             $users = $query->withCount('requests')->orderBy($sortBy, $sortOrder)->paginate($request->get('per_page', 10));
         }
 
-        return view('admin.users', compact('users', 'user'));
+        return view('Users.users', compact('users', 'user'));
     }
 
     public function userDetail($id)
@@ -343,7 +378,7 @@ class AdminController extends Controller
 
         $targetUser = User::findOrFail($id);
         
-        return view('admin.user-detail', compact('targetUser', 'user'));
+        return view('Users.user-detail', compact('targetUser', 'user'));
     }
 
     public function createUser(Request $request)

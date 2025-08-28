@@ -1,0 +1,1041 @@
+/* =================================
+   USERS PAGE STYLES - MODERN DESIGN
+   ================================= */
+
+/* Container styling moved to admin.css to avoid duplication */
+
+/* Page Header - Consistent Across All Pages */
+.users-flex-between {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 32px !important;
+    gap: 20px !important;
+    min-height: 60px !important;
+}
+
+.users-flex-between > div:last-child {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Page Title - Consistent Styling */
+.users-flex-between h2,
+h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    height: auto !important;
+    text-align: left !important;
+}
+
+/* New Button - Match Sign Out Styling */
+.users-new-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    min-width: 120px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+}
+
+.users-new-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.5s !important;
+}
+
+.users-new-btn:hover::before {
+    left: 100% !important;
+}
+
+.users-new-btn:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* MODERN TABLE STYLING - DARK BACKGROUND */
+table.table.users-table {
+    background: rgba(0, 0, 0, 0.4) !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    margin: 24px 0 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+table.table.users-table th {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: none !important;
+    padding: 16px 20px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.85rem !important;
+}
+
+table.table.users-table td {
+    color: white !important;
+    border: none !important;
+    border-bottom: none !important;
+    padding: 16px 20px !important;
+    background: transparent !important;
+}
+
+/* Row Link Styling */
+.users-table .row-link {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Table Hover Effects */
+table.users-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.users-table .row-link:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* --- LOCK USERS TABLE HEADER HOVER --- */
+table.table.users-table thead th {
+  background-color: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+}
+
+/* Jangan berubah saat hover/focus/active */
+table.table.users-table thead th:hover,
+table.table.users-table thead th:focus,
+table.table.users-table thead th:active,
+table.table.users-table thead tr:hover {
+  background-color: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+}
+
+/* Jika ada link/ikon di dalam th, ikut mewarisi warna */
+table.table.users-table thead th a,
+table.table.users-table thead th .sort-indicator {
+  color: inherit !important;
+}
+
+/* Search Form Container - Consistent Positioning */
+.users-filter-bar {
+    margin: 0 0 32px 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 44px !important;
+}
+
+.users-filter-bar-inner {
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.users-filter-bar input[type="text"] {
+    flex: 1 !important;
+    padding: 12px 20px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+    height: 44px !important;
+    box-sizing: border-box !important;
+    backdrop-filter: blur(10px) !important;
+    transition: all 0.3s ease !important;
+}
+
+.users-filter-bar input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.users-filter-bar input[type="text"]:focus {
+    outline: none !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.users-search-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    min-width: 120px !important;
+    height: 44px !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+}
+
+.users-search-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.5s !important;
+}
+
+.users-search-btn:hover::before {
+    left: 100% !important;
+}
+
+.users-search-btn:hover {
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+@media (max-width: 768px) {
+    .users-filter-bar-inner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+}
+
+/* Mobile responsiveness for header */
+@media (max-width: 768px) {
+    .users-flex-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    
+    .users-flex-between > div:last-child {
+        align-self: flex-start !important;
+        width: auto !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* Users Search Form */
+.users-search-form .form-group {
+    width: 300px;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .users-search-form .form-group {
+        width: 100%;
+    }
+}
+
+/* Users Table */
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.users-table th,
+.users-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.users-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+    position: relative;
+}
+
+.users-table .sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Removed - handled above with proper dark hover */
+
+.users-table .sort-indicator {
+    margin-left: 5px;
+    color: white !important;
+}
+
+.users-table .users-date-column {
+    width: 100px;
+    font-size: 0.85em;
+}
+
+.users-table .users-mobile-column {
+    width: 200px;
+}
+
+.users-table .users-requests-column {
+    width: 100px;
+}
+
+.users-table .users-role-column {
+    width: 100px;
+}
+
+.users-table .users-action-column {
+    width: 100px;
+    text-align: center;
+}
+
+.users-table .users-date-cell {
+    font-size: 0.75em;
+}
+
+.users-table .users-role-cell {
+    text-transform: capitalize;
+}
+
+/* Users Action Buttons */
+.users-action-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+}
+
+.users-action-btn {
+    padding: 4px 8px;
+    font-size: 0.7em;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    min-width: 50px;
+    transition: opacity 0.3s ease;
+}
+
+.users-action-btn:hover {
+    opacity: 0.8;
+}
+
+.users-action-btn.users-btn-view {
+    background: #007bff;
+    color: white !important;
+}
+
+.users-action-btn.users-btn-delete {
+    background: #dc3545;
+    color: white !important;
+}
+
+.users-action-btn.users-btn-verify {
+    background: #28a745;
+    color: white !important;
+}
+
+.users-action-btn.users-btn-verified {
+    background: #6c757d;
+    color: white !important;
+    cursor: not-allowed;
+}
+
+.users-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Users Mobile Cards (responsive) */
+.users-mobile-card {
+    display: none;
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.users-mobile-detail {
+    width: 100%;
+}
+
+.users-mobile-field {
+    font-size: 0.9em !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    margin-bottom: 20px !important;
+}
+
+.users-mobile-field:last-of-type {
+    margin-bottom: 20px !important;
+}
+
+.users-mobile-field b {
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-weight: 700 !important;
+    color: white !important;
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+}
+
+.users-mobile-field br {
+    line-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+}
+
+/* FORCE OVERRIDE GLOBAL CSS */
+.users-mobile-field * {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.users-mobile-field {
+    display: block !important;
+    white-space: pre-line !important;
+}
+
+.users-mobile-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.users-mobile-actions .users-action-btn {
+    padding: 6px 12px;
+    font-size: 0.8em;
+    flex: 1;
+    text-align: center;
+    width: auto;
+    min-width: 60px;
+}
+
+@media (max-width: 768px) {
+    .users-table,
+    .table-responsive,
+    table.table.users-table {
+        display: none !important;
+    }
+    
+    .users-mobile-card {
+        display: block !important;
+    }
+    
+    /* Hide all tables in mobile */
+    .admin-content-container table,
+    .admin-content-container .table-responsive {
+        display: none !important;
+    }
+    
+    /* Hide dropdowns and pagination in mobile */
+    .users-filter-bar,
+    .users-pagination-container,
+    .pagination,
+    select,
+    .form-select,
+    .dropdown,
+    .users-search-form select,
+    .users-filter-bar select,
+    #perPageUsers {
+        display: none !important;
+    }
+    
+    /* Hide search form completely in mobile */
+    .users-search-form {
+        display: none !important;
+    }
+}
+
+/* Users New User Button */
+.users-new-btn {
+    margin-bottom: 20px;
+    background: #333;
+    color: white !important;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    width: auto !important;
+    display: inline-block !important;
+    flex-shrink: 0;
+}
+
+.users-new-btn:hover {
+    background: #555;
+}
+
+/* Users Search Button */
+.users-search-btn {
+    background: #333;
+    color: white !important;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    width: auto !important;
+}
+
+.users-search-btn:hover {
+    background: #555;
+}
+
+/* Users No Results */
+.users-no-results {
+    text-align: center;
+    padding: 32px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Users Pagination */
+.users-pagination-container {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.users-pagination-left select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+}
+
+.users-pagination-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.users-pagination-info {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.users-pagination-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.users-pagination-btn {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    min-width: 32px;
+}
+
+.users-pagination-btn:hover:not(:disabled) {
+    background: #f8f9fa;
+}
+
+.users-pagination-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .users-pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .users-pagination-right {
+        justify-content: space-between;
+    }
+}
+
+/* =================================
+   NEW USER MODAL STYLES
+   ================================= */
+
+.users-modal {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0,0,0,0.5) !important;
+    z-index: 9999 !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.users-modal.users-modal-active {
+    display: flex !important;
+}
+
+.users-modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.users-modal h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.users-modal .form-group {
+    margin-bottom: 16px;
+}
+
+.users-modal .form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: #333;
+}
+
+.users-modal .form-group label .required {
+    color: red;
+}
+
+.users-modal .form-group input,
+.users-modal .form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.users-modal .form-group input:focus,
+.users-modal .form-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Password Field with Toggle */
+.users-password-container {
+    position: relative;
+}
+
+.users-password-field {
+    padding-right: 36px !important;
+}
+
+.users-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+}
+
+.users-password-toggle:hover {
+    color: #333;
+}
+
+.users-password-toggle svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Modal Buttons */
+.users-modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.users-modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.users-modal-btn.users-btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.users-modal-btn.users-btn-primary:hover {
+    background: #0056b3;
+}
+
+.users-modal-btn.users-btn-primary:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.users-modal-btn.users-btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.users-modal-btn.users-btn-secondary:hover {
+    background: #545b62;
+}
+
+@media (max-width: 768px) {
+    .users-modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .users-modal-buttons {
+        flex-direction: column;
+    }
+}
+
+/* =================================
+   SUCCESS/ERROR MESSAGES
+   ================================= */
+
+.users-message {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.users-message.users-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724 !important;
+}
+
+.users-message.users-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24 !important;
+}
+
+/* =================================
+   USER DETAIL PAGE STYLES
+   ================================= */
+
+/* Desktop Detail Layout */
+.users-detail-desktop {
+    max-width: 500px;
+    margin-top: 32px;
+}
+
+.users-detail-form {
+    width: 100%;
+}
+
+.users-detail-section-title {
+    margin: 30px 0 30px 0;
+    color: white;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.users-detail-section-title:first-of-type {
+    margin-top: 0;
+}
+
+.users-detail-field {
+    margin-bottom: 15px;
+}
+
+.users-detail-label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: white;
+}
+
+.users-detail-input,
+.users-detail-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+}
+
+.users-detail-input:focus,
+.users-detail-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.users-detail-error {
+    color: #dc3545 !important;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+.users-detail-note {
+    font-size: 0.9em;
+    color: #cccccc;
+    margin-bottom: 15px;
+}
+
+.users-detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.users-detail-actions .users-modal-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    flex: none;
+}
+
+/* Mobile Detail Layout */
+.users-detail-mobile {
+    display: none;
+    margin-top: 16px;
+}
+
+.users-detail-form-mobile {
+    width: 100%;
+}
+
+.users-detail-field-mobile {
+    font-size: 0.9em;
+    color: #000000;
+    margin-bottom: 16px;
+}
+
+.users-detail-label-mobile {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: white;
+}
+
+.users-detail-input-mobile,
+.users-detail-select-mobile {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+}
+
+.users-detail-input-mobile:focus,
+.users-detail-select-mobile:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.users-detail-input::placeholder,
+.users-detail-input-mobile::placeholder {
+    color: #cccccc !important;
+}
+
+.users-detail-select option {
+    background: #333 !important;
+    color: white !important;
+}
+
+.users-detail-select-mobile option {
+    background: #333 !important;
+    color: white !important;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Modal Auth Form Styles (moved from blade) */
+.auth-form-container {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    margin: 20px;
+    max-width: 500px;
+    width: 100%;
+    min-height: auto;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    color: white !important;
+    position: relative;
+}
+
+#user_role {
+    width: 100%;
+    padding: 16px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-size: 1rem;
+    background: rgba(30, 30, 30, 0.9) !important;
+    color: white !important;
+    backdrop-filter: blur(10px);
+    font-family: 'Inter', sans-serif;
+}
+
+#user_role option {
+    background: #222 !important;
+    color: white !important;
+    padding: 8px;
+}
+
+/* General modal select styling */
+#user-modal-final select {
+    background: rgba(30, 30, 30, 0.9) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+#user-modal-final select option {
+    background: #222 !important;
+    color: white !important;
+}
+
+.users-modal-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.users-modal-btn-primary {
+    flex: 1;
+}
+
+.users-modal-btn-cancel {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.users-detail-error-mobile {
+    color: #dc3545 !important;
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+
+.users-detail-section-title-mobile {
+    font-size: 1.1em;
+    color: white;
+    margin: 20px 0 16px 0;
+    font-weight: bold;
+}
+
+.users-detail-note-mobile {
+    font-size: 0.8em;
+    color: #cccccc;
+    margin-bottom: 16px;
+}
+
+.users-detail-actions-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.users-detail-btn-mobile {
+    width: 100% !important;
+    text-decoration: none;
+    text-align: center;
+    display: block !important;
+    flex: none !important;
+}
+
+/* Responsive Rules for Detail Page */
+@media (max-width: 768px) {
+    .users-detail-desktop {
+        display: none !important;
+    }
+    
+    .users-detail-mobile {
+        display: block !important;
+    }
+}
+
+/* =================================
+   RESPONSIVE UTILITIES
+   ================================= */
+
+@media (max-width: 480px) {
+    .users-mobile-actions {
+        flex-direction: column;
+    }
+    
+    .users-mobile-actions .users-action-btn {
+        flex: none;
+        width: 100%;
+    }
+    
+    .users-modal-content {
+        width: 98%;
+        padding: 16px;
+        margin: 10px;
+    }
+    
+    .users-detail-actions {
+        flex-direction: column;
+    }
+    
+    .users-detail-actions .users-modal-btn {
+        width: 100%;
+    }
+}

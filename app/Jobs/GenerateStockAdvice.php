@@ -206,20 +206,33 @@ class GenerateStockAdvice implements ShouldQueue
     private function convertYahooToOHLCV(array $yahooData): array
     {
         $result = $yahooData['chart']['result'][0];
-        $timestamps = $result['timestamp'];
-        $indicators = $result['indicators']['quote'][0];
-        $meta = $result['meta'];
+        $timestamps = $result['timestamp'] ?? [];
+        $indicators = $result['indicators']['quote'][0] ?? [];
+        $meta = $result['meta'] ?? [];
         
         $ohlcvData = [];
+        
+        // If no historical data available, create minimal data for current analysis
+        if (empty($timestamps)) {
+            $currentPrice = $meta['regularMarketPrice'] ?? 0;
+            return [[
+                'date' => date('Y-m-d'),
+                'open' => $currentPrice,
+                'high' => $currentPrice,
+                'low' => $currentPrice,
+                'close' => $currentPrice,
+                'volume' => $meta['regularMarketVolume'] ?? 0,
+            ]];
+        }
         
         for ($i = 0; $i < count($timestamps); $i++) {
             $ohlcvData[] = [
                 'date' => date('Y-m-d', $timestamps[$i]),
-                'open' => $indicators['open'][$i] ?? 0,
-                'high' => $indicators['high'][$i] ?? 0,
-                'low' => $indicators['low'][$i] ?? 0,
-                'close' => $indicators['close'][$i] ?? 0,
-                'volume' => $indicators['volume'][$i] ?? 0,
+                'open' => ($indicators['open'][$i] ?? null) ?? 0,
+                'high' => ($indicators['high'][$i] ?? null) ?? 0,
+                'low' => ($indicators['low'][$i] ?? null) ?? 0,
+                'close' => ($indicators['close'][$i] ?? null) ?? 0,
+                'volume' => ($indicators['volume'][$i] ?? null) ?? 0,
             ];
         }
         

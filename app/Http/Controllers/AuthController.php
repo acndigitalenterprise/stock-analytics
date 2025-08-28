@@ -14,12 +14,6 @@ class AuthController extends Controller
     public function signin(Request $request)
     {
         try {
-            \Log::info('Sign-in attempt', [
-                'email' => $request->email,
-                'user_agent' => $request->userAgent(),
-                'ip' => $request->ip()
-            ]);
-
             $validated = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required',
@@ -30,55 +24,25 @@ class AuthController extends Controller
             if ($user && Hash::check($validated['password'], $user->password)) {
                 // Check if email is verified
                 if (!$user->email_verified_at) {
-                    \Log::warning('Sign-in attempt with unverified email', [
-                        'email' => $user->email,
-                        'user_id' => $user->id
-                    ]);
-                    
                     return redirect()->back()
                         ->withErrors(['signin_error' => 'Please verify your email address before signing in. Check your email for the verification link.'])
                         ->withInput(['email' => $validated['email']]);
                 }
                 
-                // Clear any existing session data first
+                // Clear any existing session data and set new user session
                 session()->flush();
                 session()->regenerate();
-                
-                // Refresh user data from database to ensure latest info
-                $freshUser = User::find($user->id);
-                
-                // Set fresh user session
-                session(['user' => $freshUser]);
-                
-                // Debug log
-                \Log::info('User logged in successfully:', [
-                    'email' => $freshUser->email,
-                    'role' => $freshUser->role,
-                    'id' => $freshUser->id
-                ]);
+                session(['user' => $user]);
                 
                 return redirect()->route('stock-analytics.admin');
             }
 
-            \Log::warning('Sign-in failed: Invalid credentials', [
-                'email' => $validated['email'],
-                'user_found' => $user ? 'yes' : 'no'
-            ]);
-
             return redirect()->back()->withErrors(['signin_error' => 'Incorrect username or password'])->withInput(['email' => $validated['email']]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Sign-in validation failed', [
-                'email' => $request->email,
-                'errors' => $e->errors()
-            ]);
             throw $e;
         } catch (\Exception $e) {
-            \Log::error('Sign-in error', [
-                'email' => $request->email,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            \Log::error('Sign-in error: ' . $e->getMessage());
             return redirect()->back()->withErrors(['signin_error' => 'An error occurred during sign-in. Please try again.'])->withInput(['email' => $request->email]);
         }
     }
@@ -164,7 +128,7 @@ class AuthController extends Controller
         }
 
         if ($user->email_verified_at) {
-            return redirect()->route('stock-analytics.index')->with('success', 'Email already verified. You can now sign in to your account.');
+            return redirect()->route('email-verified.page')->with('success', 'Email already verified. You can now sign in to your account.');
         }
 
         // Verify the email
@@ -178,7 +142,7 @@ class AuthController extends Controller
             'email' => $user->email
         ]);
 
-        return redirect()->route('stock-analytics.index')->with('success', 'Email verified successfully! You can now sign in to your account.');
+        return redirect()->route('email-verified.page')->with('success', 'Email verified successfully! You can now sign in to your account.');
     }
 
     private function sendSignupEmail($user, $password)
@@ -196,7 +160,7 @@ class AuthController extends Controller
 
     public function showForgotPassword()
     {
-        return view('forgot-password');
+        return view('Auth.forgot-password');
     }
 
     public function forgotPassword(Request $request)
@@ -232,7 +196,7 @@ class AuthController extends Controller
             return redirect()->route('stock-analytics.index')->with('error', 'Invalid or expired reset token. Please request a new password reset link.');
         }
 
-        return view('reset-password', compact('token'));
+        return view('Auth.reset-password', compact('token'));
     }
 
     public function resetPassword(Request $request)

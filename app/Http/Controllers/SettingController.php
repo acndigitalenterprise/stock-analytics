@@ -16,7 +16,7 @@ class SettingController extends Controller
             return redirect()->route('stock-analytics.signin');
         }
         $user = User::find($user->id);
-        return view('setting.profile', compact('user'));
+        return view('Settings.settings', compact('user'));
     }
 
     public function updateProfile(Request $request)
