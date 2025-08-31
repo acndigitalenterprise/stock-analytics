@@ -23,15 +23,17 @@ class SecurityHeadersMiddleware
     {
         $response = $next($request);
 
-        // Content Security Policy - Updated to allow TradingView
+        // Content Security Policy
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://s3.tradingview.com https://charting-library.tradingview.com https://*.tradingview.com",
-            "style-src 'self' 'unsafe-inline' https://*.tradingview.com", 
-            "img-src 'self' data: https: https://*.tradingview.com",
-            "font-src 'self' data: https://*.tradingview.com",
-            "connect-src 'self' https://query1.finance.yahoo.com https://www.alphavantage.co https://*.tradingview.com wss://*.tradingview.com",
-            "frame-src 'self' https://*.tradingview.com", // Allow TradingView iframes
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            // Allow Google Fonts
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "img-src 'self' data: https:",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "connect-src 'self' https://query1.finance.yahoo.com https://www.alphavantage.co",
+            // No external frames allowed
+            "frame-src 'self'",
             "worker-src 'self' blob:", // Allow web workers
             "frame-ancestors 'none'",
             "base-uri 'self'",
