@@ -19,7 +19,7 @@ class AuthMiddleware
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
-            return redirect()->route('stock-analytics.index')
+            return redirect()->route('auth.signin.page')
                 ->withErrors(['error' => 'Please login to access this page.']);
         }
 

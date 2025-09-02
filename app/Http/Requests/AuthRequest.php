@@ -31,10 +31,10 @@ class AuthRequest extends FormRequest
         $action = $this->route()->getName();
         
         return match($action) {
-            'stock-analytics.signin' => $this->signinRules(),
-            'stock-analytics.signup', 'stock-analytics.register' => $this->signupRules(),
-            'stock-analytics.forgot-password' => $this->forgotPasswordRules(),
-            'stock-analytics.reset-password.post' => $this->resetPasswordRules(),
+            'auth.signin' => $this->signinRules(),
+            'auth.signup' => $this->signupRules(),
+            'auth.forgot' => $this->forgotPasswordRules(),
+            'auth.reset' => $this->resetPasswordRules(),
             default => [],
         };
     }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: https:; media-src 'self'; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://*.tradingview.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://*.tradingview.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: https:; media-src 'self'; object-src 'none'; frame-src https://*.tradingview.com;">
     <title>@yield('title', 'Stock Analytics')</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}?v={{ time() }}">
     <style>
@@ -839,7 +839,7 @@
                     </a>
                     
                     <!-- Sign Out -->
-                    <form action="{{ route('stock-analytics.logout') }}" method="POST" class="mobile-signout-form">
+                    <form action="{{ route('auth.logout') }}" method="POST" class="mobile-signout-form">
                         @csrf
                         <button type="submit" class="mobile-sidebar-link mobile-signout-btn">
                             Sign Out
@@ -892,7 +892,7 @@
                                     </svg>
                                     Setting
                                 </a>
-                                <form action="{{ route('stock-analytics.logout') }}" method="POST" style="margin: 0;">
+                                <form action="{{ route('auth.logout') }}" method="POST" style="margin: 0;">
                                     @csrf
                                     <button type="submit" class="user-dropdown-item">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

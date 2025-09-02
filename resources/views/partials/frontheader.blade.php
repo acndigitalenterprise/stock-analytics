@@ -1,0 +1,1 @@
+<h1 class="homepage-title">Ticker AI</h1>

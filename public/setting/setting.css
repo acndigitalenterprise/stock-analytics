@@ -1,0 +1,73 @@
+/* Setting Page Specific Styles */
+
+/* Action Buttons Section */
+.user-detail-actions {
+    margin: 48px auto 0;
+    max-width: 500px;
+}
+
+.user-detail-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+}
+
+.user-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    min-width: 110px;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.user-detail-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.user-detail-btn svg {
+    flex-shrink: 0;
+}
+
+.user-detail-btn.user-detail-btn-update {
+    background: #fd7e14;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-update:hover {
+    background: #e8660d;
+}
+
+.user-detail-btn.user-detail-btn-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-detail-btn.user-detail-btn-back:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .user-detail-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .user-detail-btn {
+        width: 100%;
+        justify-content: center;
+        min-width: auto;
+    }
+}

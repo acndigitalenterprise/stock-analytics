@@ -6,140 +6,215 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingController;
 
-// ✅ Homepage route
+/*
+|--------------------------------------------------------------------------
+| Ticker AI - Web Routes
+|--------------------------------------------------------------------------
+| Clean, flexible route structure for production deployment
+| Brand-agnostic and domain-flexible design
+*/
+
+// =================================
+// PUBLIC ROUTES
+// =================================
+
+// Homepage
 Route::get('/', function () {
-    // Check if user is logged in
     if (session()->has('user')) {
-        return redirect()->route('stock-analytics.admin');
+        return redirect()->route('dashboard');
     }
-    return view('Homepage.homepage');
+    return view('home.home');
 })->name('home');
 
-// ✅ Separate Sign Up and Sign In pages
-Route::get('/sign-up', function () {
-    // Check if user is logged in
+// Authentication Pages
+Route::get('/signin', function () {
     if (session()->has('user')) {
-        return redirect()->route('stock-analytics.admin');
+        return redirect()->route('dashboard');
     }
-    return view('Auth.signup');
-})->name('signup.page');
+    return view('home.signin');
+})->name('auth.signin.page');
 
-Route::get('/sign-in', function () {
-    // Check if user is logged in
+Route::get('/signup', function () {
     if (session()->has('user')) {
-        return redirect()->route('stock-analytics.admin');
+        return redirect()->route('dashboard');
     }
-    return view('Auth.signin');
-})->name('signin.page');
+    return view('home.signup');
+})->name('auth.signup.page');
 
 Route::get('/forgot-password', function () {
-    // Check if user is logged in
     if (session()->has('user')) {
-        return redirect()->route('stock-analytics.admin');
+        return redirect()->route('dashboard');
     }
-    return view('Auth.forgot-password');
-})->name('forgot-password.page');
+    return view('home.forgotpassword');
+})->name('auth.forgot.page');
 
-Route::get('/email-verified', function () {
-    return view('Auth.verify-email');
-})->name('email-verified.page');
+Route::get('/email-verification', function () {
+    return view('home.emailverification');
+})->name('auth.verified');
 
-// Public Stock Analytics page - now shows welcome page
-Route::get('/stock-analytics', function () {
-    // Check if user is logged in
+Route::get('/privacy-policy', function () {
+    return view('home.privacypolicy');
+})->name('privacy');
+
+Route::get('/disclaimer', function () {
+    return view('home.disclaimer');
+})->name('disclaimer');
+
+Route::get('/about', function () {
+    return view('home.about');
+})->name('about');
+
+Route::get('/contacts', function () {
+    return view('home.contacts');
+})->name('contacts');
+
+// Password Reset with Token
+Route::get('/reset-password/{token}', function ($token) {
     if (session()->has('user')) {
-        return redirect()->route('stock-analytics.admin');
+        return redirect()->route('dashboard');
     }
-    return view('Homepage.homepage');
-})->name('stock-analytics.index');
-Route::post('/stock-analytics', [StockAnalyticsController::class, 'submit'])
-    ->middleware('rate_limit:stock_submit')
-    ->name('stock-analytics.submit');
+    return view('home.resetpassword', compact('token'));
+})->name('auth.reset.page');
+
+// =================================
+// API ROUTES
+// =================================
 
 // Stock search API with rate limiting
 Route::get('/api/stocks/search', [StockAnalyticsController::class, 'searchStocks'])
     ->middleware('rate_limit:stock_search')
     ->name('api.stocks.search');
 
-// Auth popups with rate limiting
-Route::post('/stock-analytics/signin', [AuthController::class, 'signin'])
-    ->middleware('rate_limit:auth')
-    ->name('stock-analytics.signin');
-Route::post('/stock-analytics/signup', [AuthController::class, 'signup'])
-    ->middleware('rate_limit:auth')
-    ->name('stock-analytics.signup');
-Route::post('/stock-analytics/register', [AuthController::class, 'signup'])
-    ->middleware('rate_limit:auth')
-    ->name('stock-analytics.register');
-Route::post('/stock-analytics/logout', [AuthController::class, 'logout'])->name('stock-analytics.logout');
-Route::get('/stock-analytics/forgot-password', [AuthController::class, 'showForgotPassword'])
-    ->name('stock-analytics.forgot-password.show');
-Route::post('/stock-analytics/forgot-password', [AuthController::class, 'forgotPassword'])
-    ->middleware('rate_limit:auth')
-    ->name('stock-analytics.forgot-password');
+// =================================
+// AUTHENTICATION ACTIONS
+// =================================
 
-// Email verification route
-Route::get('/stock-analytics/verify-email/{token}', [AuthController::class, 'verifyEmail'])
-    ->name('stock-analytics.verify-email');
+// Auth form submissions
+Route::post('/signin', [AuthController::class, 'signin'])
+    ->middleware('rate_limit:auth')
+    ->name('auth.signin');
 
-// Reset password routes without CSRF protection
-Route::group(['middleware' => []], function () {
-    Route::get('/stock-analytics/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('stock-analytics.reset-password');
-    Route::get('/stock-analytics/reset-password', [AuthController::class, 'resetPassword'])->name('stock-analytics.reset-password.post');
+Route::post('/signup', [AuthController::class, 'signup'])
+    ->middleware('rate_limit:auth')
+    ->name('auth.signup');
+
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+    ->middleware('rate_limit:auth')
+    ->name('auth.forgot');
+
+Route::post('/reset-password/{token}', [AuthController::class, 'resetPassword'])
+    ->middleware('rate_limit:auth')
+    ->name('auth.reset');
+
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('auth.logout');
+
+// Email verification
+Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])
+    ->name('auth.verify');
+
+// =================================
+// AUTHENTICATED ROUTES
+// =================================
+
+Route::middleware(['auth.session'])->group(function () {
+    
+    // Main Dashboard
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])
+        ->name('dashboard');
+    
+    // Stock Requests Management
+    Route::get('/requests', [AdminController::class, 'stocks'])
+        ->name('requests.index');
+    
+    Route::get('/requests/{id}', [AdminController::class, 'detail'])
+        ->name('requests.show');
+    
+    Route::post('/requests', [AdminController::class, 'store'])
+        ->name('requests.store');
+    
+    Route::post('/requests/{id}/update', [AdminController::class, 'update'])
+        ->name('requests.update');
+    
+    Route::post('/requests/{id}/delete', [AdminController::class, 'delete'])
+        ->name('requests.destroy');
+    
+    Route::get('/requests/{id}/advice', [AdminController::class, 'getAdvice'])
+        ->name('requests.advice');
+    
+    // User Management (Admin only)
+    Route::middleware(['admin.access'])->group(function () {
+        Route::get('/users', [AdminController::class, 'users'])
+            ->name('users.index');
+        
+        Route::get('/users/{id}', [AdminController::class, 'userDetail'])
+            ->name('users.show');
+        
+        Route::post('/users', [AdminController::class, 'createUser'])
+            ->name('users.store');
+        
+        Route::post('/users/{id}/update', [AdminController::class, 'updateUser'])
+            ->name('users.update');
+        
+        Route::post('/users/{id}/delete', [AdminController::class, 'deleteUser'])
+            ->name('users.destroy');
+        
+        Route::post('/users/{id}/verify', [AdminController::class, 'verifyUser'])
+            ->name('users.verify');
+    });
+    
+    // User Settings
+    Route::get('/settings', [SettingController::class, 'profile'])
+        ->name('settings');
+    
+    Route::post('/settings', [SettingController::class, 'updateProfile'])
+        ->name('settings.update');
+    
 });
 
-// Admin panel (protected)
-Route::middleware('auth.session')->group(function () {
-    // Legacy admin route redirect to stocks
-    Route::get('/stock-analytics/admin', [AdminController::class, 'index'])->name('stock-analytics.admin');
-    
-    // New admin menu routes
-    Route::get('/stock-analytics/admin/dashboard', [AdminController::class, 'dashboard'])->name('stock-analytics.admin.dashboard');
-    Route::get('/stock-analytics/admin/requests', [AdminController::class, 'stocks'])->name('stock-analytics.admin.requests');
-    Route::get('/stock-analytics/admin/stocks', [AdminController::class, 'stocks'])->name('stock-analytics.admin.stocks'); // Keep for backward compatibility
-    Route::get('/stock-analytics/admin/users', [AdminController::class, 'users'])->name('stock-analytics.admin.users');
-    Route::get('/stock-analytics/admin/users/{id}/detail', [AdminController::class, 'userDetail'])->name('stock-analytics.admin.users.detail');
-    Route::post('/stock-analytics/admin/users', [AdminController::class, 'createUser'])->name('stock-analytics.admin.users.create');
-    Route::post('/stock-analytics/admin/users/{id}/update', [AdminController::class, 'updateUser'])->name('stock-analytics.admin.users.update');
-    Route::post('/stock-analytics/admin/users/{id}/delete', [AdminController::class, 'deleteUser'])->name('stock-analytics.admin.users.delete');
-    Route::post('/stock-analytics/admin/users/{id}/verify', [AdminController::class, 'verifyUser'])->name('stock-analytics.admin.users.verify');
-    
-    // Existing stock routes (keep for backward compatibility)
-    Route::post('/stock-analytics/admin/request', [AdminController::class, 'store'])->name('stock-analytics.admin.request');
-    Route::get('/stock-analytics/admin/edit/{id}', [AdminController::class, 'edit'])->name('stock-analytics.admin.edit');
-    Route::post('/stock-analytics/admin/update/{id}', [AdminController::class, 'update'])->name('stock-analytics.admin.update');
-    Route::post('/stock-analytics/admin/delete/{id}', [AdminController::class, 'delete'])->name('stock-analytics.admin.delete');
-    // Detail request (admin) - update title in view
-    Route::get('/stock-analytics/admin/request/{id}/detail', [App\Http\Controllers\AdminController::class, 'detail'])->name('stock-analytics.admin.detail');
-    
-    // Setting menu (independent)
-    Route::get('/stock-analytics/setting', [SettingController::class, 'profile'])->name('stock-analytics.setting');
-    Route::post('/stock-analytics/setting', [SettingController::class, 'updateProfile'])->name('stock-analytics.setting.update');
-    
-    // Get advice
-    Route::get('/stock-analytics/admin/request/{id}/advice', [AdminController::class, 'getAdvice'])->name('stock-analytics.admin.advice');
+// =================================
+// LEGACY REDIRECTS (for compatibility)
+// =================================
+
+// Old stock-analytics routes redirect to new clean URLs
+Route::get('/stock-analytics', function () {
+    return redirect()->route('home');
 });
 
-Route::get('/stock-analytics/confirmation', function() {
+Route::get('/stock-analytics/admin', function () {
+    return redirect()->route('dashboard');
+});
+
+Route::get('/stock-analytics/admin/{path}', function ($path) {
+    $routeMap = [
+        'dashboard' => 'dashboard',
+        'requests' => 'requests.index',
+        'stocks' => 'requests.index', // legacy compatibility
+        'users' => 'users.index',
+    ];
+    
+    if (isset($routeMap[$path])) {
+        return redirect()->route($routeMap[$path]);
+    }
+    
+    return redirect()->route('dashboard');
+})->where('path', '.*');
+
+// =================================
+// FALLBACK ROUTES
+// =================================
+
+// Handle confirmation pages
+Route::get('/confirmation', function () {
     return view('confirmation');
-})->name('stock-analytics.confirmation');
+})->name('confirmation');
 
-// Registration success page
-Route::get('/stock-analytics/registration-success', function() {
+Route::get('/registration-success', function () {
     return view('registration-success');
-})->name('stock-analytics.registration-success');
+})->name('registration.success');
 
-// Privacy Policy and Disclaimer pages
-Route::get('/privacy-policy', function() {
-    return view('privacy-policy');
-})->name('privacy-policy');
-
-Route::get('/disclaimer', function() {
-    return view('disclaimer');
-})->name('disclaimer');
-
-// Route to view sent emails (for testing)
-Route::get('/stock-analytics/view-emails', function() {
-    $emails = Mail::getSymfonyTransport()->messages();
+// View sent emails (admin)
+Route::get('/emails/sent', function () {
+    $emails = []; // Add your email logic here
     return view('emails.view-sent', compact('emails'));
-})->name('stock-analytics.view-emails');
+})->name('emails.sent');

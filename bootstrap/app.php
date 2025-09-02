@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'rate_limit' => \App\Http\Middleware\RateLimitMiddleware::class,
             'auth.session' => \App\Http\Middleware\AuthMiddleware::class,
+            'admin.access' => \App\Http\Middleware\AdminAccessMiddleware::class,
         ]);
 
         // Use custom CSRF middleware

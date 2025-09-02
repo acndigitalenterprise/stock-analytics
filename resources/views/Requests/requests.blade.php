@@ -1,13 +1,29 @@
-@extends('layout')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Requests - AI Insights</title>
+    <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('requests-assets/requests.css') }}?v={{ time() }}">
+</head>
+<body class="admin-layout">
 
-@section('body-class', 'admin-layout')
-
-@section('content')
-<link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-<link rel="stylesheet" href="{{ asset('Requests/requests.css') }}?v={{ time() }}">
-
-<div class="admin-content-container">
-    @php $isAdminLayout = true; @endphp
+<!-- DESKTOP ADMIN LAYOUT -->
+<div class="admin-layout-container">
+    @include('Components.header')
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
+        @include('Components.sidebar')
+        
+        <!-- Admin Body Content -->
+        <main class="admin-body">
+            <div class="admin-content-container">
     
     <div class="requests-flex-between">
         <div>
@@ -48,7 +64,7 @@
     @endif
 
     <!-- Search Form -->
-    <form method="GET" action="{{ route('stock-analytics.admin.requests') }}" class="requests-filter-bar requests-search-form">
+    <form method="GET" action="{{ route('requests.index') }}" class="requests-filter-bar requests-search-form">
         <div class="requests-filter-bar-inner">
             <div class="form-group">
                 <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? 'Search by name, email, stock code...' : 'Search by stock code...' }}">
@@ -127,7 +143,7 @@
         </thead>
         <tbody>
             @forelse($requests as $request)
-                <tr class="row-link" data-href="{{ route('stock-analytics.admin.detail', $request->id) }}">
+                <tr class="row-link" data-href="{{ route('requests.show', $request->id) }}">
                     <td class="requests-date-cell">{{ $request->created_at ? \Carbon\Carbon::parse($request->created_at)->setTimezone('Asia/Jakarta')->format('d/m/y H:i') : '-' }}</td>
                     @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
                     <td>{{ $request->full_name }}</td>
@@ -158,8 +174,8 @@
                     </td>
                     <td onclick="event.stopPropagation();">
                         <div class="requests-action-container">
-                            <a href="{{ route('stock-analytics.admin.detail', $request->id) }}" class="requests-action-btn requests-btn-view">View</a>
-                            <form action="{{ route('stock-analytics.admin.delete', $request->id) }}" method="POST" onsubmit="return confirmRequestDeletion(event, {{ $request->id }})">
+                            <a href="{{ route('requests.show', $request->id) }}" class="requests-action-btn requests-btn-view">View</a>
+                            <form action="{{ route('requests.destroy', $request->id) }}" method="POST" onsubmit="return confirmRequestDeletion(event, {{ $request->id }})">
                                 @csrf
                                 <button type="submit" class="requests-action-btn requests-btn-delete">Delete</button>
                             </form>
@@ -211,8 +227,8 @@
                 
                 <!-- Action Buttons -->
                 <div class="requests-mobile-actions" onclick="event.stopPropagation();">
-                    <a href="{{ route('stock-analytics.admin.detail', $request->id) }}" class="requests-action-btn requests-btn-view">View</a>
-                    <form action="{{ route('stock-analytics.admin.delete', $request->id) }}" method="POST" onsubmit="return confirmRequestDeletion(event, {{ $request->id }})">
+                    <a href="{{ route('requests.show', $request->id) }}" class="requests-action-btn requests-btn-view">View</a>
+                    <form action="{{ route('requests.destroy', $request->id) }}" method="POST" onsubmit="return confirmRequestDeletion(event, {{ $request->id }})">
                         @csrf
                         <button type="submit" class="requests-action-btn requests-btn-delete">Delete</button>
                     </form>
@@ -275,7 +291,7 @@
                 Submit a new stock analysis request with the required information.
             </div>
             
-            <form action="{{ route('stock-analytics.admin.request') }}" method="POST" id="newRequestForm" class="auth-form">
+            <form action="{{ route('requests.store') }}" method="POST" id="newRequestForm" class="auth-form">
                 @csrf
                 <div class="auth-form-group">
                     <label for="stock_code">Stock Code<span class="auth-required">*</span></label>
@@ -302,14 +318,20 @@
                 </div>
             </form>
         </div>
+            </div>
+        </main>
     </div>
+    
+    @include('Components.footer')
 </div>
-@endsection
 
-@section('scripts')
+@include('Components.admin-scripts')
+
 <script>
     // Set URLs for JavaScript
     window.stockSearchUrl = '{{ route("api.stocks.search") }}';
 </script>
-<script src="{{ asset('Requests/requests.js') }}"></script>
-@endsection
+<script src="{{ asset('requests/requests.js') }}"></script>
+
+</body>
+</html>

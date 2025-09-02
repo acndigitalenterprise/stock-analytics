@@ -18,12 +18,12 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
 
         // ALL users (including regular users) should go to dashboard first
         // This provides consistent experience across all roles
-        return redirect()->route('stock-analytics.admin.dashboard');
+        return redirect()->route('dashboard');
     }
 
     public function store(Request $request)
@@ -111,14 +111,14 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
 
         $stockRequest = \App\Models\Request::findOrFail($id);
 
         // Check if user can edit this request
         if ($user->role === 'user' && $stockRequest->user_id !== $user->id) {
-            return redirect()->route('stock-analytics.admin.requests')
+            return redirect()->route('requests.index')
                 ->withErrors(['error' => 'You can only edit your own requests.']);
         }
 
@@ -129,14 +129,14 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
 
         $stockRequest = \App\Models\Request::findOrFail($id);
 
         // Check if user can edit this request
         if ($user->role === 'user' && $stockRequest->user_id !== $user->id) {
-            return redirect()->route('stock-analytics.admin.requests')
+            return redirect()->route('requests.index')
                 ->withErrors(['error' => 'You can only edit your own requests.']);
         }
 
@@ -146,7 +146,7 @@ class AdminController extends Controller
 
         $stockRequest->update($validated);
 
-        return redirect()->route('stock-analytics.admin.requests')
+        return redirect()->route('requests.index')
             ->with('success', 'Request updated successfully!');
     }
 
@@ -154,20 +154,20 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
 
         $stockRequest = \App\Models\Request::findOrFail($id);
 
         // Check if user can delete this request
         if ($user->role === 'user' && $stockRequest->user_id !== $user->id) {
-            return redirect()->route('stock-analytics.admin.requests')
+            return redirect()->route('requests.index')
                 ->withErrors(['error' => 'You can only delete your own requests.']);
         }
 
         $stockRequest->delete();
 
-        return redirect()->route('stock-analytics.admin.requests')
+        return redirect()->route('requests.index')
             ->with('success', 'Request deleted successfully!');
     }
 
@@ -175,14 +175,14 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
         $stockRequest = \App\Models\Request::findOrFail($id);
         // Hanya admin, super_admin atau owner yang boleh lihat
         if (!in_array($user->role, ['admin', 'super_admin']) && $stockRequest->user_id !== $user->id) {
-            return redirect()->route('stock-analytics.admin.requests')->withErrors(['error' => 'Unauthorized.']);
+            return redirect()->route('requests.index')->withErrors(['error' => 'Unauthorized.']);
         }
-        return view('Requests.request-detail', compact('stockRequest', 'user'));
+        return view('requests.requestdetail', compact('stockRequest', 'user'));
     }
 
     // ensureJKFormat and getCompanyName moved to StockService
@@ -229,7 +229,7 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
 
         // Cache key for metrics based on user role and ID
@@ -319,7 +319,7 @@ class AdminController extends Controller
             }
         }
 
-        return view('Dashboard.dashboard', compact(
+        return view('dashboard.dashboard', compact(
             'totalRequests', 'totalStocks', 'totalWins', 'totalLoss', 'totalTimeout',
             'totalUsers', 'activeUsers', 'inactiveUsers', 'marketInsights', 'user'
         ));
@@ -328,14 +328,14 @@ class AdminController extends Controller
     public function stocks(Request $request)
     {
         $data = $this->getRequestsData($request);
-        return view('Requests.requests', $data);
+        return view('requests.requests', $data);
     }
 
     public function users(Request $request)
     {
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
-            return redirect()->route('stock-analytics.admin');
+            return redirect()->route('dashboard');
         }
 
         // Refresh user data from database to ensure latest role information
@@ -366,19 +366,19 @@ class AdminController extends Controller
             $users = $query->withCount('requests')->orderBy($sortBy, $sortOrder)->paginate($request->get('per_page', 10));
         }
 
-        return view('Users.users', compact('users', 'user'));
+        return view('users.users', compact('users', 'user'));
     }
 
     public function userDetail($id)
     {
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
-            return redirect()->route('stock-analytics.admin');
+            return redirect()->route('dashboard');
         }
 
         $targetUser = User::findOrFail($id);
         
-        return view('Users.user-detail', compact('targetUser', 'user'));
+        return view('users.userdetail', compact('targetUser', 'user'));
     }
 
     public function createUser(Request $request)
@@ -424,7 +424,7 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
-            return redirect()->route('stock-analytics.admin.users');
+            return redirect()->route('users.index');
         }
 
         $targetUser = User::findOrFail($id);
@@ -434,14 +434,14 @@ class AdminController extends Controller
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'mobile_number' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:6',
+            'user_new_pwd' => 'nullable|string|min:6',
             'role' => 'nullable|in:user,admin',
         ]);
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = bcrypt($validated['password']);
-        } else {
-            unset($validated['password']);
+        // Handle password field (rename user_new_pwd to password for database)
+        if (!empty($validated['user_new_pwd'])) {
+            $validated['password'] = bcrypt($validated['user_new_pwd']);
+            unset($validated['user_new_pwd']);
         }
 
         // Handle role changes
@@ -470,7 +470,7 @@ class AdminController extends Controller
             $this->sendUserActionNotification($user, $targetUser, 'updated');
         }
 
-        return redirect()->route('stock-analytics.admin.users.detail', $id)
+        return redirect()->route('users.show', $id)
                          ->with('success', 'User updated successfully!');
     }
 
@@ -478,14 +478,14 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
-            return redirect()->route('stock-analytics.admin.users');
+            return redirect()->route('users.index');
         }
 
         $targetUser = User::findOrFail($id);
         
         // Don't allow user to delete themselves
         if ($targetUser->id === $user->id) {
-            return redirect()->route('stock-analytics.admin.users')
+            return redirect()->route('users.index')
                            ->withErrors(['error' => 'You cannot delete your own account.']);
         }
 
@@ -504,7 +504,7 @@ class AdminController extends Controller
             $message .= " Also deleted {$requestCount} request(s) associated with this user.";
         }
 
-        return redirect()->route('stock-analytics.admin.users')
+        return redirect()->route('users.index')
                          ->with('success', $message);
     }
 
@@ -512,14 +512,14 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
-            return redirect()->route('stock-analytics.admin.users');
+            return redirect()->route('users.index');
         }
 
         $targetUser = User::findOrFail($id);
         
         // Check if user is already verified
         if ($targetUser->email_verified_at) {
-            return redirect()->route('stock-analytics.admin.users')
+            return redirect()->route('users.index')
                            ->with('error', 'User is already verified.');
         }
 
@@ -528,7 +528,7 @@ class AdminController extends Controller
             'email_verified_at' => now()
         ]);
 
-        return redirect()->route('stock-analytics.admin.users')
+        return redirect()->route('users.index')
                          ->with('success', "User {$targetUser->name} has been verified successfully!");
     }
 
@@ -539,7 +539,7 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.index');
+            return redirect()->route('home');
         }
 
         $query = \App\Models\Request::query();

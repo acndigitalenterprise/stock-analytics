@@ -1,14 +1,29 @@
-@extends('layout')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Dashboard - AI Insights</title>
+    <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('dashboard-assets/dashboard.css') }}?v={{ time() }}">
+</head>
+<body class="admin-layout">
 
-@section('body-class', 'admin-layout')
-
-@section('content')
-<link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-<link rel="stylesheet" href="{{ asset('Users/users.css') }}?v={{ time() }}">
-<link rel="stylesheet" href="{{ asset('Requests/requests.css') }}?v={{ time() }}">
-
-<div class="admin-content-container">
-    @php $isAdminLayout = true; @endphp
+<!-- DESKTOP ADMIN LAYOUT -->
+<div class="admin-layout-container">
+    @include('Components.header')
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
+        @include('Components.sidebar')
+        
+        <!-- Admin Body Content -->
+        <main class="admin-body">
+            <div class="admin-content-container">
     
     <div class="users-flex-between">
         <div>
@@ -182,9 +197,16 @@
         </div>
     </div>
     @endif
+            </div>
+        </main>
+    </div>
+    
+    @include('Components.footer')
 </div>
-@endsection
 
-@section('scripts')
-<script src="{{ asset('Dashboard/dashboard.js') }}"></script>
-@endsection
+@include('Components.admin-scripts')
+
+<script src="{{ asset('dashboard/dashboard.js') }}"></script>
+
+</body>
+</html>

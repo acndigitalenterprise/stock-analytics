@@ -32,7 +32,7 @@ class StockAnalyticsController extends Controller
         $user = session('user');
         if ($user) {
             // Redirect to admin page if user is already logged in
-            return redirect()->route('stock-analytics.admin');
+            return redirect()->route('dashboard');
         }
         
         return view('stock-analytics');

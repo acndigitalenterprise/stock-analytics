@@ -2,7 +2,7 @@
 <div class="header">
     <h1>AI Stock Analytics</h1>
     @if(session()->has('user'))
-        <form action="{{ route('stock-analytics.logout') }}" method="POST" style="margin: 0;">
+        <form action="{{ route('auth.logout') }}" method="POST" style="margin: 0;">
             @csrf
             <button type="submit" class="btn">Sign Out</button>
         </form>

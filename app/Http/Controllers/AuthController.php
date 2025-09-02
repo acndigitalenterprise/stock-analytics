@@ -34,7 +34,7 @@ class AuthController extends Controller
                 session()->regenerate();
                 session(['user' => $user]);
                 
-                return redirect()->route('stock-analytics.admin');
+                return redirect()->route('dashboard');
             }
 
             return redirect()->back()->withErrors(['signin_error' => 'Incorrect username or password'])->withInput(['email' => $validated['email']]);
@@ -103,14 +103,14 @@ class AuthController extends Controller
         session()->flush();
         session()->regenerate();
         
-        return redirect()->route('stock-analytics.index');
+        return redirect()->route('home');
     }
 
     private function sendVerificationEmail($user, $token)
     {
         $data = [
             'user' => $user,
-            'verificationUrl' => route('stock-analytics.verify-email', $token),
+            'verificationUrl' => route('auth.verify', $token),
         ];
 
         Mail::send('emails.verification', $data, function ($message) use ($user) {
@@ -124,11 +124,11 @@ class AuthController extends Controller
         $user = User::where('remember_token', $token)->first();
 
         if (!$user) {
-            return redirect()->route('stock-analytics.index')->with('error', 'Invalid or expired verification link. Please sign up again or contact support.');
+            return redirect()->route('home')->with('error', 'Invalid or expired verification link. Please sign up again or contact support.');
         }
 
         if ($user->email_verified_at) {
-            return redirect()->route('email-verified.page')->with('success', 'Email already verified. You can now sign in to your account.');
+            return redirect()->route('auth.verified')->with('success', 'Email already verified. You can now sign in to your account.');
         }
 
         // Verify the email
@@ -142,7 +142,7 @@ class AuthController extends Controller
             'email' => $user->email
         ]);
 
-        return redirect()->route('email-verified.page')->with('success', 'Email verified successfully! You can now sign in to your account.');
+        return redirect()->route('auth.verified')->with('success', 'Email verified successfully! You can now sign in to your account.');
     }
 
     private function sendSignupEmail($user, $password)
@@ -193,7 +193,7 @@ class AuthController extends Controller
         $user = User::where('remember_token', $token)->first();
 
         if (!$user) {
-            return redirect()->route('stock-analytics.index')->with('error', 'Invalid or expired reset token. Please request a new password reset link.');
+            return redirect()->route('home')->with('error', 'Invalid or expired reset token. Please request a new password reset link.');
         }
 
         return view('Auth.reset-password', compact('token'));
@@ -234,7 +234,7 @@ class AuthController extends Controller
             'remember_token' => null,
         ]);
 
-        return redirect()->route('stock-analytics.index')->with('success', 'Password reset successfully! You can now sign in with your new password.');
+        return redirect()->route('home')->with('success', 'Password reset successfully! You can now sign in with your new password.');
     }
 
     private function sendResetPasswordEmail($user, $token)
@@ -242,7 +242,7 @@ class AuthController extends Controller
         $data = [
             'user' => $user,
             'token' => $token,
-            'resetUrl' => route('stock-analytics.reset-password', $token),
+            'resetUrl' => route('auth.reset.page', $token),
         ];
 
         Mail::send('emails.reset-password', $data, function ($message) use ($user) {

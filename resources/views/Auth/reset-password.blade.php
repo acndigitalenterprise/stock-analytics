@@ -38,7 +38,7 @@
                     Please enter your new password. Make sure it's secure and at least 8 characters long.
                 </div>
                 
-                <form action="{{ route('stock-analytics.reset-password.post') }}" method="GET" class="auth-form">
+                <form action="{{ route('auth.reset') }}" method="GET" class="auth-form">
                     <input type="hidden" name="token" value="{{ $token }}">
                     
                     <div class="auth-form-group">
@@ -77,7 +77,7 @@
                 </form>
                 
                 <div class="auth-switch-link">
-                    Remember your password? <a href="http://ai-stock-analytics.local/sign-in">Sign In</a>
+                    Remember your password? <a href="{{ route('auth.signin.page') }}">Sign In</a>
                 </div>
             </div>
         </div>

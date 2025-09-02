@@ -938,25 +938,31 @@ body.admin-layout::before {
     padding-right: 50px !important;
 }
 
-.auth-toggle-password {
+.auth-password-toggle {
     position: absolute;
+    right: 15px;
     top: 50%;
-    right: 16px;
     transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
-    color: white !important;
-    transition: color 0.3s ease;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s ease;
 }
 
-.auth-toggle-password:hover {
-    color: white !important;
+.auth-password-toggle:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.auth-toggle-password svg {
-    width: 22px;
-    height: 22px;
-    color: white !important;
-    stroke: white !important;
+.auth-password-toggle svg {
+    width: 18px;
+    height: 18px;
 }
 
 .auth-btn {
@@ -1222,31 +1228,7 @@ body.admin-layout::before {
     display: none;
 }
 
-/* Mobile breakpoint - force mobile layout */
-@media screen and (max-width: 768px) {
-    .admin-layout-container {
-        display: none !important;
-    }
-    
-    .mobile-admin-container {
-        display: flex !important;
-        flex-direction: column !important;
-        min-height: 100vh !important;
-    }
-}
 
-/* Additional mobile detection */
-@media only screen and (max-device-width: 768px) {
-    .admin-layout-container {
-        display: none !important;
-    }
-    
-    .mobile-admin-container {
-        display: flex !important;
-        flex-direction: column !important;
-        min-height: 100vh !important;
-    }
-}
     
     /* Ensure mobile content is properly styled */
     .mobile-admin-content .admin-content-card {
@@ -1271,7 +1253,6 @@ body.admin-layout::before {
         font-size: 0.9rem;
         margin-bottom: 24px;
     }
-}
 
 /* ===== MOBILE LAYOUT HAMBURGER MENU STYLES ===== */
 .mobile-admin-header .mobile-menu-toggle {
@@ -1395,16 +1376,6 @@ body.admin-layout::before {
     display: none !important;
 }
 
-/* Mobile: Hide desktop layout, show mobile layout */
-@media (max-width: 768px) {
-    .admin-layout-container {
-        display: none !important;
-    }
-    
-    .mobile-admin-container {
-        display: flex !important;
-    }
-}
 
 /* Desktop: Hide mobile layout, show desktop layout */
 @media (min-width: 769px) {
@@ -1529,9 +1500,7 @@ body.admin-layout::before {
     margin-top: 8px;
     font-style: italic;
 }
-    visibility: visible !important;
-    opacity: 1 !important;
-}
+
 
 /* Adjust mobile container for footer */
 .mobile-admin-container {

@@ -13,17 +13,17 @@ class SettingController extends Controller
     {
         $user = $request->session()->get('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.signin');
+            return redirect()->route('auth.signin.page');
         }
         $user = User::find($user->id);
-        return view('Settings.settings', compact('user'));
+        return view('setting.setting', compact('user'));
     }
 
     public function updateProfile(Request $request)
     {
         $user = $request->session()->get('user');
         if (!$user) {
-            return redirect()->route('stock-analytics.signin');
+            return redirect()->route('auth.signin.page');
         }
         $user = User::find($user->id);
         

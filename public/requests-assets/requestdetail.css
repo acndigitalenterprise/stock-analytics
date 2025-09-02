@@ -1,0 +1,83 @@
+/* Request Detail Specific Styles */
+
+.requests-detail-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 32px 0;
+}
+
+.requests-detail-field {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.requests-detail-field:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.requests-detail-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.requests-detail-value {
+    color: white;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.requests-detail-advice {
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: pre-wrap;
+}
+
+/* Back Button */
+.requests-detail-back-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.requests-detail-back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .requests-detail-title {
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+    }
+    
+    .requests-detail-advice {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .requests-detail-back-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

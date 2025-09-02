@@ -33,7 +33,7 @@
             
             <!-- Sign In Form -->
             <div class="auth-form-container">
-                <form action="{{ route('stock-analytics.signin') }}" method="POST" class="auth-form">
+                <form action="{{ route('auth.signin') }}" method="POST" class="auth-form">
                     @csrf
                     
                     <div class="auth-form-group">
@@ -63,12 +63,12 @@
                     <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
                     
                     <div class="auth-forgot-link">
-                        <a href="http://ai-stock-analytics.local/forgot-password">Forgot Password?</a>
+                        <a href="{{ route('auth.forgot.page') }}">Forgot Password?</a>
                     </div>
                 </form>
                 
                 <div class="auth-switch-link">
-                    Don't have an account? <a href="http://ai-stock-analytics.local/sign-up">Sign Up</a>
+                    Don't have an account? <a href="{{ route('auth.signup.page') }}">Sign Up</a>
                 </div>
             </div>
         </div>

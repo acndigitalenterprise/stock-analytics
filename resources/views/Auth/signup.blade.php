@@ -29,7 +29,7 @@
             
             <!-- Sign Up Form -->
             <div class="auth-form-container">
-                <form action="{{ route('stock-analytics.register') }}" method="POST" class="auth-form">
+                <form action="{{ route('auth.signup') }}" method="POST" class="auth-form">
                     @csrf
                     
                     <div class="auth-form-group">
@@ -97,7 +97,7 @@
                 </form>
                 
                 <div class="auth-switch-link">
-                    Already have an account? <a href="http://ai-stock-analytics.local/sign-in">Sign In</a>
+                    Already have an account? <a href="{{ route('auth.signin.page') }}">Sign In</a>
                 </div>
             </div>
         </div>

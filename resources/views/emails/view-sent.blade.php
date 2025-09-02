@@ -30,6 +30,6 @@
         <p>No emails sent yet.</p>
     @endif
     
-    <p><a href="{{ route('stock-analytics.admin') }}">Back to Admin</a></p>
+    <p><a href="{{ route('dashboard') }}">Back to Admin</a></p>
 </body>
 </html> 
