@@ -24,6 +24,11 @@
                         Dashboard
                     </a>
                 @endif
+                <a href="{{ route('market.index') }}" class="admin-menu-item {{ 
+                    request()->is('market*') ? 'active' : '' 
+                }}">
+                    Market
+                </a>
                 <a href="{{ route('requests.index') }}" class="admin-menu-item {{ 
                     request()->is('requests*') ? 'active' : '' 
                 }}">

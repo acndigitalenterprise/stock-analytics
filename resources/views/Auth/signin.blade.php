@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Sign In - AI Insights</title>
+    <title>Sign In - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Homepage/homepage.css') }}">
 </head>
 <body>
     <div class="homepage-main-content">
         <div class="homepage-content-wrapper">
-            <h1 class="homepage-title">AI Insights</h1>
+            <h1 class="homepage-title">Ticker AI</h1>
             <h3 class="homepage-tagline">Sign In</h3>
             <h3 class="homepage-description">Please enter your credential</h3>
             

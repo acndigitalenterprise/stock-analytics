@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Request Detail - AI Insights</title>
+    <title>Request Detail - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('requests-assets/requestdetail.css') }}">
+    <link rel="stylesheet" href="{{ asset('page-requests/requestdetail.css') }}">
 </head>
 <body class="admin-layout">
 
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <!-- Advice Box -->
+    <!-- Advice by Claude Section -->
     <div style="margin: 32px 0;">
         <div class="admin-stat-box" style="width: 100%; text-align: left;">
             <div class="requests-detail-field">
@@ -76,7 +76,12 @@
                     {!! $stockRequest->advice ? nl2br(e(str_replace('```markdown', '', $stockRequest->advice))) : '-' !!}
                 </div>
             </div>
-            
+        </div>
+    </div>
+
+    <!-- Advice by ChatGPT Section -->
+    <div style="margin: 32px 0;">
+        <div class="admin-stat-box" style="width: 100%; text-align: left;">
             <div class="requests-detail-field">
                 <label class="requests-detail-label">Advice by ChatGPT</label>
                 <div class="requests-detail-advice">
@@ -100,10 +105,43 @@
         </div>
     </div>
 
-    <!-- Back Button -->
-    <div style="margin: 32px 0; text-align: center;">
-        <a href="{{ route('requests.index') }}" class="auth-btn" style="background: rgba(255, 255, 255, 0.1); text-decoration: none; text-align: center;">Back</a>
-            </div>
+    <!-- Action Buttons Section -->
+    <div class="user-detail-actions" style="margin: 48px auto 0; max-width: 800px;">
+        <div class="user-detail-buttons">
+            <form action="{{ route('requests.destroy', $stockRequest->id) }}" method="POST" onsubmit="return confirmRequestDeletion(event, '{{ $stockRequest->stock_code }}')">
+                @csrf
+                <button type="submit" class="user-detail-btn user-detail-btn-delete">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete
+                </button>
+            </form>
+            
+            @if(!$stockRequest->advice || !$stockRequest->advice_chatgpt)
+                <a href="{{ route('requests.advice', $stockRequest->id) }}" class="user-detail-btn user-detail-btn-verify">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    Generate Advice
+                </a>
+            @else
+                <button class="user-detail-btn user-detail-btn-verified" disabled>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Advice Generated
+                </button>
+            @endif
+            
+            <a href="{{ route('requests.index') }}" class="user-detail-btn user-detail-btn-back">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+    </div>
         </main>
     </div>
     
@@ -112,7 +150,7 @@
 
 @include('Components.admin-scripts')
 
-<script src="{{ asset('requests/requestdetail.js') }}"></script>
+<script src="{{ asset('page-requests/requestdetail.js') }}"></script>
 
 </body>
 </html>

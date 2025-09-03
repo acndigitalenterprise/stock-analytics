@@ -4,15 +4,15 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-<link rel="stylesheet" href="{{ asset('users-assets/users.css') }}?v={{ time() }}">
-<link rel="stylesheet" href="{{ asset('Settings/settings.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ asset('page-users/users.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ asset('page-settings/settings.css') }}?v={{ time() }}">
 
 <div class="admin-content-container">
     @php $isAdminLayout = true; @endphp
     
     <div class="users-flex-between">
         <div>
-            <h2>Settings</h2>
+            <h2>settings</h2>
         </div>
         <div></div>
     </div>
@@ -26,7 +26,7 @@
         <div class="users-message users-error">{{ session('error') }}</div>
     @endif
     
-    <!-- Settings Form -->
+    <!-- settings Form -->
     <div class="settings-auth-form-container">
         
         <!-- Profile Section -->
@@ -113,5 +113,5 @@
     
 </div>
 
-<script src="{{ asset('Settings/settings.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('page-settings/settings.js') }}?v={{ time() }}"></script>
 @endsection

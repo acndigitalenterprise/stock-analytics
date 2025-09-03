@@ -5,6 +5,7 @@ use App\Http\Controllers\StockAnalyticsController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\MarketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,6 +123,13 @@ Route::middleware(['auth.session'])->group(function () {
     // Main Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])
         ->name('dashboard');
+    
+    // Market Page
+    Route::get('/market', [MarketController::class, 'index'])
+        ->name('market.index');
+    
+    Route::post('/market/refresh', [MarketController::class, 'refresh'])
+        ->name('market.refresh');
     
     // Stock Requests Management
     Route::get('/requests', [AdminController::class, 'stocks'])

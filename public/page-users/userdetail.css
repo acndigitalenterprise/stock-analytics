@@ -4,6 +4,15 @@
  * =================================
  */
 
+/* Page Title Styling */
+h2 {
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 /* User Detail Action Buttons */
 .user-detail-buttons {
     display: flex;

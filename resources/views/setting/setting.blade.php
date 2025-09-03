@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Settings - AI Insights</title>
+    <title>Settings - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('setting/setting.css') }}?v={{ time() }}">
 </head>

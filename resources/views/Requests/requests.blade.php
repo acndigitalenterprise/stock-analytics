@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Requests - AI Insights</title>
+    <title>Requests - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('requests-assets/requests.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('page-requests/requests.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 
@@ -331,7 +331,7 @@
     // Set URLs for JavaScript
     window.stockSearchUrl = '{{ route("api.stocks.search") }}';
 </script>
-<script src="{{ asset('requests/requests.js') }}"></script>
+<script src="{{ asset('page-requests/requests.js') }}"></script>
 
 </body>
 </html>

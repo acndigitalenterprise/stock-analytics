@@ -779,10 +779,7 @@
                     <span></span>
                     <span></span>
                 </button>
-                <h1 class="mobile-header-title">AI Insights</h1>
-                <div class="mobile-welcome-text">
-                    Welcome,<br>{{ session('user')->name ?? session('user')->email ?? 'User' }}
-                </div>
+                <h1 class="mobile-header-title">Ticker AI</h1>
             </header>
             
             <!-- Mobile Sidebar Overlay -->
@@ -870,11 +867,8 @@
                         <span></span>
                         <span></span>
                     </button>
-                    <h1 class="admin-header-title">AI Insights</h1>
+                    <h1 class="admin-header-title">Ticker AI</h1>
                     <div class="admin-header-center">
-                        <span class="admin-user-info">
-                            Welcome, {{ session('user')->name ?? session('user')->email ?? 'User' }}
-                        </span>
                     </div>
                     <div class="admin-header-actions">
                         <div class="user-dropdown">

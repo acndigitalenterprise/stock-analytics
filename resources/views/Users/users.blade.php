@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Users - AI Insights</title>
+    <title>Users - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('users-assets/users.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('page-users/users.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 
@@ -230,7 +230,7 @@
 
 @include('Components.admin-scripts')
 
-<script src="{{ asset('users/users.js') }}"></script>
+<script src="{{ asset('page-users/users.js') }}"></script>
 
 </body>
 </html>
