@@ -10,7 +10,9 @@
       "Bash(git add:*)",
       "Bash(mkdir:*)",
       "Bash(sed:*)",
-      "Read(C:\\Users\\acndi\\OneDrive\\Pictures\\Screenshots/**)"
+      "Read(C:\\Users\\acndi\\OneDrive\\Pictures\\Screenshots/**)",
+      "Read(/C:\\xampp\\htdocs\\ai-stock-analytics/**)",
+      "Read(/C:\\xampp\\htdocs\\ai-stock-analytics/**)"
     ],
     "deny": [],
     "ask": []

@@ -2,6 +2,31 @@
    DASHBOARD PAGE STYLES
    ================================= */
 
+/* Page Header - Consistent Across All Pages */
+.users-flex-between {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 32px !important;
+    gap: 20px !important;
+}
+
+.users-flex-between > div:last-child {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Page Title - Consistent Styling */
+.users-flex-between h2,
+h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+}
+
 /* Dashboard Statistics Grid */
 .dashboard-stats-grid-5 {
     display: grid;
@@ -221,8 +246,20 @@
     min-width: 0;
 }
 
-/* Responsive Design */
+/* Mobile responsiveness for header */
 @media (max-width: 768px) {
+    .users-flex-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    
+    .users-flex-between > div:last-child {
+        align-self: flex-start !important;
+        width: auto !important;
+        margin-left: 0 !important;
+    }
+    
     .dashboard-stats-grid-5 {
         grid-template-columns: repeat(2, 1fr);
     }

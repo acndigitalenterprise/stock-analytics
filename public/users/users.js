@@ -12,7 +12,6 @@ let usersCurrentPopup = null;
  */
 function initUsersPage() {
     console.log('🚀 Initializing Users Page...');
-    initNewUserForm();
     initPasswordToggles();
     initRowLinks();
     console.log('✅ Users Page initialized');
@@ -24,59 +23,6 @@ function initUsersPage() {
  * =================================
  */
 
-/**
- * Show New User Modal
- */
-function showNewUserModal() {
-    console.log('showNewUserModal called');
-    const modal = document.getElementById('new-user-popup');
-    if (modal) {
-        modal.classList.add('users-modal-active');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        usersCurrentPopup = modal;
-    } else {
-        console.error('Modal not found');
-    }
-}
-
-/**
- * Close User Popup
- */
-function closeUserPopup() {
-    closeUsersPopup('new-user');
-    resetNewUserForm();
-}
-
-/**
- * Show popup by ID
- */
-function showUsersPopup(popupId) {
-    try {
-        const popup = document.getElementById(popupId + '-popup');
-        if (popup) {
-            popup.classList.add('users-modal-active');
-            usersCurrentPopup = popup;
-            document.body.style.overflow = 'hidden';
-        } else {
-            console.error('Modal element not found:', popupId + '-popup');
-        }
-    } catch (error) {
-        console.error('Error showing modal:', error);
-    }
-}
-
-/**
- * Close popup by ID
- */
-function closeUsersPopup(popupId) {
-    const popup = document.getElementById(popupId + '-popup');
-    if (popup) {
-        popup.classList.remove('users-modal-active');
-        usersCurrentPopup = null;
-        document.body.style.overflow = '';
-    }
-}
 
 /**
  * Close popup when clicking outside
@@ -104,93 +50,6 @@ document.addEventListener('keydown', function(e) {
  * =================================
  */
 
-/**
- * Initialize New User Form
- */
-function initNewUserForm() {
-    console.log('initNewUserForm called');
-    const form = document.getElementById('newUserForm');
-    if (!form) {
-        console.log('newUserForm not found');
-        return;
-    }
-
-    form.addEventListener('submit', handleNewUserSubmit);
-}
-
-/**
- * Handle New User Form Submit
- */
-function handleNewUserSubmit(e) {
-    e.preventDefault();
-    
-    const submitBtn = document.getElementById('submitUserBtn');
-    const originalText = submitBtn.textContent;
-    
-    // Disable button and show loading
-    submitBtn.textContent = 'Creating...';
-    submitBtn.disabled = true;
-    
-    const formData = new FormData(e.target);
-    
-    // Get CSRF token
-    const csrfToken = document.querySelector('input[name="_token"]').value;
-    
-    fetch(getCreateUserUrl(), {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeUserPopup();
-            showUsersMessage('User created successfully!', 'success');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        } else {
-            showUsersMessage('Error: ' + (data.error || 'Failed to create user'), 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showUsersMessage('An error occurred while creating the user.', 'error');
-    })
-    .finally(() => {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    });
-}
-
-/**
- * Get Create User URL (to be defined in blade template)
- */
-function getCreateUserUrl() {
-    return window.createUserUrl || '/stock-analytics/admin/users';
-}
-
-/**
- * Reset New User Form
- */
-function resetNewUserForm() {
-    const form = document.getElementById('newUserForm');
-    if (form) {
-        form.reset();
-        
-        // Reset password visibility
-        const passwordFields = form.querySelectorAll('input[type="password"]');
-        passwordFields.forEach(field => {
-            field.type = 'password';
-            const toggle = field.parentNode.querySelector('.users-password-toggle');
-            if (toggle) {
-                updatePasswordToggleIcon(field.id, false);
-            }
-        });
-    }
-}
 
 /**
  * =================================
@@ -496,29 +355,9 @@ window.addEventListener('load', function() {
 // Immediate check
 console.log('🔧 Users.js file loaded!');
 
-/**
- * Toggle Modal Password Function (moved from blade)
- */
-function toggleModalPassword(inputId, iconElement) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    
-    // Toggle between password and text
-    const isCurrentlyPassword = input.type === 'password';
-    input.type = isCurrentlyPassword ? 'text' : 'password';
-    
-    // Update the icon
-    updatePasswordToggleIcon(inputId, !isCurrentlyPassword);
-}
 
-// Legacy function names for backward compatibility
-window.showNewUserModal = showNewUserModal;
-window.closeUserPopup = closeUserPopup;
+// Keep only actively used global functions
 window.changePerPage = changeUsersPerPage; // Keep original name for existing usage
-// Global functions for backward compatibility
 window.togglePassword = function(fieldId, el) {
     toggleUsersPassword(fieldId, el);
-};
-window.toggleModalPassword = function(inputId, iconElement) {
-    toggleModalPassword(inputId, iconElement);
 };

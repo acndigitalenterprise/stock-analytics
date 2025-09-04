@@ -1,4 +1,48 @@
-/* Setting Page Specific Styles */
+/* Settings Page Specific Styles */
+
+/* Header Layout */
+.users-flex-between {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 32px !important;
+    gap: 20px !important;
+    min-height: 60px !important;
+}
+
+.users-flex-between > div:last-child {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.users-flex-between h2,
+h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+}
+
+/* Success/Error Messages */
+.users-message {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.users-message.users-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724 !important;
+}
+
+.users-message.users-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24 !important;
+}
 
 /* Action Buttons Section */
 .user-detail-actions {
@@ -13,6 +57,7 @@
     justify-content: center;
 }
 
+/* Button Styles */
 .user-detail-btn {
     display: inline-flex;
     align-items: center;
@@ -58,8 +103,19 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
+.user-detail-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+    .users-flex-between {
+        flex-direction: column;
+        gap: 16px;
+        min-height: auto;
+    }
+    
     .user-detail-buttons {
         flex-direction: column;
         gap: 12px;

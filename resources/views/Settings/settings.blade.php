@@ -4,8 +4,7 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-<link rel="stylesheet" href="{{ asset('page-users/users.css') }}?v={{ time() }}">
-<link rel="stylesheet" href="{{ asset('page-settings/settings.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ asset('settings/settings.css') }}?v={{ time() }}">
 
 <div class="admin-content-container">
     @php $isAdminLayout = true; @endphp
@@ -35,7 +34,7 @@
             Keep your profile up to date.
         </div>
         
-        <form action="{{ route('settings.update') }}" method="POST" class="auth-form">
+        <form id="settings-form" action="{{ route('settings.update') }}" method="POST" class="auth-form">
             @csrf
             
             <!-- Registered Date (Read-only) -->
@@ -86,15 +85,7 @@
             <!-- Change Password (Optional) -->
             <div class="auth-form-group">
                 <label for="settings_new_password">Change Password</label>
-                <div class="auth-password-container input-group">
-                    <input type="password" name="new_password" id="settings_new_password" placeholder="Enter new password" class="form-control auth-password-input">
-                    <button type="button"
-                            class="btn btn-outline-secondary settings-password-toggle"
-                            data-toggle="password"
-                            aria-label="Toggle password">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                </div>
+                <input type="password" name="new_password" id="settings_new_password" placeholder="Enter new password">
                 @error('new_password')
                     <div class="auth-error-message">{{ $message }}</div>
                 @enderror
@@ -103,15 +94,28 @@
                 </small>
             </div>
             
-            <!-- Buttons -->
-            <div class="settings-button-container">
-                <button type="submit" class="auth-btn auth-btn-primary">Update</button>
-                <a href="{{ route('dashboard') }}" class="auth-btn settings-back-btn">Back</a>
-            </div>
         </form>
+    </div>
+    
+    <!-- Action Buttons Section -->
+    <div class="user-detail-actions">
+        <div class="user-detail-buttons">
+            <button type="submit" form="settings-form" class="user-detail-btn user-detail-btn-update">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Update
+            </button>
+            <a href="{{ route('dashboard') }}" class="user-detail-btn user-detail-btn-back">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
     </div>
     
 </div>
 
-<script src="{{ asset('page-settings/settings.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('settings/settings.js') }}?v={{ time() }}"></script>
 @endsection

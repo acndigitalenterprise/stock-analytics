@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('page-dashboard/dashboard.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('dashboard/dashboard.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 
@@ -103,7 +103,7 @@
 
 @include('Components.admin-scripts')
 
-<script src="{{ asset('page-dashboard/dashboard.js') }}"></script>
+<script src="{{ asset('dashboard/dashboard.js') }}"></script>
 
 </body>
 </html>

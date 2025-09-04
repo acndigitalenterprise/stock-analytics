@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Market - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('page-market/market.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('market/market.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 
@@ -139,7 +139,7 @@
 // Set market refresh URL for JavaScript
 window.marketRefreshUrl = '{{ route("market.refresh") }}';
 </script>
-<script src="{{ asset('page-market/market.js') }}"></script>
+<script src="{{ asset('market/market.js') }}"></script>
 
 </body>
 </html>
