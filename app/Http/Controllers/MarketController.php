@@ -17,8 +17,17 @@ class MarketController extends Controller
     public function index()
     {
         try {
-            // Get market insights data
-            $marketInsights = $this->yahooFinanceService->getMarketInsights();
+            // Try to get cached data first for instant loading
+            if (\Cache::has('market_insights_data')) {
+                $marketInsights = \Cache::get('market_insights_data');
+            } else {
+                // Show loading state if no cache available
+                $marketInsights = [
+                    'success' => false,
+                    'loading' => true,
+                    'message' => 'Loading market data...'
+                ];
+            }
             
             return view('Market.market', compact('marketInsights'));
         } catch (\Exception $e) {

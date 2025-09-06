@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class YahooFinanceService
 {
@@ -12,7 +13,7 @@ class YahooFinanceService
         try {
             $url = "https://query1.finance.yahoo.com/v8/finance/chart/{$stockCode}?interval={$timeframe}&range=1d";
             
-            $response = Http::timeout(10)->get($url);
+            $response = Http::timeout(5)->get($url);
             
             if ($response->successful()) {
                 $data = $response->json();
@@ -59,7 +60,7 @@ class YahooFinanceService
             'exchange' => $meta['exchangeName'] ?? 'IDX',
             'company_name' => $meta['longName'] ?? $meta['symbol'] ?? 'N/A',
             'current_price' => $meta['regularMarketPrice'] ?? 0,
-            'previous_close' => $meta['previousClose'] ?? $meta['regularMarketPrice'] ?? 0,
+            'previous_close' => $meta['previousClose'] ?? $meta['chartPreviousClose'] ?? 0,
             'day_high' => $meta['regularMarketDayHigh'] ?? $meta['regularMarketPrice'] ?? 0,
             'day_low' => $meta['regularMarketDayLow'] ?? $meta['regularMarketPrice'] ?? 0,
             'volume' => $meta['regularMarketVolume'] ?? 0,
@@ -78,15 +79,24 @@ class YahooFinanceService
     /**
      * Get market insights - top active and promising stocks
      */
-    public function getMarketInsights(): array
+    public function getMarketInsights(bool $forceRefresh = false): array
     {
+        $cacheKey = 'market_insights_data';
+        $cacheTime = 15; // 15 minutes
+        
+        // Return cached data if available and not forcing refresh
+        if (!$forceRefresh && Cache::has($cacheKey)) {
+            Log::info('Market insights: serving from cache');
+            return Cache::get($cacheKey);
+        }
+        
         try {
-            // Popular Indonesian stocks for analysis
+            Log::info('Market insights: fetching fresh data');
+            
+            // Popular Indonesian stocks for analysis (reduced from 20 to 10 for speed)
             $stocks = [
                 'BBCA.JK', 'BBRI.JK', 'BMRI.JK', 'TLKM.JK', 'ASII.JK',
-                'UNVR.JK', 'ICBP.JK', 'KLBF.JK', 'GOTO.JK', 'AMMN.JK',
-                'ACES.JK', 'ANTM.JK', 'BRIS.JK', 'CPIN.JK', 'EMTK.JK',
-                'INCO.JK', 'ITMG.JK', 'JPFA.JK', 'MAPI.JK', 'MDKA.JK'
+                'UNVR.JK', 'ICBP.JK', 'KLBF.JK', 'GOTO.JK', 'AMMN.JK'
             ];
 
             $insights = [];
@@ -99,9 +109,20 @@ class YahooFinanceService
                     
                     // Calculate change percentage
                     $changePercent = 0;
-                    if ($extracted['previous_close'] > 0) {
-                        $changePercent = (($extracted['current_price'] - $extracted['previous_close']) / $extracted['previous_close']) * 100;
+                    $currentPrice = $extracted['current_price'];
+                    $previousClose = $extracted['previous_close'];
+                    
+                    if ($previousClose > 0 && $currentPrice > 0 && $previousClose != $currentPrice) {
+                        $changePercent = (($currentPrice - $previousClose) / $previousClose) * 100;
                     }
+                    
+                    // Debug logging
+                    Log::info('Stock change calculation', [
+                        'stock' => $stock,
+                        'current_price' => $currentPrice,
+                        'previous_close' => $previousClose,
+                        'change_percent' => $changePercent
+                    ]);
                     
                     $insights[] = [
                         'symbol' => str_replace('.JK', '', $extracted['symbol']),
@@ -118,21 +139,27 @@ class YahooFinanceService
                     if ($failed > 5) break; // Stop if too many failures
                 }
                 
-                // Small delay to avoid rate limiting
-                usleep(100000); // 0.1 second
+                // Small delay to avoid rate limiting (reduced from 0.1s to 0.05s)
+                usleep(50000); // 0.05 second
             }
 
             // Sort and get top 10
             $topActive = collect($insights)->sortByDesc('volume')->take(10)->values()->all();
             $topPromising = collect($insights)->sortByDesc('promising_score')->take(10)->values()->all();
 
-            return [
+            $result = [
                 'success' => true,
                 'top_active' => $topActive,
                 'top_promising' => $topPromising,
                 'total_analyzed' => count($insights),
                 'last_update' => now()->setTimezone('Asia/Jakarta')->format('d M Y H:i T')
             ];
+            
+            // Cache the result for 15 minutes
+            Cache::put($cacheKey, $result, now()->addMinutes($cacheTime));
+            Log::info('Market insights: data cached for 15 minutes');
+            
+            return $result;
 
         } catch (\Exception $e) {
             Log::error('Market insights failed', ['error' => $e->getMessage()]);

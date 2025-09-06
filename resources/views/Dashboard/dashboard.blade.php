@@ -103,7 +103,5 @@
 
 @include('Components.admin-scripts')
 
-<script src="{{ asset('dashboard/dashboard.js') }}"></script>
-
 </body>
 </html>

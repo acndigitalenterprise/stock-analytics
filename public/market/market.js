@@ -4,17 +4,18 @@
  * =================================
  */
 
-// Global variables
-let marketCurrentPopup = null;
+// Market page JavaScript - Optimized version
 
 /**
  * Initialize Market Page
  */
 function initMarketPage() {
-    console.log('🚀 Initializing Market Page...');
     initRefreshButton();
     initTableSorting();
-    console.log('✅ Market Page initialized');
+    initUserDropdown();
+    initSidebarAccordion();
+    initMobileMenu();
+    console.log('✅ Market page initialized');
 }
 
 /**
@@ -180,32 +181,6 @@ function showMarketMessage(message, type = 'info') {
     }, 5000);
 }
 
-/**
- * =================================
- * UTILITY FUNCTIONS
- * =================================
- */
-
-/**
- * Format Number with Commas
- */
-function formatNumber(num) {
-    return new Intl.NumberFormat('id-ID').format(num);
-}
-
-/**
- * Format Currency
- */
-function formatCurrency(num) {
-    return 'Rp ' + formatNumber(num);
-}
-
-/**
- * Format Percentage
- */
-function formatPercentage(num) {
-    return num.toFixed(2) + '%';
-}
 
 /**
  * =================================
@@ -213,25 +188,159 @@ function formatPercentage(num) {
  * =================================
  */
 
-// Initialize when DOM is loaded
+// Initialize when DOM is loaded (single initialization)
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM Content Loaded - Market.js starting...');
+    console.log('📄 Market.js: Initializing...');
     initMarketPage();
 });
 
-// Also try window.onload as fallback
-window.addEventListener('load', function() {
-    console.log('🪟 Window Load - Market.js fallback init...');
-    // Try again after a delay
-    setTimeout(() => {
-        console.log('⏰ Delayed init - Market.js...');
-        initMarketPage();
-    }, 1000);
+/**
+ * Initialize Auto-refresh for Loading State
+ */
+function initAutoRefresh() {
+    // Check if page is in loading state and auto-refresh is needed
+    const loadingContainer = document.getElementById('loading-container');
+    if (loadingContainer) {
+        // Auto-refresh after 3 seconds to get fresh data
+        setTimeout(function() {
+            refreshMarketData();
+        }, 3000);
+    }
+}
+
+/**
+ * Set Market Refresh URL from server
+ */
+function setMarketRefreshUrl(url) {
+    window.marketRefreshUrl = url;
+}
+
+// Initialize auto-refresh when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initAutoRefresh();
 });
 
-// Immediate check
-console.log('🔧 Market.js file loaded!');
+/**
+ * =================================
+ * ADMIN FUNCTIONALITY
+ * =================================
+ */
+
+/**
+ * User Dropdown Functionality
+ */
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('userDropdownMenu');
+    dropdown.classList.toggle('show');
+}
+
+/**
+ * Initialize User Dropdown Events
+ */
+function initUserDropdown() {
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('userDropdownMenu');
+        const button = document.querySelector('.user-dropdown-btn');
+        
+        if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    // Close dropdown when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const dropdown = document.getElementById('userDropdownMenu');
+            if (dropdown) dropdown.classList.remove('show');
+        }
+    });
+}
+
+/**
+ * Mobile Menu Functionality
+ */
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.querySelector('.mobile-sidebar-overlay');
+    
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+    if (overlay) overlay.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.querySelector('.mobile-sidebar-overlay');
+    
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (overlay) overlay.classList.remove('active');
+}
+
+/**
+ * Initialize Mobile Menu Events
+ */
+function initMobileMenu() {
+    // Close mobile menu when window is resized to desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            closeMobileMenu();
+        }
+    });
+}
+
+/**
+ * Initialize Sidebar Accordion Functionality
+ */
+function initSidebarAccordion() {
+    const groupTitles = document.querySelectorAll('.admin-menu-group-title');
+    const groupItems = document.querySelectorAll('.admin-menu-group-items');
+    
+    if (groupTitles.length === 0) return;
+    
+    // Set default state - Stocks open
+    groupTitles.forEach(function(title, index) {
+        const items = title.nextElementSibling;
+        
+        if (index === 0) {
+            // First group (Stocks) - open
+            title.classList.remove('collapsed');
+            if (items) items.classList.remove('collapsed');
+        } else {
+            // Other groups - closed
+            title.classList.add('collapsed');
+            if (items) items.classList.add('collapsed');
+        }
+    });
+    
+    // Add click handlers
+    groupTitles.forEach(function(title) {
+        title.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const currentItems = this.nextElementSibling;
+            const isCurrentlyOpen = !this.classList.contains('collapsed');
+            
+            // Close all groups first
+            groupTitles.forEach(function(otherTitle) {
+                const otherItems = otherTitle.nextElementSibling;
+                
+                otherTitle.classList.add('collapsed');
+                if (otherItems) otherItems.classList.add('collapsed');
+            });
+            
+            // If the clicked group was closed, open it
+            if (!isCurrentlyOpen) {
+                this.classList.remove('collapsed');
+                if (currentItems) currentItems.classList.remove('collapsed');
+            }
+        });
+    });
+}
 
 // Global functions for backward compatibility
 window.refreshMarketData = refreshMarketData;
 window.showMarketMessage = showMarketMessage;
+window.setMarketRefreshUrl = setMarketRefreshUrl;
+window.toggleUserDropdown = toggleUserDropdown;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;

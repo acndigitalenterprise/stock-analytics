@@ -46,7 +46,7 @@
         
         <div>
             @if($isTradingHours)
-                <button class="btn requests-new-btn" onclick="document.getElementById('request-modal-final').style.cssText='display:flex !important;position:absolute !important;top:0 !important;left:0 !important;width:100vw !important;min-height:100vh !important;background:rgba(0,0,0,0.8) !important;z-index:999999 !important;justify-content:center !important;align-items:flex-start !important;padding:40px 0 !important;overflow-y:auto !important;'">New Request</button>
+                <button class="btn requests-new-btn" onclick="showRequestModal()">New Request</button>
             @else
                 <button class="btn requests-new-btn" disabled title="Trading hours: 09:00-16:00 WIB (Current: {{ $currentTime }} WIB)">
                     New Request (Market Closed)
@@ -284,7 +284,7 @@
 </div>
 
 <!-- New Request Modal (MOVED OUTSIDE CONTAINER) -->
-<div id="request-modal-final" style="display:none !important;position:absolute !important;top:0 !important;left:0 !important;width:100vw !important;min-height:100vh !important;background:rgba(0,0,0,0.8) !important;z-index:999999 !important;justify-content:center !important;align-items:flex-start !important;padding:40px 0 !important;overflow-y:auto !important;">
+<div id="request-modal-final" class="requests-modal-hidden">
         <div class="auth-form-container requests-auth-form-container">
             <div class="auth-info-note">
                 <strong>New Stock Request</strong><br>
@@ -314,7 +314,7 @@
                 
                 <div class="requests-modal-actions">
                     <button type="submit" class="auth-btn auth-btn-primary requests-modal-btn-primary">Submit Request</button>
-                    <button type="button" class="auth-btn requests-modal-btn-cancel" onclick="document.getElementById('request-modal-final').style.display='none'">Cancel</button>
+                    <button type="button" class="auth-btn requests-modal-btn-cancel" onclick="closeRequestModal()">Cancel</button>
                 </div>
             </form>
         </div>
@@ -324,8 +324,6 @@
     
     @include('Components.footer')
 </div>
-
-@include('Components.admin-scripts')
 
 <script>
     // Set URLs for JavaScript

@@ -27,86 +27,108 @@
 
     <h2 class="requests-detail-title">Requests &gt; Detail</h2>
 
-    <!-- Request Details Box -->
-    <div style="margin: 32px 0;">
-        <div class="admin-stat-box" style="width: 100%; text-align: left;">
-            <div class="requests-detail-field">
+    <!-- Request Box -->
+    <div class="requests-detail-section">
+        <div class="admin-stat-box requests-detail-box">
+            <h3 class="requests-detail-box-title">Request</h3>
+            
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Date</label>
                 <div class="requests-detail-value">{{ $stockRequest->created_at ? \Carbon\Carbon::parse($stockRequest->created_at)->setTimezone('Asia/Jakarta')->format('d M Y H:i T') : '-' }}</div>
             </div>
             
             @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
-            <div class="requests-detail-field">
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Full Name</label>
                 <div class="requests-detail-value">{{ $stockRequest->full_name }}</div>
             </div>
-            <div class="requests-detail-field">
+            
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Mobile Number</label>
                 <div class="requests-detail-value">{{ $stockRequest->mobile_number }}</div>
             </div>
-            <div class="requests-detail-field">
+            
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Email Address</label>
                 <div class="requests-detail-value">{{ $stockRequest->email }}</div>
             </div>
             @endif
             
-            <div class="requests-detail-field">
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Stock Code</label>
                 <div class="requests-detail-value">{{ $stockRequest->stock_code }}</div>
             </div>
             
-            <div class="requests-detail-field">
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Company Name</label>
                 <div class="requests-detail-value">{{ $stockRequest->company_name }}</div>
             </div>
             
-            <div class="requests-detail-field">
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
                 <label class="requests-detail-label">Timeframe</label>
                 <div class="requests-detail-value">{{ \App\Providers\AppServiceProvider::formatTimeframe($stockRequest->timeframe) }}</div>
             </div>
         </div>
     </div>
 
-    <!-- Advice by Claude Section -->
-    <div style="margin: 32px 0;">
-        <div class="admin-stat-box" style="width: 100%; text-align: left;">
-            <div class="requests-detail-field">
-                <label class="requests-detail-label">Advice by Claude</label>
-                <div class="requests-detail-advice">
-                    {!! $stockRequest->advice ? nl2br(e(str_replace('```markdown', '', $stockRequest->advice))) : '-' !!}
+    <!-- Insight Box -->
+    <div class="requests-detail-section">
+        <div class="admin-stat-box requests-detail-box">
+            <h3 class="requests-detail-box-title">Insight</h3>
+            
+            <div class="requests-detail-insight-section">
+                <h4 class="requests-detail-insight-title">Claude</h4>
+                <div class="requests-detail-insight-content">
+                    {{ $stockRequest->advice ? str_replace('```markdown', '', $stockRequest->advice) : '-' }}
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Advice by ChatGPT Section -->
-    <div style="margin: 32px 0;">
-        <div class="admin-stat-box" style="width: 100%; text-align: left;">
-            <div class="requests-detail-field">
-                <label class="requests-detail-label">Advice by ChatGPT</label>
-                <div class="requests-detail-advice">
-                    {!! $stockRequest->advice_chatgpt ? nl2br(e(str_replace('```markdown', '', $stockRequest->advice_chatgpt))) : 'ChatGPT analysis not available' !!}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Result Box -->
-    <div style="margin: 32px 0;">
-        <div class="admin-stat-box" style="width: 100%; text-align: left;">
-            <div class="requests-detail-field">
-                <label class="requests-detail-label">Result</label>
-                <div class="requests-detail-value">Monitor</div>
             </div>
             
-            <div style="margin-top: 16px; color: rgba(255, 255, 255, 0.8);">
-                This monitoring system tracks performance based on Claude's advice only.
+            <div class="requests-detail-divider"></div>
+            
+            <div class="requests-detail-insight-section">
+                <h4 class="requests-detail-insight-title">ChatGPT</h4>
+                <div class="requests-detail-insight-content">
+                    {{ $stockRequest->advice_chatgpt ? str_replace('```markdown', '', $stockRequest->advice_chatgpt) : 'ChatGPT analysis not available' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Box -->
+    <div class="requests-detail-section">
+        <div class="admin-stat-box requests-detail-box">
+            <h3 class="requests-detail-box-title">Status</h3>
+            
+            <div class="requests-detail-field-item">
+                @php
+                    $statusMap = [
+                        'SUPER_WIN' => 'Super Win',
+                        'WIN' => 'Win',
+                        'LOSS' => 'Loss',
+                        'TIMEOUT' => 'Timeout',
+                        'MONITORING' => 'Monitor'
+                    ];
+                    $statusText = $statusMap[$stockRequest->result ?? 'MONITORING'];
+                @endphp
+                <div class="requests-detail-status-value">{{ $statusText }}</div>
+            </div>
+            
+            <div class="requests-detail-divider"></div>
+            
+            <div class="requests-detail-field-item">
+                <div class="requests-detail-note">This monitoring system tracks performance based on Claude's advice only.</div>
             </div>
         </div>
     </div>
 
     <!-- Action Buttons Section -->
-    <div class="user-detail-actions" style="margin: 48px auto 0; max-width: 800px;">
+    <div class="user-detail-actions requests-detail-actions">
         <div class="user-detail-buttons">
             <form action="{{ route('requests.destroy', $stockRequest->id) }}" method="POST" onsubmit="return confirmRequestDeletion(event, '{{ $stockRequest->stock_code }}')">
                 @csrf
@@ -147,8 +169,6 @@
     
     @include('Components.footer')
 </div>
-
-@include('Components.admin-scripts')
 
 <script src="{{ asset('requests/requestdetail.js') }}"></script>
 

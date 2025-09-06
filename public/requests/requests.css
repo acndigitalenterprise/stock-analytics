@@ -833,3 +833,28 @@ h2 {
         margin: 10px;
     }
 }
+
+/* =================================
+   MODAL STYLES
+   ================================= */
+
+/* Modal default state - hidden */
+.requests-modal-hidden {
+    display: none !important;
+}
+
+/* Modal active state - shown as overlay */
+.requests-modal-active {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    min-height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    z-index: 999999 !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 40px 0 !important;
+    overflow-y: auto !important;
+}
