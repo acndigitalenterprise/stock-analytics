@@ -193,6 +193,27 @@ Route::middleware(['auth.session'])->group(function () {
         Route::post('/users', [AdminController::class, 'createUser'])
             ->name('users.store');
         
+        Route::post('/create-user', function(\Illuminate\Http\Request $request) {
+            try {
+                // Simple user creation without complex validation
+                \Log::info('Simple create user called', $request->all());
+                
+                $user = new \App\Models\User();
+                $user->name = $request->full_name;
+                $user->email = $request->email;
+                $user->mobile_number = $request->mobile_number;
+                $user->password = \Hash::make($request->password);
+                $user->role = $request->role;
+                $user->save();
+                
+                \Log::info('User created', ['id' => $user->id]);
+                return redirect()->route('users.index')->with('success', 'User created successfully!');
+            } catch (\Exception $e) {
+                \Log::error('User creation failed', ['error' => $e->getMessage()]);
+                return redirect()->route('users.index')->with('error', 'Error: ' . $e->getMessage());
+            }
+        })->name('users.create.simple');
+        
         Route::post('/users/{id}/update', [AdminController::class, 'updateUser'])
             ->name('users.update');
         

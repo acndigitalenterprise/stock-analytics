@@ -14,6 +14,10 @@ function initUsersPage() {
     console.log('🚀 Initializing Users Page...');
     initPasswordToggles();
     initRowLinks();
+    initDeleteForms();
+    initPerPageSelector();
+    initPaginationButtons();
+    initNewUserForm();
     console.log('✅ Users Page initialized');
 }
 
@@ -23,14 +27,70 @@ function initUsersPage() {
  * =================================
  */
 
+/**
+ * Show New User Modal
+ */
+function showNewUserModal() {
+    console.log('🚀 showNewUserModal called');
+    const modal = document.getElementById('user-modal-final');
+    console.log('Modal element:', modal);
+    if (modal) {
+        resetNewUserForm(); // Reset form when opening
+        console.log('Setting modal class to users-modal-show');
+        modal.className = 'users-modal-show';
+        usersCurrentPopup = modal;
+        console.log('Modal should now be visible');
+        
+        // Focus on first input
+        setTimeout(() => {
+            const firstInput = modal.querySelector('input[name="full_name"]');
+            if (firstInput) firstInput.focus();
+        }, 100);
+        
+        // FORCE button to be clickable by adding better handlers
+        setTimeout(() => {
+            const submitBtn = modal.querySelector('button[onclick="submitUserForm()"]');
+            if (submitBtn) {
+                // Remove any overlays that might interfere
+                submitBtn.style.position = 'relative';
+                submitBtn.style.zIndex = '999999999';
+                submitBtn.style.pointerEvents = 'auto';
+                
+                // Add multiple fallback handlers
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('🎯 FORCED CLICK HANDLER TRIGGERED!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    submitUserForm();
+                }, true); // Use capture phase
+                
+                console.log('✅ Forced button handlers added');
+            }
+        }, 500);
+    } else {
+        console.error('Modal element not found!');
+    }
+}
+
+/**
+ * Hide New User Modal
+ */
+function hideNewUserModal() {
+    const modal = document.getElementById('user-modal-final');
+    if (modal) {
+        modal.className = 'users-modal-hide';
+        usersCurrentPopup = null;
+        resetNewUserForm(); // Reset form when closing
+    }
+}
+
 
 /**
  * Close popup when clicking outside
  */
 document.addEventListener('click', function(e) {
     if (usersCurrentPopup && e.target === usersCurrentPopup) {
-        const popupId = usersCurrentPopup.id.replace('-popup', '');
-        closeUsersPopup(popupId);
+        hideNewUserModal();
     }
 });
 
@@ -39,8 +99,7 @@ document.addEventListener('click', function(e) {
  */
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && usersCurrentPopup) {
-        const popupId = usersCurrentPopup.id.replace('-popup', '');
-        closeUsersPopup(popupId);
+        hideNewUserModal();
     }
 });
 
@@ -49,6 +108,104 @@ document.addEventListener('keydown', function(e) {
  * NEW USER FORM FUNCTIONS
  * =================================
  */
+
+/**
+ * Initialize New User Form
+ */
+function initNewUserForm() {
+    const form = document.getElementById('newUserForm');
+    if (!form) return;
+    
+    // Add backup button click handler for cases where normal click doesn't work
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        // Alternative 1: Direct button click handler
+        submitBtn.addEventListener('click', function(e) {
+            console.log('🎯 Direct button click handler triggered');
+            e.preventDefault(); // Prevent default to control submission
+            
+            const password = document.getElementById('password');
+            const passwordConfirm = document.getElementById('password_confirmation');
+            
+            if (password && passwordConfirm) {
+                if (password.value !== passwordConfirm.value) {
+                    alert('Password and Confirm Password must match!');
+                    passwordConfirm.focus();
+                    return;
+                }
+            }
+            
+            // Get fresh CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const csrfInput = form.querySelector('input[name="_token"]');
+            if (csrfInput && csrfToken) {
+                csrfInput.value = csrfToken;
+                console.log('✅ CSRF token updated in direct handler');
+            }
+            
+            console.log('✅ Validation passed, submitting form programatically');
+            form.submit(); // Direct form submission
+        });
+        
+        // Alternative 2: Double click handler as backup
+        submitBtn.addEventListener('dblclick', function(e) {
+            console.log('🔄 Double click backup triggered');
+            e.preventDefault();
+            form.submit();
+        });
+    }
+    
+    form.addEventListener('submit', function(e) {
+        console.log('🚀 Form submit event fired!');
+        const password = document.getElementById('password');
+        const passwordConfirm = document.getElementById('password_confirmation');
+        
+        console.log('Password field:', password);
+        console.log('Password confirm field:', passwordConfirm);
+        
+        if (password && passwordConfirm) {
+            console.log('Password value:', password.value);
+            console.log('Password confirm value:', passwordConfirm.value);
+            
+            if (password.value !== passwordConfirm.value) {
+                console.log('❌ Passwords do not match, preventing submission');
+                e.preventDefault();
+                alert('Password and Confirm Password must match!');
+                passwordConfirm.focus();
+                return false;
+            }
+        }
+        
+        console.log('✅ Form validation passed, allowing submission');
+        // Do not prevent default - allow natural form submission
+    });
+    
+    // Password match validation on typing
+    const passwordConfirm = document.getElementById('password_confirmation');
+    if (passwordConfirm) {
+        passwordConfirm.addEventListener('input', function() {
+            const password = document.getElementById('password');
+            if (password && this.value && password.value !== this.value) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+}
+
+/**
+ * Reset New User Form
+ */
+function resetNewUserForm() {
+    const form = document.getElementById('newUserForm');
+    if (form) {
+        form.reset();
+        // Clear custom validation messages
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach(input => input.setCustomValidity(''));
+    }
+}
 
 
 /**
@@ -132,6 +289,33 @@ function updatePasswordToggleIcon(fieldId, isVisible) {
  * PAGINATION FUNCTIONS
  * =================================
  */
+
+/**
+ * Initialize Per Page Selector
+ */
+function initPerPageSelector() {
+    const perPageSelect = document.getElementById('perPageUsers');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            changeUsersPerPage(this.value);
+        });
+    }
+}
+
+/**
+ * Initialize Pagination Buttons
+ */
+function initPaginationButtons() {
+    const paginationButtons = document.querySelectorAll('.users-pagination-btn[data-url]');
+    paginationButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+}
 
 /**
  * Change Per Page Value
@@ -228,6 +412,22 @@ function showUsersMessage(message, type = 'info') {
  * CONFIRMATION FUNCTIONS
  * =================================
  */
+
+/**
+ * Initialize Delete Forms
+ */
+function initDeleteForms() {
+    const deleteForms = document.querySelectorAll('.users-delete-form');
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const userName = this.getAttribute('data-user-name');
+            if (!confirmUserDeletion(e, userName)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+}
 
 /**
  * Confirm User Deletion
@@ -356,8 +556,49 @@ window.addEventListener('load', function() {
 console.log('🔧 Users.js file loaded!');
 
 
+/**
+ * Submit User Form (Global function for onclick handler)
+ */
+function submitUserForm() {
+    console.log('🎯 submitUserForm() called via button handler');
+    const form = document.getElementById('newUserForm');
+    if (!form) {
+        console.error('Form not found');
+        return;
+    }
+    
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password_confirmation');
+    
+    if (password && passwordConfirm) {
+        if (password.value !== passwordConfirm.value) {
+            alert('Password and Confirm Password must match!');
+            passwordConfirm.focus();
+            return;
+        }
+    }
+    
+    // Get fresh CSRF token from meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    console.log('CSRF Token:', csrfToken);
+    
+    // Update CSRF token in form if found
+    const csrfInput = form.querySelector('input[name="_token"]');
+    if (csrfInput && csrfToken) {
+        csrfInput.value = csrfToken;
+        console.log('✅ CSRF token updated');
+    }
+    
+    console.log('✅ Validation passed, submitting form programatically');
+    form.submit();
+}
+
+
 // Keep only actively used global functions
 window.changePerPage = changeUsersPerPage; // Keep original name for existing usage
 window.togglePassword = function(fieldId, el) {
     toggleUsersPassword(fieldId, el);
 };
+window.showNewUserModal = showNewUserModal;
+window.hideNewUserModal = hideNewUserModal;
+window.submitUserForm = submitUserForm;

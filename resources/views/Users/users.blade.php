@@ -29,7 +29,7 @@
                         <h2>Users</h2>
                     </div>
                     <div>
-                        <button class="btn users-new-btn" onclick="document.getElementById('user-modal-final').style.cssText='display:flex !important;position:absolute !important;top:0 !important;left:0 !important;width:100vw !important;min-height:100vh !important;background:rgba(0,0,0,0.8) !important;z-index:999999 !important;justify-content:center !important;align-items:flex-start !important;padding:40px 0 !important;overflow-y:auto !important;'">New User</button>
+                        <button class="btn users-new-btn" onclick="showNewUserModal()">New User</button>
                     </div>
                 </div>
 
@@ -41,17 +41,16 @@
                     <div class="users-message users-error">{{ session('error') }}</div>
                 @endif
 
-                <!-- Search Form -->
-                <form method="GET" action="{{ route('users.index') }}" class="users-filter-bar users-search-form">
-                    <div class="users-filter-bar-inner">
-                        <div class="form-group">
-                            <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by name, email, mobile number...">
-                        </div>
-                        <div>
-                            <button type="submit" class="btn users-search-btn">Search</button>
-                        </div>
-                    </div>
-                </form>
+<!-- Search Form -->
+<form method="GET" action="{{ route('users.index') }}" class="users-filter-bar users-search-form">
+<div class="users-filter-bar-inner">
+<div class="form-group">
+<input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by name, email, mobile number...">
+<button type="submit" class="btn users-search-btn">Search</button>
+</div>
+</div>
+</form>
+
 
                 <!-- Users Table -->
                 <div class="table-responsive">
@@ -117,7 +116,7 @@
                                 <td onclick="event.stopPropagation();">
                                     <div class="users-action-container">
                                         <a href="{{ route('users.show', $user->id) }}" class="users-action-btn users-btn-view">View</a>
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirmUserDeletion(event, '{{ $user->full_name ?? $user->name }}')">
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="users-delete-form" data-user-name="{{ $user->full_name ?? $user->name }}">
                                             @csrf
                                             <button type="submit" class="users-action-btn users-btn-delete">Delete</button>
                                         </form>
@@ -146,7 +145,7 @@
                 <!-- Pagination -->
                 <div class="users-pagination-container">
                     <div class="users-pagination-left">
-                        <select id="perPageUsers" onchange="changeUsersPerPage(this.value)">
+                        <select id="perPageUsers">
                             <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5</option>
                             <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
                             <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
@@ -165,11 +164,11 @@
                                 @if($users->onFirstPage())
                                     <button class="users-pagination-btn" disabled>&lt;</button>
                                 @else
-                                    <button class="users-pagination-btn" onclick="window.location='{{ $users->appends(request()->query())->previousPageUrl() }}'">&lt;</button>
+                                    <button class="users-pagination-btn" data-url="{{ $users->appends(request()->query())->previousPageUrl() }}">&lt;</button>
                                 @endif
                                 
                                 @if($users->hasMorePages())
-                                    <button class="users-pagination-btn" onclick="window.location='{{ $users->appends(request()->query())->nextPageUrl() }}'">&gt;</button>
+                                    <button class="users-pagination-btn" data-url="{{ $users->appends(request()->query())->nextPageUrl() }}">&gt;</button>
                                 @else
                                     <button class="users-pagination-btn" disabled>&gt;</button>
                                 @endif
@@ -178,49 +177,6 @@
                     @endif
                 </div>
 
-                <!-- New User Modal -->
-                <div id="user-modal-final" style="display:none !important;position:absolute !important;top:0 !important;left:0 !important;width:100vw !important;min-height:100vh !important;background:rgba(0,0,0,0.8) !important;z-index:999999 !important;justify-content:center !important;align-items:flex-start !important;padding:40px 0 !important;overflow-y:auto !important;">
-                    <div class="auth-form-container users-auth-form-container">
-                        <div class="auth-info-note">
-                            <strong>New User</strong><br>
-                            Create a new user account.
-                        </div>
-                        
-                        <form action="{{ route('users.store') }}" method="POST" id="newUserForm" class="auth-form">
-                            @csrf
-                            <div class="auth-form-group">
-                                <label for="full_name">Full Name<span class="auth-required">*</span></label>
-                                <input type="text" name="full_name" id="full_name" required>
-                            </div>
-                            
-                            <div class="auth-form-group">
-                                <label for="email">Email Address<span class="auth-required">*</span></label>
-                                <input type="email" name="email" id="email" required>
-                            </div>
-                            
-                            <div class="auth-form-group">
-                                <label for="mobile_number">Mobile Number</label>
-                                <input type="text" name="mobile_number" id="mobile_number">
-                            </div>
-                            
-                            <div class="auth-form-group">
-                                <label for="role">Role<span class="auth-required">*</span></label>
-                                <select name="role" id="role" required>
-                                    <option value="">Select Role</option>
-                                    <option value="user">User</option>
-                                    @if(session('user') && session('user')->role === 'super_admin')
-                                        <option value="admin">Admin</option>
-                                    @endif
-                                </select>
-                            </div>
-                            
-                            <div class="users-modal-actions">
-                                <button type="submit" class="auth-btn auth-btn-primary users-modal-btn-primary">Create User</button>
-                                <button type="button" class="auth-btn users-modal-btn-cancel" onclick="document.getElementById('user-modal-final').style.display='none'">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
@@ -228,9 +184,79 @@
     @include('Components.footer')
 </div>
 
+<!-- New User Modal (MOVED OUTSIDE CONTAINER) -->
+<div id="user-modal-final" class="users-modal-hide">
+    <div class="auth-form-container users-auth-form-container">
+        <div class="auth-info-note">
+            <strong>New User</strong><br>
+            Create a new user account.
+        </div>
+        
+        <form action="/create-user" method="POST" id="newUserForm" class="auth-form">
+            @csrf
+            <div class="auth-form-group">
+                <label for="full_name">Full Name<span class="auth-required">*</span></label>
+                <input type="text" name="full_name" id="full_name" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="email">Email Address<span class="auth-required">*</span></label>
+                <input type="email" name="email" id="email" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="mobile_number">Mobile Number</label>
+                <input type="text" name="mobile_number" id="mobile_number">
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password">Password<span class="auth-required">*</span></label>
+                <div class="auth-password-container">
+                    <input type="password" name="password" id="password" required minlength="6">
+                    <button type="button" class="users-password-toggle" data-field="password">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password_confirmation">Confirm Password<span class="auth-required">*</span></label>
+                <div class="auth-password-container">
+                    <input type="password" name="password_confirmation" id="password_confirmation" required minlength="6">
+                    <button type="button" class="users-password-toggle" data-field="password_confirmation">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="role">Role<span class="auth-required">*</span></label>
+                <select name="role" id="role" required>
+                    <option value="">Select Role</option>
+                    <option value="user">User</option>
+                    @if(session('user') && session('user')->role === 'super_admin')
+                        <option value="admin">Admin</option>
+                    @endif
+                </select>
+            </div>
+            
+            <div class="users-modal-actions">
+                <button type="button" onclick="submitUserForm()" class="auth-btn auth-btn-primary users-modal-btn-primary">Submit</button>
+                <button type="button" class="auth-btn users-modal-btn-cancel" onclick="hideNewUserModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @include('Components.admin-scripts')
 
-<script src="{{ asset('users/users.js') }}"></script>
+<script src="{{ asset('users/users.js') }}?v={{ time() }}"></script>
 
 </body>
 </html>

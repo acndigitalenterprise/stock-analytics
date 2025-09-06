@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Jobs\GenerateStockAdvice;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use App\Services\StockService;
 
 class AdminController extends Controller
@@ -376,7 +377,10 @@ class AdminController extends Controller
     {
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
-            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+            }
+            return redirect()->route('users.index')->with('error', 'Unauthorized access.');
         }
 
         $validated = $request->validate([
@@ -408,7 +412,39 @@ class AdminController extends Controller
         // Send email notification about user creation
         $this->sendUserActionNotification($user, $newUser, 'created', $newUserRole);
 
-        return response()->json(['success' => true]);
+        // Check if request wants JSON response (AJAX)
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        // Regular form submission - redirect with success message
+        return redirect()->route('users.index')->with('success', 'User created successfully!');
+    }
+
+    // Simple user creation method like signup
+    public function createUserSimple(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'mobile_number' => 'nullable|string|max:20',
+                'password' => 'required|string|min:6|confirmed',
+                'role' => 'nullable|in:user,admin',
+            ]);
+
+            $user = User::create([
+                'name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'mobile_number' => $validated['mobile_number'] ?? null,
+                'password' => Hash::make($validated['password']),
+                'role' => $validated['role'] ?? 'user',
+            ]);
+
+            return redirect()->route('users.index')->with('success', 'User created successfully!');
+        } catch (Exception $e) {
+            return redirect()->route('users.index')->with('error', 'Failed to create user: ' . $e->getMessage());
+        }
     }
 
     public function updateUser(Request $request, $id)

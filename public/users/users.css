@@ -153,7 +153,7 @@ table.table.users-table thead th .sort-indicator {
 
 .users-filter-bar-inner {
     display: flex !important;
-    gap: 12px !important;
+    gap: 8px !important;
     align-items: center !important;
     width: 100% !important;
     margin: 0 !important;
@@ -250,8 +250,11 @@ table.table.users-table thead th .sort-indicator {
 
 /* Users Search Form */
 .users-search-form .form-group {
+    width: auto !important;
+    flex: 1 !important;
+    max-width: 400px !important;
     width: 300px;
-    margin-bottom: 0;
+    margin: 0 !important;
 }
 
 @media (max-width: 768px) {
@@ -341,7 +344,7 @@ table.table.users-table thead th .sort-indicator {
     cursor: pointer;
     text-decoration: none;
     text-align: center;
-    min-width: 50px;
+    min-width: 65px;
     transition: opacity 0.3s ease;
 }
 
@@ -481,7 +484,48 @@ table.table.users-table thead th .sort-indicator {
 
 /* Auth form container is already responsive and handles all cases */
 
-/* Modal Auth Form Styles (moved from blade) */
+/* Modal Display Helper Classes - Modal ikut scroll browser */
+.users-modal-show {
+    display: flex !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    min-height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    z-index: 999999 !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 40px 0 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+}
+
+.users-modal-hide {
+    display: none !important;
+}
+
+/* Modal Auth Form Styles (moved from blade) - No internal scroll */
+.users-auth-form-container {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    margin: 20px;
+    max-width: 500px;
+    width: 100%;
+    min-height: auto;
+    overflow: visible;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    color: white !important;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* General auth-form-container for other modals */
 .auth-form-container {
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(20px);
@@ -491,6 +535,9 @@ table.table.users-table thead th .sort-indicator {
     margin: 20px;
     max-width: 500px;
     width: 100%;
+    position: relative;
+    z-index: 1000000;
+    pointer-events: auto;
     min-height: auto;
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.1),
@@ -533,10 +580,15 @@ table.table.users-table thead th .sort-indicator {
     display: flex;
     gap: 16px;
     margin-top: 24px;
+    position: relative;
+    z-index: 1000000;
 }
 
 .users-modal-btn-primary {
     flex: 1;
+    position: relative;
+    z-index: 1000001;
+    pointer-events: auto;
 }
 
 .users-modal-btn-cancel {
