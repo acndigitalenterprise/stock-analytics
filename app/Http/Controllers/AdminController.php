@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use App\Jobs\SendNewRequestEmail;
 use App\Jobs\GenerateStockAdvice;
 use Illuminate\Support\Facades\Log;
 use App\Services\StockService;
@@ -29,81 +26,43 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         try {
-            Log::info('Store method called', ['data' => $request->all()]);
-            
-            // Check trading hours (09:00-16:00 WIB)
-            $currentHour = now()->setTimezone('Asia/Jakarta')->format('H');
-            $isTradingHours = $currentHour >= 9 && $currentHour < 16;
-            
-            if (!$isTradingHours) {
-                $currentTime = now()->setTimezone('Asia/Jakarta')->format('H:i');
-                Log::info('Trading hours check failed', ['current_time' => $currentTime]);
-                return response()->json([
-                    'error' => "Market is closed. Trading hours: 09:00-16:00 WIB (Current: {$currentTime} WIB)"
-                ], 403);
-            }
-
             $validated = $request->validate([
                 'stock_code' => 'required|string|max:10',
+                'company_name' => 'nullable|string|max:255',
                 'timeframe' => 'required|in:1h,1d',
             ]);
-            Log::info('Validation passed', ['validated' => $validated]);
 
             $user = session('user');
             if (!$user) {
-                Log::error('No user in session');
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
-            Log::info('User found in session', ['user_id' => $user->id]);
 
-        $stockRequest = \App\Models\Request::create([
-            'full_name' => $user->name,
-            'mobile_number' => $user->mobile_number ?? '000-000-0000', // Handle null mobile_number for admin
-            'email' => $user->email,
-            'stock_code' => StockService::ensureJKFormat($validated['stock_code']),
-            'company_name' => StockService::getCompanyName($validated['stock_code']),
-            'timeframe' => $validated['timeframe'],
-            'user_id' => $user->id,
-        ]);
+            // Optimize: Use provided company name or fallback to simple default
+            $companyName = $validated['company_name'];
+            if (empty($companyName)) {
+                // Quick fallback instead of API call
+                $companyName = 'Unknown Company';
+            }
 
-        // Send email notification (will be processed in background)
-        try {
-            Log::info('Dispatching email job for user: ' . $user->email);
-            dispatch(new SendNewRequestEmail($user, $stockRequest));
-            Log::info('Email job dispatched successfully');
-        } catch (\Exception $e) {
-            // Log error but don't block the request
-            Log::error('Failed to queue email notification: ' . $e->getMessage());
-        }
-
-        // Dispatch job to generate AI advice
-        try {
-            Log::info('Dispatching GenerateStockAdvice job', [
-                'request_id' => $stockRequest->id,
-                'stock_code' => $stockRequest->stock_code,
-                'timeframe' => $stockRequest->timeframe
+            $stockRequest = \App\Models\Request::create([
+                'full_name' => $user->name,
+                'mobile_number' => $user->mobile_number ?? '000-000-0000',
+                'email' => $user->email,
+                'stock_code' => StockService::ensureJKFormat($validated['stock_code']),
+                'company_name' => $companyName,
+                'timeframe' => $validated['timeframe'],
+                'user_id' => $user->id,
             ]);
+
+            // Email will be sent after AI advice is generated (via GenerateStockAdvice job)
             
-            GenerateStockAdvice::dispatch($stockRequest);
-            
-            Log::info('GenerateStockAdvice job dispatched successfully', [
-                'request_id' => $stockRequest->id
-            ]);
+            // Regular form submission - redirect with success message
+            return redirect()->route('requests.index')
+                ->with('success', 'Request created successfully!');
+                
         } catch (\Exception $e) {
-            Log::error('Failed to dispatch GenerateStockAdvice job', [
-                'request_id' => $stockRequest->id,
-                'error' => $e->getMessage()
-            ]);
-        }
-
-            Log::info('Request created successfully', ['request_id' => $stockRequest->id]);
-            return response()->json([
-                'success' => true,
-                'message' => 'New request created successfully! Email will be sent shortly and AI advice will be generated in the background.'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error in store method', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json(['error' => 'Internal server error: ' . $e->getMessage()], 500);
+            return redirect()->route('requests.index')
+                ->with('error', 'Failed to create request: ' . $e->getMessage());
         }
     }
 
@@ -203,11 +162,43 @@ class AdminController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return response()->json([
-            'has_advice' => !empty($stockRequest->advice),
-            'advice' => $stockRequest->advice ? str_replace('```markdown', '', $stockRequest->advice) : null,
-            'updated_at' => $stockRequest->updated_at
-        ]);
+        // If advice already exists, return it
+        if (!empty($stockRequest->advice)) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Advice already generated',
+                'has_advice' => true,
+                'advice' => str_replace('```markdown', '', $stockRequest->advice),
+                'updated_at' => $stockRequest->updated_at
+            ]);
+        }
+
+        // Generate new advice using AI
+        try {
+            Log::info('Dispatching GenerateStockAdvice job from manual trigger', [
+                'request_id' => $stockRequest->id,
+                'stock_code' => $stockRequest->stock_code,
+                'timeframe' => $stockRequest->timeframe,
+                'user_id' => $user->id
+            ]);
+            
+            GenerateStockAdvice::dispatch($stockRequest);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'AI advice generation started. Please refresh the page in a few moments.',
+                'has_advice' => false
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to dispatch GenerateStockAdvice job from manual trigger', [
+                'request_id' => $stockRequest->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'error' => 'Failed to start advice generation: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     private function sendNewRequestEmail($user, $request)

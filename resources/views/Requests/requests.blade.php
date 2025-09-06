@@ -40,18 +40,12 @@
         </div>
         @php
             $currentHour = now()->setTimezone('Asia/Jakarta')->format('H');
-            $isTradingHours = $currentHour >= 9 && $currentHour < 16;
+            $isTradingHours = true; // Force enable for testing
             $currentTime = now()->setTimezone('Asia/Jakarta')->format('H:i');
         @endphp
         
         <div>
-            @if($isTradingHours)
-                <button class="btn requests-new-btn" onclick="showRequestModal()">New Request</button>
-            @else
-                <button class="btn requests-new-btn" disabled title="Trading hours: 09:00-16:00 WIB (Current: {{ $currentTime }} WIB)">
-                    New Request (Market Closed)
-                </button>
-            @endif
+            <button class="btn requests-new-btn" onclick="showRequestModal()">New Request</button>
         </div>
     </div>
 
@@ -91,7 +85,7 @@
                     </span>
                 </th>
                 @if(isset($user) && in_array($user->role, ['admin', 'super_admin']))
-                <th class="sortable" data-sort="full_name">
+                <th class="requests-fullname-column sortable" data-sort="full_name">
                     Full Name
                     <span class="sort-indicator">
                         @if(request('sort') == 'full_name')
@@ -125,11 +119,11 @@
                 <th class="requests-timeframe-column">
                     TF
                 </th>
-                <th>
-                    Advice
+                <th class="requests-insight-column">
+                    Analytics
                 </th>
-                <th class="requests-result-column sortable" data-sort="result">
-                    Result
+                <th class="requests-status-column sortable" data-sort="result">
+                    Status
                     <span class="sort-indicator">
                         @if(request('sort') == 'result')
                             {{ request('order') == 'asc' ? '↑' : '↓' }}
@@ -153,24 +147,29 @@
                     <td>{{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}</td>
                     <td>
                         <div id="advice-text-{{ $request->id }}" class="requests-advice-content">
-                            {!! $request->advice ? nl2br(e(str_replace('```markdown', '', $request->advice))) : '-' !!}
+                            {{ \App\Providers\AppServiceProvider::extractAnalyticsSummary($request->advice, $request->entry_price) }}
                         </div>
                     </td>
                     <td class="requests-result-cell">
-                        @php
-                            $resultData = [
-                                'SUPER_WIN' => ['emoji' => '🏆', 'text' => 'Super Win', 'class' => 'requests-result-super-win'],
-                                'WIN' => ['emoji' => '✅', 'text' => 'Win', 'class' => 'requests-result-win'],
-                                'LOSS' => ['emoji' => '❌', 'text' => 'Loss', 'class' => 'requests-result-loss'],
-                                'TIMEOUT' => ['emoji' => '⏰', 'text' => 'Timeout', 'class' => 'requests-result-timeout'],
-                                'MONITORING' => ['emoji' => '⏳', 'text' => 'Monitor', 'class' => 'requests-result-monitoring']
-                            ];
-                            $result = $resultData[$request->result ?? 'MONITORING'];
-                        @endphp
-                        
-                        <span class="requests-result-badge {{ $result['class'] }}" title="@if($request->result_achieved_at)Achieved at: {{ \Carbon\Carbon::parse($request->result_achieved_at)->setTimezone('Asia/Jakarta')->format('H:i:s T') }}@endif">
-                            {{ $result['text'] }}
-                        </span>
+                        @if($request->result)
+                            @php
+                                $resultData = [
+                                    'SUPER_WIN' => ['emoji' => '🏆', 'text' => 'Super Win', 'class' => 'requests-result-super-win'],
+                                    'WIN' => ['emoji' => '✅', 'text' => 'Win', 'class' => 'requests-result-win'],
+                                    'LOSS' => ['emoji' => '❌', 'text' => 'Loss', 'class' => 'requests-result-loss'],
+                                    'TIMEOUT' => ['emoji' => '⏰', 'text' => 'Timeout', 'class' => 'requests-result-timeout'],
+                                    'MONITORING' => ['emoji' => '⏳', 'text' => 'Monitor', 'class' => 'requests-result-monitoring']
+                                ];
+                                $result = $resultData[$request->result];
+                            @endphp
+                            
+                            <span class="requests-result-badge {{ $result['class'] }}" title="@if($request->result_achieved_at)Achieved at: {{ \Carbon\Carbon::parse($request->result_achieved_at)->setTimezone('Asia/Jakarta')->format('H:i:s T') }}@endif">
+                                {{ $result['text'] }}
+                            </span>
+                        @else
+                            {{-- Empty for Hold recommendations --}}
+                            -
+                        @endif
                     </td>
                     <td onclick="event.stopPropagation();">
                         <div class="requests-action-container">
@@ -183,7 +182,7 @@
                                     data-request-id="{{ $request->id }}" 
                                     {{ !empty($request->advice) ? 'disabled' : '' }}
                                     onclick="checkAdvice({{ $request->id }})">
-                                Advice
+                                {{ !empty($request->advice) ? 'Analyzed' : 'Analyze' }}
                             </button>
                         </div>
                     </td>
@@ -236,7 +235,7 @@
                             data-request-id="{{ $request->id }}" 
                             {{ !empty($request->advice) ? 'disabled' : '' }}
                             onclick="checkAdvice({{ $request->id }})">
-                        Advice
+                        {{ !empty($request->advice) ? 'Analyzed' : 'Analyze' }}
                     </button>
                 </div>
             </div>
@@ -291,11 +290,14 @@
                 Submit a new stock analysis request with the required information.
             </div>
             
-            <form action="{{ route('requests.store') }}" method="POST" id="newRequestForm" class="auth-form">
+            <form action="/test-store" method="POST" id="newRequestForm" class="auth-form">
                 @csrf
                 <div class="auth-form-group">
                     <label for="stock_code">Stock Code<span class="auth-required">*</span></label>
-                    <input type="text" name="stock_code" id="stock_code" required placeholder="e.g., BBCA.JK">
+                    <div class="requests-stock-search-container">
+                        <input type="text" name="stock_code" id="stock_code" required placeholder="e.g., BBCA.JK">
+                        <div id="stockSearchResults" class="requests-stock-search-results" style="display: none;"></div>
+                    </div>
                 </div>
                 
                 <div class="auth-form-group">
@@ -306,14 +308,14 @@
                 <div class="auth-form-group">
                     <label for="timeframe">Timeframe<span class="auth-required">*</span></label>
                     <select name="timeframe" id="timeframe" required>
-                        <option value="">Select Timeframe</option>
+                        <option value="">Select</option>
                         <option value="1h">1 Hour</option>
                         <option value="1d">1 Day</option>
                     </select>
                 </div>
                 
                 <div class="requests-modal-actions">
-                    <button type="submit" class="auth-btn auth-btn-primary requests-modal-btn-primary">Submit Request</button>
+                    <button type="submit" class="auth-btn auth-btn-primary requests-modal-btn-primary">Submit</button>
                     <button type="button" class="auth-btn requests-modal-btn-cancel" onclick="closeRequestModal()">Cancel</button>
                 </div>
             </form>

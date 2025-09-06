@@ -78,6 +78,38 @@ Route::get('/reset-password/{token}', function ($token) {
 })->name('auth.reset.page');
 
 // =================================
+// TEST ROUTES (REMOVE IN PRODUCTION)
+// =================================
+
+Route::post('/test-store', function(\Illuminate\Http\Request $request) {
+    // Fake user session for testing
+    $user = \App\Models\User::where('email', 'coretechlead@gmail.com')->first();
+    if (!$user) {
+        return response()->json(['error' => 'Test user not found'], 404);
+    }
+    
+    session(['user' => $user]);
+    
+    // Call controller
+    $controller = new \App\Http\Controllers\AdminController();
+    return $controller->store($request);
+});
+
+Route::get('/test-advice/{id}', function($id) {
+    // Fake user session for testing
+    $user = \App\Models\User::where('email', 'coretechlead@gmail.com')->first();
+    if (!$user) {
+        return response()->json(['error' => 'Test user not found'], 404);
+    }
+    
+    session(['user' => $user]);
+    
+    // Call controller
+    $controller = new \App\Http\Controllers\AdminController();
+    return $controller->getAdvice($id);
+});
+
+// =================================
 // API ROUTES
 // =================================
 

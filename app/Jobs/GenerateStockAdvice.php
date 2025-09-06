@@ -118,6 +118,7 @@ class GenerateStockAdvice implements ShouldQueue
             ];
             
             if ($targets['entry_price']) {
+                // Only set monitoring for actionable recommendations (Buy/Sell)
                 $updateData = array_merge($updateData, [
                     'entry_price' => $targets['entry_price'],
                     'target_1' => $targets['target_1'],
@@ -126,6 +127,9 @@ class GenerateStockAdvice implements ShouldQueue
                     'monitoring_until' => $this->calculateMonitoringEndTime($this->stockRequest->timeframe),
                     'result' => 'MONITORING'
                 ]);
+            } else {
+                // For Hold recommendations or no actionable targets, set as completed
+                $updateData['result'] = null; // Keep result as null (no status needed for Hold)
             }
             
             $this->stockRequest->update($updateData);

@@ -934,6 +934,11 @@
                                             Dashboard
                                         </a>
                                     @endif
+                                    <a href="{{ route('market.index') }}" class="admin-menu-item {{ 
+                                        request()->is('market*') ? 'active' : '' 
+                                    }}">
+                                        Market
+                                    </a>
                                     <a href="/stock-analytics/admin/requests" class="admin-menu-item {{ 
                                         request()->is('stock-analytics/admin/requests*') ? 'active' : '' 
                                     }}">

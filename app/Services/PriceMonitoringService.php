@@ -288,6 +288,14 @@ class PriceMonitoringService
             'stop_loss' => null
         ];
 
+        // Check if action is Hold first - if Hold, don't extract any targets for monitoring
+        if (preg_match('/Action:\s*Hold/i', $advice) || 
+            strpos(strtolower($advice), 'recommendation: hold') !== false ||
+            strpos(strtolower($advice), 'action: hold') !== false) {
+            // For Hold recommendations, return all null targets (no monitoring needed)
+            return $targets;
+        }
+
         // NEWEST FORMAT: Extract from lines like "Action: Buy at IDR 4,030"
         if (preg_match('/Action:\s*Buy at\s*(?:IDR|Rp)\s*([\d,]+\.?\d*)/i', $advice, $matches)) {
             $targets['entry_price'] = (float) str_replace(',', '', $matches[1]);

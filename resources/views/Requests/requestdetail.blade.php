@@ -25,7 +25,7 @@
         <main class="admin-body">
             <div class="admin-content-container">
 
-    <h2 class="requests-detail-title">Requests &gt; Detail</h2>
+    <h2 class="requests-detail-title">Request &gt; Detail</h2>
 
     <!-- Request Box -->
     <div class="requests-detail-section">
@@ -80,7 +80,7 @@
     <!-- Insight Box -->
     <div class="requests-detail-section">
         <div class="admin-stat-box requests-detail-box">
-            <h3 class="requests-detail-box-title">Insight</h3>
+            <h3 class="requests-detail-box-title">Analytics</h3>
             
             <div class="requests-detail-insight-section">
                 <h4 class="requests-detail-insight-title">Claude</h4>
@@ -152,7 +152,7 @@
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Advice Generated
+                    Analyzed
                 </button>
             @endif
             

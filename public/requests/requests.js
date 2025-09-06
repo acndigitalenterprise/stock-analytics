@@ -62,37 +62,24 @@ document.addEventListener('keydown', function(e) {
  * Initialize New Request Form
  */
 function initNewRequestForm() {
-    const form = document.getElementById('newRequestForm');
-    if (!form) return;
-
-    form.addEventListener('submit', handleNewRequestSubmit);
-    
-    // Initialize stock search functionality
-    initStockSearch();
+    // Form will submit normally - no JavaScript intervention
+    console.log('✅ Form will submit normally');
 }
 
 /**
  * Handle New Request Form Submit
  */
 function handleNewRequestSubmit(e) {
-    if (requestsFormSubmitting) {
-        e.preventDefault();
-        return false;
-    }
+    console.log('🚀 Form submit triggered');
     
-    const form = e.target;
-    const submitBtn = form.querySelector('.requests-btn-primary');
+    // Close modal immediately
+    closeRequestModal();
     
-    if (submitBtn && !requestsFormSubmitting) {
-        showRequestsLoading(submitBtn);
-        requestsFormSubmitting = true;
-        
-        // Reset loading state after timeout
-        setTimeout(() => {
-            hideRequestsLoading(submitBtn);
-            requestsFormSubmitting = false;
-        }, 10000);
-    }
+    // Show processing message
+    showRequestsMessage('Processing request...', 'info');
+    
+    // Let form submit normally (don't prevent default)
+    return true;
 }
 
 /**
@@ -151,7 +138,7 @@ function resetNewRequestForm() {
  * Initialize Stock Search
  */
 function initStockSearch() {
-    const searchInput = document.getElementById('stock_search');
+    const searchInput = document.getElementById('stock_code');
     if (!searchInput) return;
 
     let searchTimeout;
@@ -161,7 +148,7 @@ function initStockSearch() {
         
         clearTimeout(searchTimeout);
         
-        if (query.length >= 2) {
+        if (query.length >= 1) {
             searchTimeout = setTimeout(() => {
                 searchStocks(query);
             }, 300);
@@ -215,10 +202,12 @@ function displayStockResults(results) {
 
     let html = '';
     results.forEach(stock => {
+        const stockCode = stock.symbol || stock.code;
+        const stockName = stock.name;
         html += `
-            <div class="requests-search-result-item" onclick="selectStock('${stock.symbol}', '${stock.name}')">
-                <div class="requests-search-symbol">${stock.symbol}</div>
-                <div class="requests-search-name">${stock.name}</div>
+            <div class="requests-search-result-item" onclick="selectStock('${stockCode}', '${stockName}')">
+                <div class="requests-search-symbol">${stockCode}</div>
+                <div class="requests-search-name">${stockName}</div>
             </div>
         `;
     });
@@ -324,8 +313,45 @@ function handleRequestsSort(field) {
  * Check Advice Function (moved from blade)
  */
 function checkAdvice(requestId) {
-    // Implement advice checking logic
-    console.log('Checking advice for request:', requestId);
+    console.log('Generating advice for request:', requestId);
+    
+    // Show loading state
+    const button = document.querySelector(`button[onclick="checkAdvice(${requestId})"]`);
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Generating...';
+        button.classList.add('requests-loading');
+    }
+    
+    // Make AJAX call to generate advice
+    fetch(`/requests/${requestId}/advice`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to show new advice
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to generate advice');
+        }
+    })
+    .catch(error => {
+        console.error('Error generating advice:', error);
+        alert('Failed to generate advice. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        if (button) {
+            button.disabled = false;
+            button.textContent = 'Advice';
+            button.classList.remove('requests-loading');
+        }
+    });
 }
 
 /**
@@ -539,7 +565,22 @@ function showRequestModal() {
     if (modal) {
         modal.classList.remove('requests-modal-hidden');
         modal.classList.add('requests-modal-active');
-        document.body.style.overflow = 'hidden';
+        // Remove overflow hidden to allow scrolling
+        // document.body.style.overflow = 'hidden';
+        
+        // Initialize stock search when modal is shown
+        initStockSearch();
+        
+        // Add form submit handler for immediate modal close
+        const form = document.getElementById('newRequestForm');
+        if (form) {
+            form.onsubmit = function(e) {
+                // Close modal immediately on form submit
+                closeRequestModal();
+                // Let the form submit naturally (no preventDefault)
+                return true;
+            };
+        }
     }
 }
 
@@ -683,6 +724,13 @@ window.confirmRequestDeletion = confirmRequestDeletion;
 window.checkAdvice = checkAdvice;
 
 // Export functions for testing and external access
+// Global form handler
+function handleFormSubmit(event) {
+    console.log('🚀 Direct form submit handler called');
+    return handleNewRequestSubmit(event);
+}
+
+window.handleFormSubmit = handleFormSubmit;
 window.requestsPageFunctions = {
     initRequestsPage,
     showRequestsMessage,

@@ -4,6 +4,73 @@
 
 /* Container styling moved to admin.css to avoid duplication */
 
+/* =================================
+   STOCK SEARCH STYLES
+   ================================= */
+
+.requests-stock-search-container {
+    position: relative;
+    width: 100%;
+}
+
+.requests-stock-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.requests-search-result-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+.requests-search-result-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.requests-search-result-item:last-child {
+    border-bottom: none;
+}
+
+.requests-search-symbol {
+    font-weight: bold;
+    color: #4FC3F7;
+    font-size: 0.95rem;
+}
+
+.requests-search-name {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+.requests-search-loading,
+.requests-search-error,
+.requests-search-no-results {
+    padding: 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.requests-search-error {
+    color: #f44336;
+}
+
+.requests-search-loading {
+    color: #4FC3F7;
+}
+
 /* MODERN DARK TABLE DESIGN */
 table.table.requests-table {
     background: rgba(0, 0, 0, 0.4) !important;
@@ -183,14 +250,7 @@ h2 {
     min-height: 44px !important;
 }
 
-.requests-filter-bar-inner {
-    display: flex !important;
-    gap: 12px !important;
-    align-items: center !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
+/* Moved to LAYOUT FIXES section */
 
 @media (max-width: 768px) {
     .requests-filter-bar-inner {
@@ -857,4 +917,111 @@ h2 {
     align-items: flex-start !important;
     padding: 40px 0 !important;
     overflow-y: auto !important;
+}
+
+/* =================================
+   LAYOUT FIXES
+   ================================= */
+
+/* Fix search form layout */
+.requests-filter-bar-inner {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.requests-search-form .form-group {
+    width: auto !important;
+    flex: 1 !important;
+    max-width: 400px !important;
+    margin: 0 !important;
+}
+
+.requests-filter-bar-inner > div:last-child {
+    flex-shrink: 0 !important;
+}
+
+/* Fix column widths */
+.requests-date-column {
+    width: 110px !important;
+    min-width: 110px !important;
+    white-space: nowrap !important;
+}
+
+.requests-fullname-column {
+    width: 120px !important;
+    min-width: 120px !important;
+    white-space: nowrap !important;
+}
+
+.requests-stock-column {
+    width: 70px !important;
+    min-width: 70px !important;
+    white-space: nowrap !important;
+}
+
+.requests-company-column {
+    width: auto !important;
+    min-width: 150px !important;
+    white-space: nowrap !important;
+}
+
+.requests-timeframe-column {
+    width: 50px !important;
+    min-width: 50px !important;
+    white-space: nowrap !important;
+}
+
+.requests-insight-column {
+    width: 70px !important;
+    min-width: 70px !important;
+    white-space: nowrap !important;
+}
+
+.requests-status-column {
+    width: 70px !important;
+    min-width: 70px !important;
+    white-space: nowrap !important;
+}
+
+.requests-action-column {
+    width: 80px !important;
+    min-width: 80px !important;
+    white-space: nowrap !important;
+}
+
+/* Fix pagination styling */
+.requests-pagination-left select {
+    padding: 6px 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: white !important;
+}
+
+.requests-pagination-info {
+    font-size: 0.9em !important;
+    color: white !important;
+}
+
+.requests-pagination-btn {
+    padding: 6px 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: white !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    min-width: 32px !important;
+}
+
+.requests-pagination-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.requests-pagination-btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
 }
