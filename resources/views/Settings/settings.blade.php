@@ -79,12 +79,6 @@
                             @enderror
                         </div>
                         
-                        <!-- User Role (Read-only for Settings) -->
-                        <div class="auth-form-group">
-                            <label for="user_role_display">User Role</label>
-                            <input type="text" id="user_role_display" value="{{ ucfirst($user->role) }}" readonly style="background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; color: rgba(255, 255, 255, 0.8) !important; cursor: not-allowed !important; text-transform: capitalize;">
-                        </div>
-                        
                         <div class="auth-info-note" style="margin-top: 32px;">
                             <strong>Security</strong><br>
                             Change your password.
