@@ -11,7 +11,7 @@
     
     <div class="users-flex-between">
         <div>
-            <h2>settings</h2>
+            <h2>Settings</h2>
         </div>
         <div></div>
     </div>
@@ -25,8 +25,8 @@
         <div class="users-message users-error">{{ session('error') }}</div>
     @endif
     
-    <!-- settings Form -->
-    <div class="settings-auth-form-container">
+    <!-- Settings Form -->
+    <div class="auth-form-container" style="max-width: 500px; margin: 32px auto 0;">
         
         <!-- Profile Section -->
         <div class="auth-info-note">
@@ -98,7 +98,7 @@
     </div>
     
     <!-- Action Buttons Section -->
-    <div class="user-detail-actions">
+    <div class="user-detail-actions" style="margin: 48px auto 0; max-width: 500px;">
         <div class="user-detail-buttons">
             <button type="submit" form="settings-form" class="user-detail-btn user-detail-btn-update">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
