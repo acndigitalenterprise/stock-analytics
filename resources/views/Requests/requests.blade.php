@@ -57,17 +57,15 @@
         <div class="requests-message requests-error">{{ session('error') }}</div>
     @endif
 
-    <!-- Search Form -->
-    <form method="GET" action="{{ route('requests.index') }}" class="requests-filter-bar requests-search-form">
-        <div class="requests-filter-bar-inner">
-            <div class="form-group">
-                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? 'Search by name, email, stock code...' : 'Search by stock code...' }}">
-            </div>
-            <div>
-                <button type="submit" class="btn requests-search-btn">Search</button>
-            </div>
-        </div>
-    </form>
+<!-- Search Form -->
+<form method="GET" action="{{ route('requests.index') }}" class="requests-filter-bar requests-search-form">
+<div class="requests-filter-bar-inner">
+<div class="form-group">
+<input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by name, email, mobile number...">
+<button type="submit" class="btn requests-search-btn">Search</button>
+</div>
+</div>
+</form>
 
     <!-- Requests Table (Desktop) -->
     <div class="table-responsive">

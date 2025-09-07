@@ -260,10 +260,7 @@ h2 {
     }
 }
 
-.requests-search-form .form-group {
-    width: 300px;
-    margin-bottom: 0;
-}
+
 
 @media (max-width: 768px) {
     .requests-search-form .form-group {
@@ -439,7 +436,7 @@ h2 {
     cursor: pointer;
     text-decoration: none;
     text-align: center;
-    min-width: 50px;
+    min-width: 65px;
     transition: opacity 0.3s ease;
 }
 
@@ -903,10 +900,10 @@ h2 {
     display: none !important;
 }
 
-/* Modal active state - shown as overlay */
+/* Modal active state - shown as overlay - Modal ikut scroll browser */
 .requests-modal-active {
     display: flex !important;
-    position: fixed !important;
+    position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
@@ -916,7 +913,27 @@ h2 {
     justify-content: center !important;
     align-items: flex-start !important;
     padding: 40px 0 !important;
-    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Requests Auth Form Container - No internal scroll */
+.requests-auth-form-container {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    margin: 20px;
+    max-width: 500px;
+    width: 100%;
+    min-height: auto;
+    overflow: visible;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    color: white !important;
+    position: relative;
+    box-sizing: border-box;
 }
 
 /* =================================
@@ -937,11 +954,8 @@ h2 {
     width: auto !important;
     flex: 1 !important;
     max-width: 400px !important;
+    width: 300px;
     margin: 0 !important;
-}
-
-.requests-filter-bar-inner > div:last-child {
-    flex-shrink: 0 !important;
 }
 
 /* Fix column widths */

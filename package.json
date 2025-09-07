@@ -21,5 +21,6 @@
   "homepage": "https://github.com/acndigitalenterprise/stock-analytics#readme",
   "description": "",
   "dependencies": {
+    "puppeteer": "^24.19.0"
   }
 }

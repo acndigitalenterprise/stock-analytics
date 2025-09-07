@@ -142,6 +142,66 @@
                     </table>
                 </div>
 
+                <!-- Mobile Cards - Hidden on Desktop, Visible on Mobile -->
+                @forelse($users as $user)
+                    <div class="users-mobile-card">
+                        <div class="users-mobile-detail">
+                            <div class="users-mobile-field">
+                                <b>Date</b><br>
+                                {{ $user->created_at ? $user->created_at->setTimezone('Asia/Jakarta')->format('d M Y H:i') : '-' }}
+                            </div>
+                            
+                            <div class="users-mobile-field">
+                                <b>Full Name</b><br>
+                                {{ $user->full_name ?? $user->name ?? 'N/A' }}
+                            </div>
+                            
+                            <div class="users-mobile-field">
+                                <b>Email Address</b><br>
+                                {{ $user->email ?? 'N/A' }}
+                            </div>
+                            
+                            <div class="users-mobile-field">
+                                <b>Role</b><br>
+                                {{ ucfirst($user->role ?? 'User') }}
+                            </div>
+                            
+                            <div class="users-mobile-field">
+                                <b>Status</b><br>
+                                @if($user->email_verified_at)
+                                    Verified
+                                @else
+                                    Unverified
+                                @endif
+                            </div>
+                            
+                            <div class="users-mobile-actions">
+                                <a href="{{ route('users.show', $user->id) }}" class="users-action-btn users-btn-view">View</a>
+                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="users-delete-form" data-user-name="{{ $user->full_name ?? $user->name }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="users-action-btn users-btn-delete">Delete</button>
+                                </form>
+                                @if($user->email_verified_at)
+                                    <button class="users-action-btn users-btn-verified" disabled>Verified</button>
+                                @else
+                                    <form action="{{ route('users.verify', $user->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="users-action-btn users-btn-verify">Verify</button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="users-mobile-card">
+                        <div class="users-mobile-detail">
+                            <div class="users-mobile-field" style="text-align: center; font-style: italic;">
+                                No users found.
+                            </div>
+                        </div>
+                    </div>
+                @endforelse
+
                 <!-- Pagination -->
                 <div class="users-pagination-container">
                     <div class="users-pagination-left">

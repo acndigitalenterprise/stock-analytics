@@ -600,6 +600,115 @@ table.table.users-table thead th .sort-indicator {
 
 
 /* =================================
+   USERS MOBILE CARDS - COPIED FROM REQUESTS
+   ================================= */
+
+/* Users Mobile Cards */
+.users-mobile-card {
+    display: none;
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.users-mobile-detail {
+    width: 100%;
+}
+
+.users-mobile-field {
+    font-size: 0.9em !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    margin-bottom: 20px !important;
+}
+
+.users-mobile-field:last-of-type {
+    margin-bottom: 20px !important;
+}
+
+.users-mobile-field b {
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-weight: 700 !important;
+    color: white !important;
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+}
+
+.users-mobile-field br {
+    line-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+}
+
+/* FORCE OVERRIDE GLOBAL CSS */
+.users-mobile-field * {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.users-mobile-field {
+    display: block !important;
+    white-space: pre-line !important;
+}
+
+.users-mobile-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.users-mobile-actions .users-action-btn {
+    padding: 6px 12px;
+    font-size: 0.8em;
+    flex: 1;
+    min-width: 60px;
+}
+
+/* Mobile Media Query */
+@media (max-width: 768px) {
+    .users-table,
+    .table-responsive,
+    table.table.users-table {
+        display: none !important;
+    }
+    
+    .users-mobile-card {
+        display: block !important;
+    }
+    
+    /* Hide all tables in mobile */
+    .admin-content-container table,
+    .admin-content-container .table-responsive {
+        display: none !important;
+    }
+    
+    /* Hide dropdowns and pagination in mobile */
+    .users-filter-bar,
+    .pagination,
+    select,
+    .form-select,
+    .dropdown,
+    .users-search-form select,
+    .users-filter-bar select {
+        display: none !important;
+    }
+    
+    /* Hide search form completely in mobile */
+    .users-search-form {
+        display: none !important;
+    }
+}
+
+/* =================================
    RESPONSIVE UTILITIES
    ================================= */
 
