@@ -27,30 +27,29 @@ class SettingController extends Controller
         }
         $user = User::find($user->id);
         
-        // Handle profile information update
+        // Validate using same pattern as AdminController@updateUser
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $user->id,
+            'mobile_number' => 'nullable|string|max:20',
+            'new_password' => 'nullable|string|min:6',
         ], [
             'email.unique' => 'Email Address Already Registered',
             'mobile_number.unique' => 'Mobile Number Already Registered',
         ]);
-        
-        $user->name = $validated['full_name'];
-        $user->email = $validated['email'];
-        $user->mobile_number = $validated['mobile_number'] ?? null;
-        
-        // Handle password change if provided
-        if ($request->filled('new_password')) {
-            $passwordValidated = $request->validate([
-                'new_password' => 'required|min:8',
-            ]);
-            
-            $user->password = Hash::make($passwordValidated['new_password']);
+
+        // Handle password field (same pattern as AdminController)
+        if (!empty($validated['new_password'])) {
+            $validated['password'] = bcrypt($validated['new_password']);
+            unset($validated['new_password']);
         }
-        
-        $user->save();
+
+        // Map full_name to name field and handle nullable mobile_number (same pattern as AdminController)
+        $validated['name'] = $validated['full_name'];
+        $validated['mobile_number'] = $validated['mobile_number'] ?? null;
+        unset($validated['full_name']);
+
+        $user->update($validated);
         
         // Update session
         $request->session()->put('user', $user);
