@@ -691,8 +691,7 @@ table.table.users-table thead th .sort-indicator {
         display: none !important;
     }
     
-    /* Hide dropdowns and pagination in mobile */
-    .users-filter-bar,
+    /* Hide dropdowns and pagination in mobile, but keep search input */
     .pagination,
     select,
     .form-select,
@@ -702,9 +701,16 @@ table.table.users-table thead th .sort-indicator {
         display: none !important;
     }
     
-    /* Hide search form completely in mobile */
+    /* Show filter bar but hide selects inside */
+    .users-filter-bar {
+        display: flex !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Show search form in mobile but hide dropdowns */
     .users-search-form {
-        display: none !important;
+        display: block !important;
+        margin-bottom: 20px !important;
     }
 }
 

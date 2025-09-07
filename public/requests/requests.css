@@ -637,8 +637,7 @@ h2 {
         display: none !important;
     }
     
-    /* Hide dropdowns and pagination in mobile */
-    .requests-filter-bar,
+    /* Hide dropdowns and pagination in mobile, but keep search input */
     .pagination,
     select,
     .form-select,
@@ -648,9 +647,16 @@ h2 {
         display: none !important;
     }
     
-    /* Hide search form completely in mobile */
+    /* Show filter bar but hide selects inside */
+    .requests-filter-bar {
+        display: flex !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Show search form in mobile but hide dropdowns */
     .requests-search-form {
-        display: none !important;
+        display: block !important;
+        margin-bottom: 20px !important;
     }
 }
 
