@@ -517,6 +517,13 @@ class AdminController extends Controller
 
         $targetUser->update($validated);
 
+        // Update all requests for this user to reflect new profile data
+        \App\Models\Request::where('user_id', $targetUser->id)->update([
+            'full_name' => $targetUser->name,
+            'email' => $targetUser->email,
+            'mobile_number' => $targetUser->mobile_number,
+        ]);
+
         // Send notification if role changed
         if ($oldRole !== $newRole) {
             $action = ($newRole === 'admin') ? 'promoted' : 'demoted';
