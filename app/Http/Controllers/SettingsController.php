@@ -45,7 +45,7 @@ class SettingsController extends Controller
         
         $user->name = $validated['full_name'];
         $user->email = $validated['email'];
-        $user->mobile_number = $validated['mobile_number'] ?? null;
+        $user->mobile_number = !empty(trim($validated['mobile_number'] ?? '')) ? trim($validated['mobile_number']) : null;
         
         // Handle password change if provided
         if ($request->filled('new_password')) {

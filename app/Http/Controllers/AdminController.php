@@ -512,7 +512,7 @@ class AdminController extends Controller
 
         // Map full_name to name field and handle nullable mobile_number
         $validated['name'] = $validated['full_name'];
-        $validated['mobile_number'] = $validated['mobile_number'] ?? null;
+        $validated['mobile_number'] = !empty(trim($validated['mobile_number'] ?? '')) ? trim($validated['mobile_number']) : null;
         unset($validated['full_name']);
 
         $targetUser->update($validated);
