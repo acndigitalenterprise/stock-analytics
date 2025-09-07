@@ -1,12 +1,29 @@
-@extends('layout')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Settings - Ticker AI</title>
+    <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('settings/settings.css') }}?v={{ time() }}">
+</head>
+<body class="admin-layout">
 
-@section('body-class', 'admin-layout')
-
-@section('content')
-<link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-<link rel="stylesheet" href="{{ asset('settings/settings.css') }}?v={{ time() }}">
-
-<div class="admin-content-container">
+<!-- DESKTOP ADMIN LAYOUT -->
+<div class="admin-layout-container">
+    @include('Components.header')
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
+        @include('Components.sidebar')
+        
+        <!-- Admin Body Content -->
+        <main class="admin-body">
+            <div class="admin-content-container">
     @php $isAdminLayout = true; @endphp
     
     <div class="users-flex-between">
@@ -113,9 +130,16 @@
                 Back
             </a>
         </div>
+            </div>
+        </main>
     </div>
     
+    @include('Components.footer')
 </div>
 
+@include('Components.admin-scripts')
+
 <script src="{{ asset('settings/settings.js') }}?v={{ time() }}"></script>
-@endsection
+
+</body>
+</html>
