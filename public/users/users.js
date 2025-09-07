@@ -288,6 +288,15 @@ function updatePasswordToggleIcon(fieldId, isVisible) {
 }
 
 /**
+ * Simple password toggle function for auth-style fields
+ */
+function toggleAuthPassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    field.type = field.type === 'password' ? 'text' : 'password';
+}
+
+/**
  * =================================
  * PAGINATION FUNCTIONS
  * =================================

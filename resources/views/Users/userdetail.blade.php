@@ -76,18 +76,21 @@
                             @enderror
                         </div>
                         
-                        @if(isset($user) && $user->role === 'super_admin')
                         <div class="auth-form-group">
                             <label for="user_role">Role</label>
+                            @if(isset($user) && $user->role === 'super_admin')
                             <select name="role" id="user_role">
                                 <option value="user" {{ $targetUser->role == 'user' ? 'selected' : '' }}>User</option>
                                 <option value="admin" {{ $targetUser->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="super_admin" {{ $targetUser->role == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                             </select>
+                            @else
+                            <input type="text" id="user_role" value="{{ ucfirst(str_replace('_', ' ', $targetUser->role)) }}" readonly style="background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; color: rgba(255, 255, 255, 0.8) !important; cursor: not-allowed !important;">
+                            @endif
                             @error('role')
                                 <div class="auth-error-message">{{ $message }}</div>
                             @enderror
                         </div>
-                        @endif
                         
                         <div class="auth-info-note" style="margin-top: 32px;">
                             <strong>Security</strong><br>
@@ -100,7 +103,7 @@
                                 <input type="password" id="user_new_pwd" name="user_new_pwd" class="auth-password-input" placeholder="Enter new password">
                                 <button type="button" class="auth-password-toggle" onclick="toggleAuthPassword('user_new_pwd')">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 616 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                 </button>
@@ -122,7 +125,7 @@
                 <!-- Action Buttons Section -->
                 <div class="user-detail-actions" style="margin: 48px auto 0; max-width: 500px;">
                     <div class="user-detail-buttons">
-                        <button type="submit" form="user-update-form" class="user-detail-btn user-detail-btn-update">
+                        <button type="submit" form="user-update-form" id="updateUserBtn" class="user-detail-btn user-detail-btn-update">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
@@ -175,7 +178,14 @@
 
 @include('Components.admin-scripts')
 
-<script src="{{ asset('users/userdetail.js') }}"></script>
+<script>
+// SIMPLE: Just password toggle, NO AJAX
+function toggleAuthPassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    field.type = field.type === 'password' ? 'text' : 'password';
+}
+</script>
 
 </body>
 </html>

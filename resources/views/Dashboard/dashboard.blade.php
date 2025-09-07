@@ -29,7 +29,9 @@
         <div>
             <h2>Dashboard</h2>
         </div>
-        <div></div>
+        <div>
+            <button onclick="refreshDashboard()" class="btn users-new-btn">Refresh</button>
+        </div>
     </div>
 
     <!-- First Row - 5 boxes horizontal -->

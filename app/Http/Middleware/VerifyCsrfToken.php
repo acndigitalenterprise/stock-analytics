@@ -18,24 +18,10 @@ class VerifyCsrfToken extends Middleware
         'requests',
         'requests/*',
         'test-store',
-        'create-user'
+        'create-user',
+        'signin',
+        'signup',
+        'settings'
     ];
 
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     *
-     * @throws \Illuminate\Session\TokenMismatchException
-     */
-    public function handle($request, \Closure $next)
-    {
-        // Log to see if our middleware is being called
-        \Log::info('Custom CSRF middleware called for: ' . $request->path());
-        
-        // Temporary: Disable CSRF for all requests for debugging
-        return $next($request);
-    }
 } 

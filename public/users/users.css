@@ -400,11 +400,11 @@ table.table.users-table thead th .sort-indicator {
 }
 
 .users-pagination-left select {
-    padding: 6px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    color: #333;
+    padding: 6px 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: white !important;
 }
 
 .users-pagination-right {
@@ -414,8 +414,8 @@ table.table.users-table thead th .sort-indicator {
 }
 
 .users-pagination-info {
-    font-size: 0.9em;
-    color: #666;
+    font-size: 0.9em !important;
+    color: white !important;
 }
 
 .users-pagination-buttons {
@@ -424,23 +424,22 @@ table.table.users-table thead th .sort-indicator {
 }
 
 .users-pagination-btn {
-    padding: 6px 10px;
-    border: 1px solid #ddd;
-    background: white;
-    color: #333;
-    cursor: pointer;
-    border-radius: 4px;
-    min-width: 32px;
+    padding: 6px 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: white !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    min-width: 32px !important;
 }
 
 .users-pagination-btn:hover:not(:disabled) {
-    background: #f8f9fa;
+    background: rgba(255, 255, 255, 0.1) !important;
 }
 
 .users-pagination-btn:disabled {
-    color: #ccc;
-    cursor: not-allowed;
-    background: #f8f9fa;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
 }
 
 @media (max-width: 768px) {

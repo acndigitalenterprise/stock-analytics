@@ -28,9 +28,9 @@ function initUserDetailPage() {
  */
 function initUserDetailForm() {
     console.log('initUserDetailForm called');
-    const form = document.getElementById('userDetailForm');
+    const form = document.getElementById('user-update-form');
     if (!form) {
-        console.log('userDetailForm not found');
+        console.log('user-update-form not found');
         return;
     }
 

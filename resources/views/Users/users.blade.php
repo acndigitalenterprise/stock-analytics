@@ -87,6 +87,16 @@
                                     @endif
                                 </span>
                             </th>
+                            <th class="sortable" data-sort="role">
+                                Role
+                                <span class="sort-indicator">
+                                    @if(request('sort') == 'role')
+                                        {{ request('order') == 'asc' ? '↑' : '↓' }}
+                                    @else
+                                        ↕
+                                    @endif
+                                </span>
+                            </th>
                             <th class="users-status-column sortable" data-sort="email_verified_at">
                                 Status
                                 <span class="sort-indicator">
@@ -106,6 +116,7 @@
                                 <td class="users-date-cell">{{ $user->created_at ? $user->created_at->setTimezone('Asia/Jakarta')->format('d/m/y H:i') : '-' }}</td>
                                 <td>{{ $user->full_name ?? $user->name ?? 'N/A' }}</td>
                                 <td>{{ $user->email ?? 'N/A' }}</td>
+                                <td>{{ ucfirst(str_replace('_', ' ', $user->role ?? 'user')) }}</td>
                                 <td>
                                     @if($user->email_verified_at)
                                         <span class="users-status-verified">Verified</span>
@@ -133,7 +144,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="users-no-results">
+                                <td colspan="6" class="users-no-results">
                                     No users found.
                                 </td>
                             </tr>
@@ -273,8 +284,8 @@
                 <label for="password">Password<span class="auth-required">*</span></label>
                 <div class="auth-password-container">
                     <input type="password" name="password" id="password" required minlength="6">
-                    <button type="button" class="users-password-toggle" data-field="password">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <button type="button" class="auth-password-toggle" onclick="toggleAuthPassword('password')">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
@@ -286,8 +297,8 @@
                 <label for="password_confirmation">Confirm Password<span class="auth-required">*</span></label>
                 <div class="auth-password-container">
                     <input type="password" name="password_confirmation" id="password_confirmation" required minlength="6">
-                    <button type="button" class="users-password-toggle" data-field="password_confirmation">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <button type="button" class="auth-password-toggle" onclick="toggleAuthPassword('password_confirmation')">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>

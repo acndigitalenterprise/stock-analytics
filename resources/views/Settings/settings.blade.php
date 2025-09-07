@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Settings - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('users/userdetail.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('Settings/settings.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 
@@ -79,6 +79,11 @@
                             @enderror
                         </div>
                         
+                        <div class="auth-form-group">
+                            <label for="user_role">User Role</label>
+                            <input type="text" id="user_role" value="{{ ucfirst(str_replace('_', ' ', $user->role)) }}" readonly style="background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; color: rgba(255, 255, 255, 0.8) !important; cursor: not-allowed !important;">
+                        </div>
+                        
                         <div class="auth-info-note" style="margin-top: 32px;">
                             <strong>Security</strong><br>
                             Change your password.
@@ -90,7 +95,7 @@
                                 <input type="password" id="new_password" name="new_password" class="auth-password-input" placeholder="Enter new password">
                                 <button type="button" class="auth-password-toggle" onclick="toggleAuthPassword('new_password')">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 616 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                 </button>
@@ -103,26 +108,26 @@
                             </small>
                         </div>
                         
-                    </form>
-                </div>
-                
-                <!-- Action Buttons Section -->
-                <div class="user-detail-actions" style="margin: 48px auto 0; max-width: 500px;">
-                    <div class="user-detail-buttons">
-                        <button type="submit" form="settings-update-form" class="user-detail-btn user-detail-btn-update">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                            Update
-                        </button>
+                        <!-- Action Buttons INSIDE Form -->
+                        <div class="user-detail-actions" style="margin: 48px auto 0;">
+                            <div class="user-detail-buttons">
+                                <button type="submit" id="settings-update-btn" class="user-detail-btn user-detail-btn-update">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    Update
+                                </button>
+                                
+                                <a href="{{ route('dashboard') }}" class="user-detail-btn user-detail-btn-back">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                    </svg>
+                                    Back
+                                </a>
+                            </div>
+                        </div>
                         
-                        <a href="{{ route('dashboard') }}" class="user-detail-btn user-detail-btn-back">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            Back
-                        </a>
-                    </div>
+                    </form>
                 </div>
             </div>
         </main>
@@ -133,7 +138,14 @@
 
 @include('Components.admin-scripts')
 
-<script src="{{ asset('users/userdetail.js') }}"></script>
+<script>
+// Simple password toggle
+function toggleAuthPassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    field.type = field.type === 'password' ? 'text' : 'password';
+}
+</script>
 
 </body>
 </html>

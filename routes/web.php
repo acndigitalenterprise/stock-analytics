@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StockAnalyticsController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\MarketController;
 
 /*
@@ -109,6 +109,7 @@ Route::get('/test-advice/{id}', function($id) {
     return $controller->getAdvice($id);
 });
 
+
 // =================================
 // API ROUTES
 // =================================
@@ -206,6 +207,9 @@ Route::middleware(['auth.session'])->group(function () {
                 $user->role = $request->role;
                 $user->save();
                 
+                // Clear dashboard cache since new user was added
+                \Cache::flush();
+                
                 \Log::info('User created', ['id' => $user->id]);
                 return redirect()->route('users.index')->with('success', 'User created successfully!');
             } catch (\Exception $e) {
@@ -225,10 +229,10 @@ Route::middleware(['auth.session'])->group(function () {
     });
     
     // User Settings
-    Route::get('/settings', [SettingController::class, 'profile'])
+    Route::get('/settings', [SettingsController::class, 'profile'])
         ->name('settings');
     
-    Route::post('/settings', [SettingController::class, 'updateProfile'])
+    Route::post('/settings', [SettingsController::class, 'updateProfile'])
         ->name('settings.update');
     
 });

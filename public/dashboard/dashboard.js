@@ -143,6 +143,32 @@ function initMobileMenu() {
  * =================================
  */
 
+/**
+ * Refresh dashboard data by reloading with refresh parameter
+ */
+function refreshDashboard() {
+    // Add loading state to button
+    const refreshBtn = document.querySelector('.users-refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.style.opacity = '0.6';
+        refreshBtn.style.pointerEvents = 'none';
+        
+        // Rotate the icon during refresh
+        const svg = refreshBtn.querySelector('svg');
+        if (svg) {
+            svg.style.transform = 'rotate(360deg)';
+        }
+    }
+    
+    // Add refresh parameter to current URL
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('refresh', '1');
+    currentUrl.searchParams.set('_t', Date.now()); // Cache busting
+    
+    // Reload page with refresh parameter
+    window.location.href = currentUrl.toString();
+}
+
 // Note: Each page should implement its own refresh functionality if needed
 // Market page has its own refreshMarketData() function in market.js
 
@@ -162,3 +188,4 @@ document.addEventListener('DOMContentLoaded', function() {
 window.toggleUserDropdown = toggleUserDropdown;
 window.toggleMobileMenu = toggleMobileMenu;
 window.closeMobileMenu = closeMobileMenu;
+window.refreshDashboard = refreshDashboard;

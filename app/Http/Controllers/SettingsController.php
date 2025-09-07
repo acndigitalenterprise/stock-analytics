@@ -11,6 +11,8 @@ class SettingsController extends Controller
 {
     public function profile(Request $request)
     {
+        \Log::info('HIT /settings');
+        
         $user = $request->session()->get('user');
         if (!$user) {
             return redirect()->route('auth.signin.page');
@@ -21,6 +23,10 @@ class SettingsController extends Controller
 
     public function updateProfile(Request $request)
     {
+        \Log::info('🚀 SETTINGS UPDATE POST REQUEST RECEIVED!');
+        \Log::info('Request method: ' . $request->method());
+        \Log::info('Request URL: ' . $request->url());
+        \Log::info('Request all data:', $request->all());
         $user = $request->session()->get('user');
         if (!$user) {
             return redirect()->route('auth.signin.page');

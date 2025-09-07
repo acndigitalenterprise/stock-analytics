@@ -57,6 +57,9 @@ class AdminController extends Controller
 
             // Email will be sent after AI advice is generated (via GenerateStockAdvice job)
             
+            // Clear dashboard cache since new request was added
+            $this->clearDashboardCache();
+            
             // Regular form submission - redirect with success message
             return redirect()->route('requests.index')
                 ->with('success', 'Request created successfully!');
@@ -226,7 +229,12 @@ class AdminController extends Controller
 
         // Cache key for metrics based on user role and ID
         $cacheKey = "dashboard_metrics_{$user->role}_{$user->id}";
-        $cacheDuration = 300; // 5 minutes
+        $cacheDuration = 60; // Reduced to 1 minute for more current data
+        
+        // Allow manual refresh of metrics
+        if (request()->has('refresh_metrics') || request()->has('refresh')) {
+            \Cache::forget($cacheKey);
+        }
         
         $metrics = \Cache::remember($cacheKey, $cacheDuration, function() use ($user) {
             $isAdminOrSuperAdmin = in_array($user->role, ['admin', 'super_admin']);
@@ -285,8 +293,8 @@ class AdminController extends Controller
         // Extract metrics from cache
         extract($metrics);
 
-        // Get market insights - cached with longer duration for faster loading
-        $marketInsights = \Cache::remember('market_insights', 1800, function() { // 30 minutes cache
+        // Get market insights - reduced cache duration for more current data
+        $marketInsights = \Cache::remember('market_insights', 300, function() { // 5 minutes cache
             try {
                 $cacheService = app(\App\Services\CacheService::class);
                 return $cacheService->getMarketInsights();
@@ -301,11 +309,12 @@ class AdminController extends Controller
         });
         
         // Allow manual refresh if requested
-        if (request()->has('refresh_market')) {
+        if (request()->has('refresh_market') || request()->has('refresh')) {
             try {
+                \Cache::forget('market_insights');
                 $cacheService = app(\App\Services\CacheService::class);
                 $marketInsights = $cacheService->refreshMarketInsights();
-                \Cache::put('market_insights', $marketInsights, 1800);
+                \Cache::put('market_insights', $marketInsights, 300); // Updated cache duration
             } catch (\Exception $e) {
                 // Keep cached version if refresh fails
             }
@@ -315,6 +324,26 @@ class AdminController extends Controller
             'totalRequests', 'totalStocks', 'totalWins', 'totalLoss', 'totalTimeout',
             'totalUsers', 'activeUsers', 'inactiveUsers', 'marketInsights', 'user'
         ));
+    }
+
+    /**
+     * Clear dashboard cache for all users when data changes
+     */
+    private function clearDashboardCache()
+    {
+        // Clear cache for all user roles
+        $patterns = [
+            'dashboard_metrics_admin_*',
+            'dashboard_metrics_super_admin_*',
+            'dashboard_metrics_user_*'
+        ];
+        
+        foreach ($patterns as $pattern) {
+            \Cache::flush(); // For simplicity, flush all cache
+        }
+        
+        // Also clear market insights
+        \Cache::forget('market_insights');
     }
 
     public function stocks(Request $request)
@@ -460,7 +489,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'mobile_number' => 'nullable|string|max:20',
+            'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $id,
             'user_new_pwd' => 'nullable|string|min:6',
             'role' => 'nullable|in:user,admin',
         ]);

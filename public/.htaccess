@@ -12,8 +12,9 @@
     # Force routes to Laravel for conflicting paths (with and without trailing slash)
     RewriteRule ^(users|dashboard|requests|settings|market)/?$ index.php [L]
 
-    # Redirect Trailing Slashes If Not A Folder...
+    # Redirect Trailing Slashes If Not A Folder (except for POST requests)...
     RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_METHOD} !POST
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
