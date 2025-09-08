@@ -15,7 +15,8 @@
       "Read(/C:\\xampp\\htdocs\\ai-stock-analytics/**)",
       "Bash(npm install:*)",
       "Bash(php:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

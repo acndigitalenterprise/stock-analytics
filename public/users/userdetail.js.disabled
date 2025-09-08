@@ -27,21 +27,18 @@ function initUserDetailPage() {
  * Initialize User Detail Form
  */
 function initUserDetailForm() {
-    console.log('initUserDetailForm called');
-    const form = document.getElementById('user-update-form');
-    if (!form) {
-        console.log('user-update-form not found');
-        return;
-    }
-
-    form.addEventListener('submit', handleUserDetailSubmit);
+    console.log('initUserDetailForm called - AJAX DISABLED, using normal form submission');
+    // COMPLETELY DISABLE AJAX EVENT LISTENER
+    // Let form submit normally to save data to database
+    return;
 }
 
 /**
  * Handle User Detail Form Submit
  */
 function handleUserDetailSubmit(e) {
-    e.preventDefault();
+    // DISABLE AJAX - Let form submit normally to save data to database
+    // e.preventDefault(); // COMMENTED OUT TO ALLOW NORMAL FORM SUBMISSION
     
     const submitBtn = document.getElementById('updateUserBtn');
     if (!submitBtn) return;

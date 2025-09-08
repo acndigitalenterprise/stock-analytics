@@ -478,6 +478,12 @@ class AdminController extends Controller
 
     public function updateUser(Request $request, $id)
     {
+        \Log::info('🔥 AdminController updateUser called', [
+            'user_id' => $id,
+            'method' => $request->method(),
+            'all_data' => $request->all()
+        ]);
+
         $user = session('user');
         if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
             return redirect()->route('users.index');
@@ -486,6 +492,8 @@ class AdminController extends Controller
         $targetUser = User::findOrFail($id);
         $oldRole = $targetUser->role;
 
+        \Log::info('🔍 Before validation');
+        
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
@@ -493,6 +501,8 @@ class AdminController extends Controller
             'user_new_pwd' => 'nullable|string|min:6',
             'role' => 'nullable|in:user,admin',
         ]);
+        
+        \Log::info('✅ Validation passed', $validated);
 
         // Handle password field (rename user_new_pwd to password for database)
         if (!empty($validated['user_new_pwd'])) {
@@ -531,6 +541,14 @@ class AdminController extends Controller
         } else {
             // Send regular update notification
             $this->sendUserActionNotification($user, $targetUser, 'updated');
+        }
+
+        // Check if request expects JSON (AJAX request)
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully!'
+            ]);
         }
 
         return redirect()->route('users.show', $id)

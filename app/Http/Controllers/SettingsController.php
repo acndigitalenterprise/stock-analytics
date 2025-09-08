@@ -73,6 +73,14 @@ class SettingsController extends Controller
             $message .= ' Password changed successfully.';
         }
         
+        // Check if request expects JSON (AJAX request)
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        }
+
         return back()->with('success', $message);
     }
 }
