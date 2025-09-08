@@ -37,7 +37,7 @@ class SignUpRequest extends FormRequest
             ],
             'email' => [
                 'required',
-                'email:rfc,dns',
+                'email:rfc', // Removed DNS validation to prevent server timeouts
                 'max:255',
                 'unique:users,email',
                 'not_regex:/[<>\"\'&]/', // Prevent HTML injection
