@@ -9,6 +9,10 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    # Handle POST requests to specific routes first (prevent trailing slash redirects)
+    RewriteCond %{REQUEST_METHOD} POST
+    RewriteRule ^(users|dashboard|requests|settings|market)$ index.php [L]
+    
     # Force routes to Laravel for conflicting paths (with and without trailing slash)
     RewriteRule ^(users|dashboard|requests|settings|market)/?$ index.php [L]
 

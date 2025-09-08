@@ -38,6 +38,17 @@
                 @if(session('error'))
                     <div class="auth-error-block">{{ session('error') }}</div>
                 @endif
+                
+                <!-- Display Validation Errors -->
+                @if($errors->any())
+                    <div class="auth-error-block">
+                        <ul style="margin: 0; padding-left: 20px;">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <!-- Settings Form -->
                 <div class="auth-form-container" style="max-width: 500px; margin: 32px auto 0;">
@@ -46,8 +57,11 @@
                         Keep your profile up to date.
                     </div>
 
-                    <form id="settings-update-form" action="{{ route('settings.update') }}" method="POST" class="auth-form">
+                    <form id="settings-update-form" action="/settings/" method="POST" class="auth-form">
                         @csrf
+                        
+                        <!-- Debug field (remove in production) -->
+                        <input type="hidden" name="debug_timestamp" value="{{ time() }}">
                         
                         <!-- Registered Date (Read-only) -->
                         <div class="auth-form-group">
@@ -111,7 +125,7 @@
                         <!-- Action Buttons INSIDE Form -->
                         <div class="user-detail-actions" style="margin: 48px auto 0;">
                             <div class="user-detail-buttons">
-                                <button type="submit" id="settings-update-btn" class="user-detail-btn user-detail-btn-update" onclick="console.log('Settings form submit clicked!'); return true;">
+                                <button type="submit" id="settings-update-btn" class="user-detail-btn user-detail-btn-update">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
@@ -136,15 +150,28 @@
     @include('Components.footer')
 </div>
 
-{{-- @include('Components.admin-scripts') --}} {{-- DISABLED TO PREVENT FORM INTERFERENCE --}}
+@include('Components.admin-scripts')
 
 <script>
-// Simple password toggle
+// Simple password toggle - No changes needed here
 function toggleAuthPassword(fieldId) {
     const field = document.getElementById(fieldId);
     if (!field) return;
     field.type = field.type === 'password' ? 'text' : 'password';
 }
+
+// Debug form submission
+document.getElementById('settings-update-form').addEventListener('submit', function(e) {
+    console.log('Form submit event fired');
+    console.log('Form data:', new FormData(this));
+    console.log('CSRF token:', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    
+    // Let the form submit naturally - don't prevent default
+});
+
+// Debug page load
+console.log('Settings page loaded');
+console.log('CSRF token available:', document.querySelector('meta[name="csrf-token"]') ? 'YES' : 'NO');
 </script>
 
 </body>

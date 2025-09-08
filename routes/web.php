@@ -234,6 +234,9 @@ Route::middleware(['auth.session'])->group(function () {
     
     Route::post('/settings', [SettingsController::class, 'updateProfile'])
         ->name('settings.update');
+        
+    // Handle trailing slash version for Apache compatibility
+    Route::post('/settings/', [SettingsController::class, 'updateProfile']);
     
 });
 
