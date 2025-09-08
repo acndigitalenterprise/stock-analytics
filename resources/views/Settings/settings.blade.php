@@ -111,7 +111,7 @@
                         <!-- Action Buttons INSIDE Form -->
                         <div class="user-detail-actions" style="margin: 48px auto 0;">
                             <div class="user-detail-buttons">
-                                <button type="submit" id="settings-update-btn" class="user-detail-btn user-detail-btn-update">
+                                <button type="submit" id="settings-update-btn" class="user-detail-btn user-detail-btn-update" onclick="console.log('Settings form submit clicked!'); return true;">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
@@ -136,7 +136,7 @@
     @include('Components.footer')
 </div>
 
-@include('Components.admin-scripts')
+{{-- @include('Components.admin-scripts') --}} {{-- DISABLED TO PREVENT FORM INTERFERENCE --}}
 
 <script>
 // Simple password toggle

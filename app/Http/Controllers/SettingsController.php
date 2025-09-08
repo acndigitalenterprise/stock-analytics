@@ -34,14 +34,21 @@ class SettingsController extends Controller
         $user = User::find($user->id);
         
         // Handle profile information update
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $user->id,
-        ], [
-            'email.unique' => 'Email Address Already Registered',
-            'mobile_number.unique' => 'Mobile Number Already Registered',
-        ]);
+        \Log::info('🔍 Settings validation starting');
+        try {
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $user->id,
+            ], [
+                'email.unique' => 'Email Address Already Registered',
+                'mobile_number.unique' => 'Mobile Number Already Registered',
+            ]);
+            \Log::info('✅ Settings validation passed', $validated);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('❌ Settings validation FAILED', $e->errors());
+            throw $e;
+        }
         
         $user->name = $validated['full_name'];
         $user->email = $validated['email'];

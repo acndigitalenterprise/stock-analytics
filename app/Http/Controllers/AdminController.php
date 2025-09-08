@@ -494,15 +494,19 @@ class AdminController extends Controller
 
         \Log::info('🔍 Before validation');
         
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $id,
-            'user_new_pwd' => 'nullable|string|min:6',
-            'role' => 'nullable|in:user,admin',
-        ]);
-        
-        \Log::info('✅ Validation passed', $validated);
+        try {
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $id,
+                'mobile_number' => 'nullable|string|max:20|unique:users,mobile_number,' . $id,
+                'user_new_pwd' => 'nullable|string|min:6',
+                'role' => 'nullable|in:user,admin,super_admin',
+            ]);
+            \Log::info('✅ Validation passed', $validated);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('❌ Validation FAILED', $e->errors());
+            throw $e;
+        }
 
         // Handle password field (rename user_new_pwd to password for database)
         if (!empty($validated['user_new_pwd'])) {
