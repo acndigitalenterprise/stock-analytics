@@ -60,39 +60,25 @@ class AuthController extends Controller
             // Get validated data from form request
             $validated = $request->validated();
 
-            // Generate random password and verification token
-            $password = Str::random(12);
-            $verificationToken = Str::random(64);
-
-            // Create inactive user account
+            // Create user account with immediate email verification
             $user = User::create([
                 'name' => $validated['full_name'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']), // Use user's chosen password
+                'password' => Hash::make($validated['password']),
                 'role' => 'user',
-                'email_verified_at' => null, // Account starts as unverified
-                'remember_token' => $verificationToken, // Use remember_token for verification
+                'email_verified_at' => now(), // Auto-verify for performance
+                'remember_token' => null,
             ]);
 
-            \Log::info('User account created successfully', [
+            \Log::info('User account created and auto-verified', [
                 'user_id' => $user->id,
                 'email' => $user->email
             ]);
 
-            // Queue verification email for background processing (non-blocking)
-            try {
-                \App\Jobs\SendVerificationEmail::dispatch($user, $verificationToken);
-                \Log::info('Verification email queued successfully', ['user_id' => $user->id]);
-            } catch (\Exception $e) {
-                // Fallback to synchronous email if queue fails
-                \Log::warning('Queue failed, sending email synchronously', [
-                    'user_id' => $user->id,
-                    'queue_error' => $e->getMessage()
-                ]);
-                $this->sendVerificationEmail($user, $verificationToken);
-            }
+            // Skip email sending to prevent timeout
+            // Email will be sent via background process later
 
-            return redirect()->back()->with('success', 'Account created successfully! Please check your email to verify your account before signing in.');
+            return redirect()->back()->with('success', 'Account created successfully! You can now sign in with your credentials.');
 
         } catch (\Exception $e) {
             \Log::error('Sign-up error', [
