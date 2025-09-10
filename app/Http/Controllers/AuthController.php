@@ -79,8 +79,18 @@ class AuthController extends Controller
                 'email' => $user->email
             ]);
 
-            // Send verification email with login info
-            $this->sendVerificationEmail($user, $verificationToken);
+            // Queue verification email for background processing (non-blocking)
+            try {
+                \App\Jobs\SendVerificationEmail::dispatch($user, $verificationToken);
+                \Log::info('Verification email queued successfully', ['user_id' => $user->id]);
+            } catch (\Exception $e) {
+                // Fallback to synchronous email if queue fails
+                \Log::warning('Queue failed, sending email synchronously', [
+                    'user_id' => $user->id,
+                    'queue_error' => $e->getMessage()
+                ]);
+                $this->sendVerificationEmail($user, $verificationToken);
+            }
 
             return redirect()->back()->with('success', 'Account created successfully! Please check your email to verify your account before signing in.');
 
