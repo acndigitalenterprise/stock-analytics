@@ -769,11 +769,106 @@ class TechnicalAnalysisService
     public function calculateEntryPrice(array $ohlcvData): ?float
     {
         $closes = array_column($ohlcvData, 'close');
+        $highs = array_column($ohlcvData, 'high');
+        $lows = array_column($ohlcvData, 'low');
         $currentPrice = $closes[0];
         
-        // Always return current price as entry price for consistency
-        // This ensures monitoring system always has entry_price to work with
-        return round($currentPrice, 2);
+        // Intelligent entry price prediction like ChatGPT
+        $signals = $this->analyzeEntrySignals($ohlcvData);
+        
+        // Simplified intelligent entry logic
+        if ($signals['momentum'] === 'strong_bullish') {
+            // Scenario 1: Strong Rally - enter at current price (don't miss it!)
+            return round($currentPrice, 2);
+        } 
+        elseif ($signals['at_resistance']) {
+            // Scenario 2: At Resistance - wait for pullback to support
+            $pullbackEntry = $this->findNearestSupport($lows, $currentPrice);
+            return round($pullbackEntry, 2);
+        }
+        else {
+            // Default: slight pullback entry (balanced approach)
+            return round($currentPrice * 0.995, 2); // 0.5% below current
+        }
+    }
+    
+    /**
+     * Analyze multiple signals for intelligent entry prediction
+     */
+    private function analyzeEntrySignals(array $ohlcvData): array
+    {
+        $closes = array_column($ohlcvData, 'close');
+        $highs = array_column($ohlcvData, 'high');
+        $lows = array_column($ohlcvData, 'low');
+        $volumes = array_column($ohlcvData, 'volume');
+        
+        $currentPrice = $closes[0];
+        $signals = [];
+        
+        // 1. Momentum analysis
+        $recentCloses = array_slice($closes, 0, 5);
+        $priceChange = ($recentCloses[0] - $recentCloses[4]) / $recentCloses[4];
+        
+        if ($priceChange > 0.02) {
+            $signals['momentum'] = 'strong_bullish';
+        } elseif ($priceChange > 0.005) {
+            $signals['momentum'] = 'bullish';
+        } elseif ($priceChange < -0.02) {
+            $signals['momentum'] = 'bearish';
+        } else {
+            $signals['momentum'] = 'neutral';
+        }
+        
+        // 2. Support/Resistance analysis
+        $recentHighs = array_slice($highs, 0, 10);
+        $recentLows = array_slice($lows, 0, 10);
+        
+        $resistance = max($recentHighs);
+        $support = min(array_filter($recentLows, function($low) { return $low > 0; }));
+        
+        $signals['at_resistance'] = ($currentPrice >= $resistance * 0.995);
+        $signals['support_nearby'] = ($currentPrice <= $support * 1.01);
+        
+        // 3. Volume analysis
+        if (count($volumes) >= 5) {
+            $avgVolume = array_sum(array_slice($volumes, 1, 4)) / 4;
+            $signals['volume_low'] = ($volumes[0] < $avgVolume * 0.8);
+        } else {
+            $signals['volume_low'] = false;
+        }
+        
+        // 4. Oversold conditions
+        $rsi = $this->calculateRSI($closes, 14);
+        $signals['oversold'] = ($rsi !== null && $rsi < 35);
+        $signals['bounce_expected'] = ($rsi !== null && $rsi < 30);
+        
+        // 5. Consolidation detection
+        $priceRange = (max($recentCloses) - min($recentCloses)) / min($recentCloses);
+        $signals['consolidation'] = ($priceRange < 0.02); // Less than 2% range
+        
+        return $signals;
+    }
+    
+    /**
+     * Find nearest support level for pullback entry
+     */
+    private function findNearestSupport(array $lows, float $currentPrice): float
+    {
+        $validLows = array_filter($lows, function($low) use ($currentPrice) { 
+            return $low > 0 && $low < $currentPrice; 
+        });
+        
+        if (empty($validLows)) {
+            return $currentPrice * 0.995; // Fallback
+        }
+        
+        // Find the highest low (nearest support)
+        $nearestSupport = max($validLows);
+        
+        // Don't go too far down (max 1% below current)
+        $maxPullback = $currentPrice * 0.99;
+        
+        return max($nearestSupport, $maxPullback);
     }
 
     public function calculateTarget1(array $ohlcvData): ?float
