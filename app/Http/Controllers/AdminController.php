@@ -186,21 +186,49 @@ class AdminController extends Controller
                 'user_id' => $user->id
             ]);
             
-            GenerateStockAdvice::dispatch($stockRequest);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'AI advice generation started. Please refresh the page in a few moments.',
-                'has_advice' => false
-            ]);
+            // Try queue first
+            try {
+                GenerateStockAdvice::dispatch($stockRequest);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'AI advice generation started. Please refresh the page in a few moments.',
+                    'has_advice' => false
+                ]);
+            } catch (\Exception $queueException) {
+                Log::warning('Queue dispatch failed, executing synchronously', [
+                    'request_id' => $stockRequest->id,
+                    'queue_error' => $queueException->getMessage()
+                ]);
+                
+                // Fallback: Execute synchronously
+                $job = new \App\Jobs\GenerateStockAdvice($stockRequest);
+                $job->handle(
+                    app(\App\Services\YahooFinanceService::class),
+                    app(\App\Services\AlphaVantageService::class),
+                    app(\App\Services\TechnicalAnalysisService::class),
+                    app(\App\Services\ChatGPTService::class),
+                    app(\App\Services\PriceMonitoringService::class)
+                );
+                
+                // Reload the request to get updated advice
+                $stockRequest->refresh();
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'AI advice generated successfully!',
+                    'has_advice' => !empty($stockRequest->advice),
+                    'advice' => $stockRequest->advice
+                ]);
+            }
         } catch (\Exception $e) {
-            Log::error('Failed to dispatch GenerateStockAdvice job from manual trigger', [
+            Log::error('Failed to generate advice', [
                 'request_id' => $stockRequest->id,
                 'error' => $e->getMessage()
             ]);
             
             return response()->json([
-                'error' => 'Failed to start advice generation: ' . $e->getMessage()
+                'error' => 'Failed to generate advice: ' . $e->getMessage()
             ], 500);
         }
     }
