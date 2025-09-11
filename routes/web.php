@@ -69,6 +69,9 @@ Route::get('/contacts', function () {
     return view('home.contacts');
 })->name('contacts');
 
+Route::post('/contacts/send', [App\Http\Controllers\ContactController::class, 'sendMessage'])
+    ->name('contacts.send');
+
 // Password Reset with Token
 Route::get('/reset-password/{token}', function ($token) {
     if (session()->has('user')) {
