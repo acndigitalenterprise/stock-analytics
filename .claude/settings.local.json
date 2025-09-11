@@ -16,7 +16,11 @@
       "Bash(npm install:*)",
       "Bash(php:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(timeout 15s curl -b /tmp/test_after_cache.txt -X POST https://tickerai.app/signup )",
+      "Bash(timeout 15s curl -X GET \"https://tickerai.app/signin\")"
     ],
     "deny": [],
     "ask": []

@@ -145,7 +145,7 @@ class AdminController extends Controller
         if (!in_array($user->role, ['admin', 'super_admin']) && $stockRequest->user_id !== $user->id) {
             return redirect()->route('requests.index')->withErrors(['error' => 'Unauthorized.']);
         }
-        return view('requests.requestdetail', compact('stockRequest', 'user'));
+        return view('Requests.requestdetail', compact('stockRequest', 'user'));
     }
 
     // ensureJKFormat and getCompanyName moved to StockService
@@ -399,7 +399,7 @@ class AdminController extends Controller
 
         $targetUser = User::findOrFail($id);
         
-        return view('users.userdetail', compact('targetUser', 'user'));
+        return view('Users.userdetail', compact('targetUser', 'user'));
     }
 
     public function createUser(Request $request)
