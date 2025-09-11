@@ -377,7 +377,7 @@ class AdminController extends Controller
     public function stocks(Request $request)
     {
         $data = $this->getRequestsData($request);
-        return view('requests.requests', $data);
+        return view('Requests.requests', $data);
     }
 
     public function users(Request $request)
@@ -415,7 +415,7 @@ class AdminController extends Controller
             $users = $query->withCount('requests')->orderBy($sortBy, $sortOrder)->paginate($request->get('per_page', 10));
         }
 
-        return view('users.users', compact('users', 'user'));
+        return view('Users.users', compact('users', 'user'));
     }
 
     public function userDetail($id)
