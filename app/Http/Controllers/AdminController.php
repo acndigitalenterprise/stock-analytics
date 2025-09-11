@@ -348,7 +348,7 @@ class AdminController extends Controller
             }
         }
 
-        return view('dashboard.dashboard', compact(
+        return view('Dashboard.dashboard', compact(
             'totalRequests', 'totalStocks', 'totalWins', 'totalLoss', 'totalTimeout',
             'totalUsers', 'activeUsers', 'inactiveUsers', 'marketInsights', 'user'
         ));
