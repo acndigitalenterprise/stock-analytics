@@ -75,10 +75,20 @@ class AuthController extends Controller
                 'email' => $user->email
             ]);
 
+            // Auto sign-in the user since they're already verified
+            session()->flush();
+            session()->regenerate();
+            session(['user' => $user]);
+
+            \Log::info('User auto-signed in after signup', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+
             // Skip email sending to prevent timeout
             // Email will be sent via background process later
 
-            return redirect()->back()->with('success', 'Account created successfully! You can now sign in with your credentials.');
+            return redirect()->route('dashboard')->with('success', 'Welcome to Ticker AI! Your account has been created and you are now signed in.');
 
         } catch (\Exception $e) {
             \Log::error('Sign-up error', [
