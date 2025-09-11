@@ -35,7 +35,26 @@ class AuthMiddleware
                 ->withErrors(['error' => 'Please login to access this page.']);
         }
 
-        \Log::info('AuthMiddleware: User authenticated, proceeding');
+        // CRITICAL FIX: Refresh user data from database to prevent stale session data
+        $sessionUser = session('user');
+        $freshUser = \App\Models\User::find($sessionUser->id);
+        
+        if (!$freshUser) {
+            // User was deleted from database
+            session()->flush();
+            return redirect()->route('auth.signin.page')
+                ->withErrors(['error' => 'Your account is no longer valid. Please login again.']);
+        }
+        
+        // Update session with fresh user data
+        session(['user' => $freshUser]);
+        
+        \Log::info('AuthMiddleware: User data refreshed', [
+            'user_id' => $freshUser->id,
+            'user_email' => $freshUser->email,
+            'user_role' => $freshUser->role
+        ]);
+
         return $next($request);
     }
 }
