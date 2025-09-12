@@ -20,7 +20,9 @@
       "Bash(ssh:*)",
       "Bash(scp:*)",
       "Bash(timeout 15s curl -b /tmp/test_after_cache.txt -X POST https://tickerai.app/signup )",
-      "Bash(timeout 15s curl -X GET \"https://tickerai.app/signin\")"
+      "Bash(timeout 15s curl -X GET \"https://tickerai.app/signin\")",
+      "Bash(rm:*)",
+      "Bash(composer:*)"
     ],
     "deny": [],
     "ask": []

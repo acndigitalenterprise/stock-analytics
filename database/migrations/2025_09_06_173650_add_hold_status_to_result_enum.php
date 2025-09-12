@@ -12,8 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Use raw SQL to modify ENUM as Laravel doesn't handle ENUM changes well
-        DB::statement("ALTER TABLE `requests` MODIFY COLUMN `result` ENUM('MONITORING', 'WIN', 'SUPER_WIN', 'LOSS', 'TIMEOUT', 'HOLD') NULL DEFAULT NULL");
+        // SQLite doesn't support ENUM, this migration is MySQL specific
+        // For SQLite, the requests table will be created with TEXT column for result
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE `requests` MODIFY COLUMN `result` ENUM('MONITORING', 'WIN', 'SUPER_WIN', 'LOSS', 'TIMEOUT', 'HOLD') NULL DEFAULT NULL");
+        }
     }
 
     /**
@@ -21,7 +24,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert to original enum
-        DB::statement("ALTER TABLE `requests` MODIFY COLUMN `result` ENUM('MONITORING', 'WIN', 'SUPER_WIN', 'LOSS', 'TIMEOUT') NOT NULL DEFAULT 'MONITORING'");
+        // Revert to original enum (MySQL only)
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE `requests` MODIFY COLUMN `result` ENUM('MONITORING', 'WIN', 'SUPER_WIN', 'LOSS', 'TIMEOUT') NOT NULL DEFAULT 'MONITORING'");
+        }
     }
 };

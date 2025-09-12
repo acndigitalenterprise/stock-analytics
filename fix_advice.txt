@@ -1,7 +1,0 @@
-            GenerateStockAdvice::dispatchSync($stockRequest);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'AI advice generated successfully!',
-                'has_advice' => true
-            ]);
