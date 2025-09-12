@@ -22,7 +22,8 @@
       "Bash(timeout 15s curl -b /tmp/test_after_cache.txt -X POST https://tickerai.app/signup )",
       "Bash(timeout 15s curl -X GET \"https://tickerai.app/signin\")",
       "Bash(rm:*)",
-      "Bash(composer:*)"
+      "Bash(composer:*)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS ai_stock_analytics CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")"
     ],
     "deny": [],
     "ask": []

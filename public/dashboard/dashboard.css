@@ -11,7 +11,28 @@
     gap: 20px !important;
 }
 
-/* Refresh Button - Consistent with Users Page */
+/* Original button styling removed - using consolidated version below */
+
+.users-flex-between > div:last-child {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Page Title - Consistent Styling with Higher Specificity */
+.admin-body .users-flex-between h2,
+.admin-body h2,
+.users-flex-between h2,
+h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+}
+
+/* Ensure button styling is consistent */
+.admin-body .users-new-btn,
 .users-new-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
@@ -30,6 +51,7 @@
     box-shadow: 0 6px 24px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
 }
 
+.admin-body .users-new-btn::before,
 .users-new-btn::before {
     content: '' !important;
     position: absolute !important;
@@ -41,30 +63,16 @@
     transition: left 0.5s !important;
 }
 
+.admin-body .users-new-btn:hover::before,
 .users-new-btn:hover::before {
     left: 100% !important;
 }
 
+.admin-body .users-new-btn:hover:not(:disabled),
 .users-new-btn:hover:not(:disabled) {
     transform: translateY(-2px) scale(1.05) !important;
     box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
     border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.users-flex-between > div:last-child {
-    flex-shrink: 0;
-    margin-left: auto;
-}
-
-/* Page Title - Consistent Styling */
-.users-flex-between h2,
-h2 {
-    margin: 0 !important;
-    padding: 0 !important;
-    color: white !important;
-    font-size: 2rem !important;
-    font-weight: 600 !important;
-    line-height: 1.2 !important;
 }
 
 /* Dashboard Statistics Grid */

@@ -263,7 +263,7 @@ class PriceMonitoringService
         $timeouts = StockRequest::where('result', 'TIMEOUT')->count(); // For display only
         
         $totalWins = $wins + $superWins;
-        $winningRate = ($totalWins / $totalRequests) * 100;
+        $winningRate = $totalRequests > 0 ? ($totalWins / $totalRequests) * 100 : 0;
 
         return [
             'winning_rate' => round($winningRate, 1),

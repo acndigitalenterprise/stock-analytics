@@ -101,7 +101,7 @@ class ChatGPTService
         
         // Calculate price changes
         $priceChange = $stockData['current_price'] - $stockData['previous_close'];
-        $priceChangePercent = ($priceChange / $stockData['previous_close']) * 100;
+        $priceChangePercent = $stockData['previous_close'] > 0 ? (($priceChange / $stockData['previous_close']) * 100) : 0;
         
         $prompt = "Analyze this stock for {$timeframeText} scalping/trading:\n\n";
         
@@ -261,9 +261,10 @@ class ChatGPTService
             // BUY format with rounded numbers
             $advice .= "Action: Buy at {$stockData['currency']} " . number_format($technicalAnalysis['entry_price'], 0) . "\n";
             
-            $target1Profit = ((($technicalAnalysis['target_1'] - $technicalAnalysis['entry_price']) / $technicalAnalysis['entry_price']) * 100);
-            $target2Profit = ((($technicalAnalysis['target_2'] - $technicalAnalysis['entry_price']) / $technicalAnalysis['entry_price']) * 100);
-            $stopLossPercent = ((($technicalAnalysis['entry_price'] - $technicalAnalysis['stop_loss']) / $technicalAnalysis['entry_price']) * 100);
+            $entryPrice = $technicalAnalysis['entry_price'];
+            $target1Profit = ($entryPrice > 0) ? ((($technicalAnalysis['target_1'] - $entryPrice) / $entryPrice) * 100) : 0;
+            $target2Profit = ($entryPrice > 0) ? ((($technicalAnalysis['target_2'] - $entryPrice) / $entryPrice) * 100) : 0;
+            $stopLossPercent = ($entryPrice > 0) ? ((($entryPrice - $technicalAnalysis['stop_loss']) / $entryPrice) * 100) : 0;
             
             $advice .= "Target 1: {$stockData['currency']} " . number_format($technicalAnalysis['target_1'], 0) . " (~" . number_format($target1Profit, 1) . "%)\n";
             $advice .= "Target 2: {$stockData['currency']} " . number_format($technicalAnalysis['target_2'], 0) . " (~" . number_format($target2Profit, 1) . "%)\n";

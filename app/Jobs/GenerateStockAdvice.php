@@ -59,29 +59,50 @@ class GenerateStockAdvice implements ShouldQueue
             
             // Perform technical analysis
             $technicalAnalysis = [];
-            if ($alphaVantageData && isset($alphaVantageData['daily_data'])) {
-                Log::info('Performing comprehensive technical analysis', [
-                    'request_id' => $this->stockRequest->id,
-                    'data_points' => count($alphaVantageData['daily_data'])
-                ]);
-                
-                // Use Alpha Vantage OHLCV data for scalping analysis
-                $ohlcvData = $alphaVantageData['daily_data'];
-                $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code);
-                
-                // Merge Alpha Vantage technical indicators if available
-                if (isset($alphaVantageData['technical_indicators'])) {
-                    $formattedIndicators = $alphaVantageService->formatTechnicalIndicators($alphaVantageData['technical_indicators']);
-                    $technicalAnalysis = array_merge($technicalAnalysis, $formattedIndicators);
+            try {
+                if ($alphaVantageData && isset($alphaVantageData['daily_data'])) {
+                    Log::info('Performing comprehensive technical analysis', [
+                        'request_id' => $this->stockRequest->id,
+                        'data_points' => count($alphaVantageData['daily_data'])
+                    ]);
+                    
+                    // Use Alpha Vantage OHLCV data for scalping analysis
+                    $ohlcvData = $alphaVantageData['daily_data'];
+                    $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code);
+                    
+                    // Merge Alpha Vantage technical indicators if available
+                    if (isset($alphaVantageData['technical_indicators'])) {
+                        $formattedIndicators = $alphaVantageService->formatTechnicalIndicators($alphaVantageData['technical_indicators']);
+                        $technicalAnalysis = array_merge($technicalAnalysis, $formattedIndicators);
+                    }
+                } else {
+                    Log::warning('Using basic Yahoo Finance data for technical analysis', [
+                        'request_id' => $this->stockRequest->id
+                    ]);
+                    
+                    // Fallback: use Yahoo Finance data for scalping analysis
+                    $ohlcvData = $this->convertYahooToOHLCV($yahooData);
+                    $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code);
                 }
-            } else {
-                Log::warning('Using basic Yahoo Finance data for technical analysis', [
-                    'request_id' => $this->stockRequest->id
+            } catch (\DivisionByZeroError $e) {
+                Log::error('Division by zero in technical analysis', [
+                    'request_id' => $this->stockRequest->id,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
                 ]);
-                
-                // Fallback: use Yahoo Finance data for scalping analysis
-                $ohlcvData = $this->convertYahooToOHLCV($yahooData);
-                $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code);
+                $this->updateRequestWithError('Division by zero in technical analysis: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+                return;
+            } catch (\Exception $e) {
+                Log::error('Error in technical analysis', [
+                    'request_id' => $this->stockRequest->id,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                $this->updateRequestWithError('Error in technical analysis: ' . $e->getMessage());
+                return;
             }
 
             Log::info('Technical analysis completed', [
@@ -90,11 +111,34 @@ class GenerateStockAdvice implements ShouldQueue
             ]);
 
             // Generate dual advice (Claude + ChatGPT) with comprehensive technical analysis
-            $dualAdvice = $chatgptService->generateStockAdvice(
-                $stockData, 
-                $technicalAnalysis,
-                $this->stockRequest->timeframe
-            );
+            try {
+                Log::info('About to call generateStockAdvice', ['request_id' => $this->stockRequest->id]);
+                $dualAdvice = $chatgptService->generateStockAdvice(
+                    $stockData, 
+                    $technicalAnalysis,
+                    $this->stockRequest->timeframe
+                );
+                Log::info('generateStockAdvice completed successfully', ['request_id' => $this->stockRequest->id]);
+            } catch (\DivisionByZeroError $e) {
+                Log::error('Division by zero in generateStockAdvice', [
+                    'request_id' => $this->stockRequest->id,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                $this->updateRequestWithError('Division by zero error in advice generation: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+                return;
+            } catch (\Exception $e) {
+                Log::error('General error in generateStockAdvice', [
+                    'request_id' => $this->stockRequest->id,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                $this->updateRequestWithError('Error in advice generation: ' . $e->getMessage());
+                return;
+            }
 
             if (!$dualAdvice || !isset($dualAdvice['claude'])) {
                 Log::error('Failed to generate dual advice', [

@@ -71,7 +71,7 @@ class TechnicalAnalysisService
      */
     public function calculateBollingerBands(array $prices, int $period = 20, float $stdDev = 2): array
     {
-        if (count($prices) < $period) {
+        if (count($prices) < $period || $period <= 0) {
             return ['upper' => null, 'middle' => null, 'lower' => null];
         }
 
@@ -88,7 +88,7 @@ class TechnicalAnalysisService
             'upper' => round($sma + ($stdDev * $standardDeviation), 2),
             'middle' => round($sma, 2),
             'lower' => round($sma - ($stdDev * $standardDeviation), 2),
-            'bandwidth' => round((($sma + ($stdDev * $standardDeviation)) - ($sma - ($stdDev * $standardDeviation))) / $sma * 100, 2)
+            'bandwidth' => $sma != 0 ? round((($sma + ($stdDev * $standardDeviation)) - ($sma - ($stdDev * $standardDeviation))) / $sma * 100, 2) : 0
         ];
     }
 
@@ -222,7 +222,7 @@ class TechnicalAnalysisService
         // This is a simplified trending strength indicator
         $recentPrices = array_slice($closes, -$period);
         $priceRange = max($recentPrices) - min($recentPrices);
-        $volatility = $priceRange / $recentPrices[0] * 100;
+        $volatility = ($recentPrices[0] != 0) ? ($priceRange / $recentPrices[0] * 100) : 0;
 
         return min(100, max(0, round($volatility * 2, 2)));
     }
@@ -371,7 +371,7 @@ class TechnicalAnalysisService
         $currentPrice = $closes[0];
         $sma = $this->calculateSMA($closes, $period);
         
-        if (!$sma) {
+        if (!$sma || $sma == 0) {
             return ['position' => 'N/A', 'percentage' => 0];
         }
 
@@ -399,6 +399,8 @@ class TechnicalAnalysisService
         $recentAvg = array_sum($recent) / count($recent);
         $olderAvg = array_sum($older) / count($older);
 
+        if ($olderAvg == 0) return 'N/A';
+        
         $change = (($recentAvg - $olderAvg) / $olderAvg) * 100;
 
         if ($change > 2) return 'Strong Uptrend';
@@ -419,19 +421,24 @@ class TechnicalAnalysisService
         $returns = [];
 
         for ($i = 1; $i < count($recentPrices); $i++) {
-            $returns[] = ($recentPrices[$i] - $recentPrices[$i - 1]) / $recentPrices[$i - 1];
+            if ($recentPrices[$i - 1] != 0) {
+                $returns[] = ($recentPrices[$i] - $recentPrices[$i - 1]) / $recentPrices[$i - 1];
+            }
         }
 
         if (empty($returns)) return null;
 
-        $mean = array_sum($returns) / count($returns);
+        $returnCount = count($returns);
+        if ($returnCount == 0) return 0;
+        
+        $mean = array_sum($returns) / $returnCount;
         $variance = 0;
 
         foreach ($returns as $return) {
             $variance += pow($return - $mean, 2);
         }
 
-        $volatility = sqrt($variance / count($returns)) * sqrt(252) * 100; // Annualized volatility
+        $volatility = sqrt($variance / $returnCount) * sqrt(252) * 100; // Annualized volatility
         return round($volatility, 2);
     }
 
@@ -640,7 +647,7 @@ class TechnicalAnalysisService
         // Base score berdasarkan basic price action jika data terbatas
         if ($dataCount >= 2) {
             $prevClose = $closes[1]; // Previous price (second in array)
-            $priceChange = ($currentPrice - $prevClose) / $prevClose * 100;
+            $priceChange = ($prevClose != 0) ? (($currentPrice - $prevClose) / $prevClose * 100) : 0;
             
             // Basic momentum scoring
             if ($priceChange > 2) $score += 3; // Strong upward momentum
@@ -652,7 +659,7 @@ class TechnicalAnalysisService
             if (count($volumes) >= 2) {
                 $currentVol = $volumes[0];
                 $avgVol = array_sum($volumes) / count($volumes);
-                $volumeRatio = $currentVol / $avgVol;
+                $volumeRatio = $avgVol > 0 ? ($currentVol / $avgVol) : 1;
                 
                 if ($currentVol > $avgVol * 1.2) $score += 1; // High volume
             }
@@ -807,7 +814,17 @@ class TechnicalAnalysisService
         
         // 1. Momentum analysis
         $recentCloses = array_slice($closes, 0, 5);
-        $priceChange = ($recentCloses[0] - $recentCloses[4]) / $recentCloses[4];
+        
+        // Check if we have enough data points and avoid division by zero
+        if (count($recentCloses) >= 5 && $recentCloses[4] != 0) {
+            $priceChange = ($recentCloses[0] - $recentCloses[4]) / $recentCloses[4];
+        } elseif (count($recentCloses) >= 2 && $recentCloses[1] != 0) {
+            // Fallback to comparing current vs previous close
+            $priceChange = ($recentCloses[0] - $recentCloses[1]) / $recentCloses[1];
+        } else {
+            // No valid comparison possible
+            $priceChange = 0;
+        }
         
         if ($priceChange > 0.02) {
             $signals['momentum'] = 'strong_bullish';
@@ -843,8 +860,13 @@ class TechnicalAnalysisService
         $signals['bounce_expected'] = ($rsi !== null && $rsi < 30);
         
         // 5. Consolidation detection
-        $priceRange = (max($recentCloses) - min($recentCloses)) / min($recentCloses);
-        $signals['consolidation'] = ($priceRange < 0.02); // Less than 2% range
+        $minPrice = min($recentCloses);
+        if ($minPrice > 0) {
+            $priceRange = (max($recentCloses) - $minPrice) / $minPrice;
+            $signals['consolidation'] = ($priceRange < 0.02); // Less than 2% range
+        } else {
+            $signals['consolidation'] = false; // Cannot calculate with zero price
+        }
         
         return $signals;
     }

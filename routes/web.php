@@ -155,10 +155,11 @@ Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])
 // AUTHENTICATED ROUTES
 // =================================
 
-// Main Dashboard
-Route::get('/dashboard', [AdminController::class, 'dashboard'])
-    ->middleware(['auth.session'])
-    ->name('dashboard');
+// Authenticated Routes Group
+Route::middleware(['auth.session'])->group(function () {
+    // Main Dashboard
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])
+        ->name('dashboard');
     
     // Market Page
     Route::get('/market', [MarketController::class, 'index'])
@@ -233,16 +234,14 @@ Route::get('/dashboard', [AdminController::class, 'dashboard'])
     
     // User Settings
     Route::get('/settings', [SettingsController::class, 'profile'])
-        ->middleware(['auth.session'])
         ->name('settings');
     
     Route::post('/settings', [SettingsController::class, 'updateProfile'])
-        ->middleware(['auth.session'])
         ->name('settings.update');
         
     // Handle trailing slash version for Apache compatibility
-    Route::post('/settings/', [SettingsController::class, 'updateProfile'])
-        ->middleware(['auth.session']);
+    Route::post('/settings/', [SettingsController::class, 'updateProfile']);
+});
 
 // =================================
 // LEGACY REDIRECTS (for compatibility)

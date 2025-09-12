@@ -373,7 +373,7 @@ class AlphaVantageService
                         'upper' => round($upper, 2),
                         'middle' => round($middle, 2),
                         'lower' => round($lower, 2),
-                        'bandwidth' => round((($upper - $lower) / $middle) * 100, 2)
+                        'bandwidth' => $middle != 0 ? round((($upper - $lower) / $middle) * 100, 2) : 0
                     ];
                     break;
 

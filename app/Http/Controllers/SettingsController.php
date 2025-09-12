@@ -89,7 +89,7 @@ class SettingsController extends Controller
         $requestUpdateCount = \App\Models\Request::where('user_id', $user->id)->update([
             'full_name' => $user->name,
             'email' => $user->email,
-            'mobile_number' => $user->mobile_number ?? null,
+            'mobile_number' => $user->mobile_number ?? '',
         ]);
         \Log::info('📝 Updated requests count:', ['count' => $requestUpdateCount]);
         
