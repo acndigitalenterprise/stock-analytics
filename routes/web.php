@@ -206,10 +206,20 @@ Route::middleware(['auth.session'])->group(function () {
     
     Route::post('/settings', [SettingsController::class, 'updateProfile'])
         ->name('settings.update');
-        
-    // Handle trailing slash version for Apache compatibility
-    Route::post('/settings/', [SettingsController::class, 'updateProfile']);
 });
+
+// =================================
+// TRAILING SLASH REDIRECTS (Nginx compatibility)
+// =================================
+
+// Handle trailing slash redirects to prevent 403 Forbidden errors
+Route::redirect('/dashboard/', '/dashboard', 301);
+Route::redirect('/signin/', '/signin', 301);
+Route::redirect('/signup/', '/signup', 301);
+Route::redirect('/requests/', '/requests', 301);
+Route::redirect('/users/', '/users', 301);
+Route::redirect('/settings/', '/settings', 301);
+Route::redirect('/market/', '/market', 301);
 
 // =================================
 // LEGACY REDIRECTS (for compatibility)

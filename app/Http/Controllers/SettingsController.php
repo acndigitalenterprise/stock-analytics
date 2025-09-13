@@ -45,7 +45,7 @@ class SettingsController extends Controller
         // Debug: Check if form data exists
         if (empty($request->except(['_token']))) {
             \Log::error('No form data received (except CSRF token)');
-            return back()->with('error', 'No form data received');
+            return redirect()->route('settings')->with('error', 'No form data received');
         }
         
         // Handle profile information update
@@ -64,7 +64,7 @@ class SettingsController extends Controller
             \Log::info('✅ Settings validation passed', $validated);
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('❌ Settings validation FAILED', ['errors' => $e->errors()]);
-            return back()
+            return redirect()->route('settings')
                 ->withErrors($e->errors())
                 ->withInput();
         }
@@ -106,6 +106,6 @@ class SettingsController extends Controller
             ]);
         }
 
-        return back()->with('success', $message);
+        return redirect()->route('settings')->with('success', $message);
     }
 }
