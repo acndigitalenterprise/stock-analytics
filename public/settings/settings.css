@@ -4,9 +4,13 @@
  * =================================
  */
 
-/* Page Title Styling - Force WHITE color */
+/* Page Title Styling - Force WHITE color with maximum specificity */
 .admin-content-container h2,
 .users-flex-between h2,
+.admin-layout-container h2,
+.admin-main-content h2,
+.admin-body h2,
+.admin-content-container .users-flex-between h2,
 h2 {
     color: white !important;
     font-size: 2rem !important;
@@ -16,7 +20,9 @@ h2 {
 }
 
 /* Extra specificity to override any conflicting styles */
-.admin-layout .admin-content-container .users-flex-between h2 {
+.admin-layout .admin-content-container .users-flex-between h2,
+.admin-layout-container .admin-main-content .admin-body .admin-content-container .users-flex-between h2,
+body.admin-layout .admin-layout-container .admin-main-content .admin-body .admin-content-container .users-flex-between div h2 {
     color: #ffffff !important;
 }
 
@@ -57,12 +63,20 @@ h2 {
 }
 
 .user-detail-btn.user-detail-btn-update {
-    background: #fd7e14;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
 }
 
 .user-detail-btn.user-detail-btn-update:hover {
-    background: #e8660d;
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+    transform: translateY(-3px) !important;
 }
 
 .user-detail-btn.user-detail-btn-delete {
