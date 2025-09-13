@@ -11,12 +11,16 @@
 .admin-main-content h2,
 .admin-body h2,
 .admin-content-container .users-flex-between h2,
+.admin-layout .admin-content-container h2,
+.admin-layout-container .admin-main-content .admin-body h2,
+body.admin-layout h2,
 h2 {
-    color: white !important;
+    color: #ffffff !important;
     font-size: 2rem !important;
     font-weight: 600 !important;
     margin: 0 !important;
     padding: 0 !important;
+    line-height: 1.2 !important;
 }
 
 /* Extra specificity to override any conflicting styles */
@@ -63,20 +67,14 @@ body.admin-layout .admin-layout-container .admin-main-content .admin-body .admin
 }
 
 .user-detail-btn.user-detail-btn-update {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: #fd7e14 !important;
     color: white !important;
     border: none !important;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.5px !important;
-    text-transform: uppercase !important;
-    font-size: 0.85rem !important;
+    font-weight: 500 !important;
 }
 
 .user-detail-btn.user-detail-btn-update:hover {
-    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
-    transform: translateY(-3px) !important;
+    background: #e8660d !important;
 }
 
 .user-detail-btn.user-detail-btn-delete {
