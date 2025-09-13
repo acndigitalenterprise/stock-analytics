@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Settings - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('Settings/settings.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('settings/settings.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 
