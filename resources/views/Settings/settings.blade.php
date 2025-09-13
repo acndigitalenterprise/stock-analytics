@@ -57,7 +57,7 @@
                         Keep your profile up to date.
                     </div>
 
-                    <form id="settings-update-form" action="/settings/" method="POST" class="auth-form">
+                    <form id="settings-update-form" action="{{ route('settings.update') }}" method="POST" class="auth-form">
                         @csrf
                         
                         <!-- Debug field (remove in production) -->
