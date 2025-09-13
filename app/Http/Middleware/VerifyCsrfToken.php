@@ -17,7 +17,6 @@ class VerifyCsrfToken extends Middleware
         'stock-analytics/reset-password/*',
         'requests',
         'requests/*',
-        'test-store',
         'create-user',
         'signin',
         'signup',

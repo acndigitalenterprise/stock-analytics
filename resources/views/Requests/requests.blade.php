@@ -288,7 +288,7 @@
                 Submit a new stock analysis request with the required information.
             </div>
             
-            <form action="/test-store" method="POST" id="newRequestForm" class="auth-form">
+            <form action="/requests" method="POST" id="newRequestForm" class="auth-form">
                 @csrf
                 <div class="auth-form-group">
                     <label for="stock_code">Stock Code<span class="auth-required">*</span></label>
