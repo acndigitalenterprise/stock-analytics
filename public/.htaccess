@@ -9,15 +9,6 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Force Laravel routes over physical directories (before trailing slash handling)
-    RewriteRule ^dashboard/?$ index.php [L]
-    RewriteRule ^signin/?$ index.php [L]
-    RewriteRule ^signup/?$ index.php [L]
-    RewriteRule ^requests/?$ index.php [L]
-    RewriteRule ^users/?$ index.php [L]
-    RewriteRule ^settings/?$ index.php [L]
-    RewriteRule ^market/?$ index.php [L]
-
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
