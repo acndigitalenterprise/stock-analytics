@@ -24,19 +24,19 @@
         <!-- Admin Body Content -->
         <main class="admin-body">
             <div class="admin-content-container">
-                <div class="requests-flex-between">
+                <div class="users-flex-between">
                     <div>
-                        <h2 class="requests-title">Settings</h2>
+                        <h2>Settings</h2>
                     </div>
                     <div></div>
                 </div>
 
                 <!-- Success/Error Messages -->
                 @if(session('success'))
-                    <div class="auth-success-block">{{ session('success') }}</div>
+                    <div class="users-message users-success">{{ session('success') }}</div>
                 @endif
                 @if(session('error'))
-                    <div class="auth-error-block">{{ session('error') }}</div>
+                    <div class="users-message users-error">{{ session('error') }}</div>
                 @endif
                 
                 <!-- Display Validation Errors -->
@@ -123,13 +123,22 @@
                         </div>
                         
                         <!-- Action Buttons -->
-                        <div class="requests-modal-actions">
-                            <button type="submit" id="settings-update-btn" class="auth-btn auth-btn-primary requests-modal-btn-primary">
-                                Update
-                            </button>
-                            <a href="{{ route('dashboard') }}" class="auth-btn requests-modal-btn-cancel" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center;">
-                                Back
-                            </a>
+                        <div class="user-detail-actions" style="margin: 48px auto 0;">
+                            <div class="user-detail-buttons">
+                                <button type="submit" id="settings-update-btn" class="user-detail-btn user-detail-btn-update">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    Update
+                                </button>
+                                
+                                <a href="{{ route('dashboard') }}" class="user-detail-btn user-detail-btn-back">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                    </svg>
+                                    Back
+                                </a>
+                            </div>
                         </div>
                         
                     </form>
