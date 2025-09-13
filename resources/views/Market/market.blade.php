@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Market - Ticker AI</title>
-    <link rel="stylesheet" href="{{ asset('admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('market/market.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('Market/market.css') }}?v={{ time() }}">
 </head>
 <body class="admin-layout">
 

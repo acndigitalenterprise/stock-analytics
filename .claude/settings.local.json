@@ -24,7 +24,8 @@
       "Bash(rm:*)",
       "Bash(composer:*)",
       "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS ai_stock_analytics CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
-      "Read(//c/Users/acndi/OneDrive/Pictures/Screenshots/**)"
+      "Read(//c/Users/acndi/OneDrive/Pictures/Screenshots/**)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
