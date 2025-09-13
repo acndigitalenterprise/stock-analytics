@@ -57,7 +57,7 @@
                         Keep your profile up to date.
                     </div>
 
-                    <form id="settings-update-form" action="{{ route('settings.update') }}" method="POST" class="auth-form">
+                    <form id="settings-update-form" action="{{ route('settings.update') }}" method="POST" class="auth-form" onsubmit="debugFormSubmission(event)">
                         @csrf
                         
                         <!-- Debug field (remove in production) -->
@@ -160,7 +160,27 @@ function toggleAuthPassword(fieldId) {
     field.type = field.type === 'password' ? 'text' : 'password';
 }
 
-// Debug form submission
+// Debug form submission function
+function debugFormSubmission(e) {
+    console.log('🔧 Form submission debug:', {
+        action: e.target.action,
+        method: e.target.method,
+        formData: new FormData(e.target),
+        csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+        timestamp: new Date().toISOString()
+    });
+    
+    // Log all form fields
+    const formData = new FormData(e.target);
+    for (let [key, value] of formData.entries()) {
+        console.log(`Field ${key}:`, value);
+    }
+    
+    // Let form submit naturally
+    return true;
+}
+
+// Legacy debug form submission
 document.getElementById('settings-update-form').addEventListener('submit', function(e) {
     console.log('Form submit event fired');
     console.log('Form data:', new FormData(this));

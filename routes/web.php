@@ -206,6 +206,10 @@ Route::middleware(['auth.session'])->group(function () {
     
     Route::post('/settings', [SettingsController::class, 'updateProfile'])
         ->name('settings.update');
+        
+    // DEBUG ROUTE - Remove after fixing
+    Route::post('/settings/debug', [SettingsController::class, 'debugForm'])
+        ->name('settings.debug');
 });
 
 // =================================

@@ -4,13 +4,20 @@
  * =================================
  */
 
-/* Page Title Styling */
+/* Page Title Styling - Force WHITE color */
+.admin-content-container h2,
+.users-flex-between h2,
 h2 {
     color: white !important;
     font-size: 2rem !important;
     font-weight: 600 !important;
     margin: 0 !important;
     padding: 0 !important;
+}
+
+/* Extra specificity to override any conflicting styles */
+.admin-layout .admin-content-container .users-flex-between h2 {
+    color: #ffffff !important;
 }
 
 /* User Detail Action Buttons */
