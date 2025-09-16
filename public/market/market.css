@@ -1,0 +1,383 @@
+/* =================================
+   MARKET PAGE STYLES
+   ================================= */
+
+/* Page Header - Consistent Across All Pages */
+.users-flex-between {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 32px !important;
+    gap: 20px !important;
+}
+
+.users-flex-between > div:last-child {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Page Title - Consistent Styling */
+.users-flex-between h2,
+h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+}
+
+/* Section Titles */
+h3 {
+    color: white !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 20px !important;
+}
+
+/* Small text styling */
+small {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Refresh Button */
+.users-new-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    min-width: 120px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+}
+
+.users-new-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.5s !important;
+}
+
+.users-new-btn:hover::before {
+    left: 100% !important;
+}
+
+.users-new-btn:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.users-new-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Market Data Table */
+table.table.users-table {
+    background: rgba(0, 0, 0, 0.4) !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    margin: 24px 0 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+table.table.users-table th {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: none !important;
+    padding: 16px 20px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+}
+
+table.table.users-table td {
+    color: white !important;
+    border: none !important;
+    border-bottom: none !important;
+    padding: 16px 20px !important;
+    background: transparent !important;
+}
+
+/* Table Hover Effects */
+table.users-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Lock Table Header - No Hover Effects */
+table.table.users-table thead th {
+    background-color: rgba(255,255,255,0.1) !important;
+    color: #fff !important;
+}
+
+table.table.users-table thead th:hover,
+table.table.users-table thead th:focus,
+table.table.users-table thead th:active,
+table.table.users-table thead tr:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    color: #fff !important;
+}
+
+/* Stock Colors */
+.admin-stock-gain,
+table.table.users-table td.admin-stock-gain {
+    color: #28a745 !important;
+}
+
+.admin-stock-loss,
+table.table.users-table td.admin-stock-loss {
+    color: #dc3545 !important;
+}
+
+/* Table Responsive */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Mobile Cards Styling */
+.market-mobile-cards {
+    display: none;
+}
+
+.market-mobile-item {
+    padding: 0;
+}
+
+.market-mobile-row {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    gap: 16px;
+}
+
+.market-mobile-number {
+    color: white !important;
+    font-weight: bold;
+    font-size: 1.1rem;
+    min-width: 25px;
+    text-align: left;
+}
+
+.market-mobile-stock {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.market-mobile-code {
+    color: white !important;
+    font-weight: bold;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.market-mobile-name {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.85rem;
+    line-height: 1.2;
+}
+
+.market-mobile-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+}
+
+.market-mobile-price > span:first-child {
+    color: white !important;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.market-mobile-change {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.market-mobile-score {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.market-mobile-score.admin-stock-gain {
+    color: #28a745 !important;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.market-mobile-score.admin-stock-loss {
+    color: #dc3545 !important;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.market-mobile-divider {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0 -20px;
+}
+
+/* Mobile responsiveness for header */
+@media (max-width: 768px) {
+    .users-flex-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    
+    .users-flex-between > div:last-child {
+        align-self: flex-start !important;
+        width: auto !important;
+        margin-left: 0 !important;
+    }
+    
+    .users-new-btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    /* Hide desktop tables on mobile */
+    .market-desktop-table {
+        display: none !important;
+    }
+    
+    /* Show mobile cards on mobile */
+    .market-mobile-cards {
+        display: block !important;
+    }
+}
+
+/* Market sections */
+.market-section {
+    margin-top: 32px;
+}
+
+.market-update-info {
+    text-align: center;
+    margin-top: 24px;
+}
+
+.market-update-time {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.9rem;
+}
+
+.market-update-note {
+    margin-top: 12px;
+    display: block;
+}
+
+.market-loading-container {
+    text-align: center;
+    margin-top: 64px;
+}
+
+.market-loading-text {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 20px;
+}
+
+.market-loading-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.market-loading-subtitle {
+    font-size: 0.9rem;
+}
+
+.market-loading-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+    height: 4px;
+    border-radius: 2px;
+    width: 200px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.market-loading-bar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    animation: loading-animate 3s ease-out forwards;
+}
+
+.market-error-container {
+    text-align: center;
+    margin-top: 64px;
+}
+
+.market-error-text {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 24px 0;
+}
+
+/* Table column styles */
+.market-table-number {
+    width: 50px;
+}
+
+.market-table-code {
+    width: 160px;
+    white-space: nowrap;
+}
+
+.market-table-price,
+.market-table-change,
+.market-table-score {
+    width: 100px;
+    text-align: right;
+}
+
+/* Admin stat box override for market */
+.market-admin-stat-box {
+    width: 100%;
+    text-align: left;
+}
+
+/* Loading animation keyframe */
+@keyframes loading-animate {
+    0% { width: 0%; }
+    50% { width: 60%; }
+    100% { width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .users-flex-between h2,
+    h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    h3 {
+        font-size: 1.25rem !important;
+    }
+    
+    table.table.users-table th,
+    table.table.users-table td {
+        padding: 8px 6px !important;
+        font-size: 0.75rem !important;
+    }
+}

@@ -1,0 +1,8 @@
+// Setting Page JavaScript
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Settings page initialized - AJAX DISABLED, using normal form submission');
+    // COMPLETELY DISABLE JAVASCRIPT FORM HANDLING
+    // Let form submit normally to save data to database
+    return;
+});

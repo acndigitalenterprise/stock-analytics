@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(php artisan serve:*)",
+      "Bash(php artisan tinker:*)",
+      "Bash(php artisan:*)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(mkdir:*)",
+      "Bash(sed:*)",
+      "Read(C:\\Users\\acndi\\OneDrive\\Pictures\\Screenshots/**)",
+      "Read(/C:\\xampp\\htdocs\\ai-stock-analytics/**)",
+      "Read(/C:\\xampp\\htdocs\\ai-stock-analytics/**)",
+      "Bash(npm install:*)",
+      "Bash(php:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(timeout 15s curl -b /tmp/test_after_cache.txt -X POST https://tickerai.app/signup )",
+      "Bash(timeout 15s curl -X GET \"https://tickerai.app/signin\")",
+      "Bash(rm:*)",
+      "Bash(composer:*)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS ai_stock_analytics CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Read(//c/Users/acndi/OneDrive/Pictures/Screenshots/**)",
+      "Bash(find:*)",
+      "Bash(timeout 15s curl -X GET \"https://tickerai.app/Settings/settings.css\" -I)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"USE ai_stock_analytics; SELECT id, name, email, email_verified_at, role FROM users WHERE email = ''coretechlead@gmail.com'';\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

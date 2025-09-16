@@ -1,0 +1,34 @@
+{
+  "name": "ticker-ai",
+  "version": "1.0.0",
+  "description": "Laravel-based stock analytics application",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "echo 'Build completed - No frontend compilation needed'",
+    "dev": "echo 'Development mode'",
+    "production": "echo 'Production deployment ready'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acndigitalenterprise/stock-analytics.git"
+  },
+  "keywords": ["laravel", "stock-analytics", "ai", "finance"],
+  "author": "ACN Digital Enterprise",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/acndigitalenterprise/stock-analytics/issues"
+  },
+  "homepage": "https://github.com/acndigitalenterprise/stock-analytics#readme",
+  "dependencies": {
+    "puppeteer": "^24.19.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

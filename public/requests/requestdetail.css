@@ -1,0 +1,238 @@
+/* Request Detail Specific Styles */
+
+.requests-detail-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 32px 0;
+}
+
+/* Box Titles */
+.requests-detail-box-title {
+    color: white !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    margin: 0 0 20px 0 !important;
+    text-align: left !important;
+}
+
+/* Field Items */
+.requests-detail-field-item {
+    margin: 16px 0;
+}
+
+.requests-detail-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.requests-detail-value {
+    color: white;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+/* 1 Pixel Dividers */
+.requests-detail-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 16px 0;
+}
+
+/* Insight Sections */
+.requests-detail-insight-section {
+    margin: 16px 0;
+}
+
+.requests-detail-insight-title {
+    color: white !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    margin: 0 0 12px 0 !important;
+    text-align: left !important;
+}
+
+.requests-detail-insight-content {
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-line;
+    text-align: left !important;
+}
+
+/* Status Value */
+.requests-detail-status-value {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.requests-detail-note {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* User Detail Action Buttons */
+.user-detail-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.user-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    min-width: 110px;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.user-detail-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.user-detail-btn svg {
+    flex-shrink: 0;
+}
+
+.user-detail-btn.user-detail-btn-update {
+    background: #fd7e14;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-update:hover {
+    background: #e8660d;
+}
+
+.user-detail-btn.user-detail-btn-delete {
+    background: #dc3545;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-delete:hover {
+    background: #c82333;
+}
+
+.user-detail-btn.user-detail-btn-verify {
+    background: #28a745;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-verify:hover {
+    background: #218838;
+}
+
+.user-detail-btn.user-detail-btn-verified {
+    background: #6c757d;
+    color: white !important;
+    cursor: not-allowed;
+}
+
+.user-detail-btn.user-detail-btn-verified:hover {
+    transform: none;
+    box-shadow: none;
+    background: #6c757d;
+}
+
+.user-detail-btn.user-detail-btn-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-detail-btn.user-detail-btn-back:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.user-detail-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .requests-detail-title {
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+    }
+    
+    .requests-detail-advice {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .user-detail-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .user-detail-btn {
+        width: 100%;
+        justify-content: center;
+        min-width: auto;
+    }
+}
+
+/* =================================
+   SECTION STYLES
+   ================================= */
+
+/* Request Detail Sections */
+.requests-detail-section {
+    margin: 32px 0;
+}
+
+.requests-detail-box {
+    width: 100%;
+    text-align: left !important;
+}
+
+/* Override admin.css text-align: center on admin-stat-box */
+.admin-content-container .admin-stat-box.requests-detail-box {
+    text-align: left !important;
+}
+
+.admin-content-container .admin-stat-box.requests-detail-box .requests-detail-field {
+    text-align: left !important;
+}
+
+.admin-content-container .admin-stat-box.requests-detail-box .requests-detail-value {
+    text-align: left !important;
+}
+
+.admin-content-container .admin-stat-box.requests-detail-box .requests-detail-advice {
+    text-align: left !important;
+}
+
+.admin-content-container .admin-stat-box.requests-detail-box .requests-detail-label {
+    text-align: left !important;
+}
+
+.requests-detail-note {
+    margin-top: 16px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.requests-detail-actions {
+    margin: 48px auto 0;
+    max-width: 800px;
+}

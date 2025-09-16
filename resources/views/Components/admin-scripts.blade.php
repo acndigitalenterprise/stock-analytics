@@ -1,0 +1,1 @@
+<script src="{{ asset('Dashboard/dashboard.js') }}"></script>

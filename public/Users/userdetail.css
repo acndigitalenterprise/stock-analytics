@@ -1,0 +1,321 @@
+/**
+ * =================================
+ * USER DETAIL PAGE STYLES
+ * =================================
+ */
+
+/* Page Title Styling */
+h2 {
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* User Detail Action Buttons */
+.user-detail-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.user-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    min-width: 110px;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.user-detail-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.user-detail-btn svg {
+    flex-shrink: 0;
+}
+
+.user-detail-btn.user-detail-btn-update {
+    background: #fd7e14;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-update:hover {
+    background: #e8660d;
+}
+
+.user-detail-btn.user-detail-btn-delete {
+    background: #dc3545;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-delete:hover {
+    background: #c82333;
+}
+
+.user-detail-btn.user-detail-btn-verify {
+    background: #28a745;
+    color: white !important;
+}
+
+.user-detail-btn.user-detail-btn-verify:hover {
+    background: #218838;
+}
+
+.user-detail-btn.user-detail-btn-verified {
+    background: #6c757d;
+    color: white !important;
+    cursor: not-allowed;
+}
+
+.user-detail-btn.user-detail-btn-verified:hover {
+    transform: none;
+    box-shadow: none;
+    background: #6c757d;
+}
+
+.user-detail-btn.user-detail-btn-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-detail-btn.user-detail-btn-back:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.user-detail-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* User Detail Form Styling */
+.user-detail-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-detail-form .auth-form-group {
+    margin-bottom: 25px;
+}
+
+.user-detail-form .auth-form-group label {
+    color: #fff;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 500;
+}
+
+.user-detail-form .auth-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.user-detail-form .auth-input:focus {
+    outline: none;
+    border-color: #fd7e14;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(253, 126, 20, 0.2);
+}
+
+.user-detail-form .auth-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Password Input Container */
+.user-detail-form .auth-password-container {
+    position: relative;
+}
+
+.user-detail-form .auth-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.user-detail-form .auth-password-toggle:hover {
+    color: #fd7e14;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.user-detail-form .auth-password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Form Submit Button */
+.user-detail-form .auth-submit-btn {
+    background: #fd7e14;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.user-detail-form .auth-submit-btn:hover {
+    background: #e8660d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+}
+
+.user-detail-form .auth-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* User Info Display */
+.user-info-section {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+.user-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-info-item:last-child {
+    border-bottom: none;
+}
+
+.user-info-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    min-width: 120px;
+}
+
+.user-info-value {
+    color: #fff;
+    text-align: right;
+}
+
+.user-status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-status-verified {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.user-status-unverified {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .user-detail-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .user-detail-btn {
+        width: 100%;
+        justify-content: center;
+        min-width: auto;
+    }
+    
+    .user-detail-form {
+        padding: 20px;
+        margin: 0 15px;
+    }
+    
+    .user-info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .user-info-value {
+        text-align: left;
+    }
+}
+
+/* Animation and Loading States */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-detail-form {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Success/Error Messages */
+.user-detail-message {
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin: 20px 0;
+    font-weight: 500;
+    text-align: center;
+}
+
+.user-detail-success {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.user-detail-error {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}

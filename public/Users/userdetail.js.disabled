@@ -1,0 +1,331 @@
+/**
+ * =================================
+ * USER DETAIL PAGE JAVASCRIPT
+ * =================================
+ */
+
+// Global variables
+let userDetailCurrentPopup = null;
+
+/**
+ * Initialize User Detail Page
+ */
+function initUserDetailPage() {
+    console.log('🚀 Initializing User Detail Page...');
+    initUserDetailForm();
+    initUserDetailPasswordToggles();
+    console.log('✅ User Detail Page initialized');
+}
+
+/**
+ * =================================
+ * USER DETAIL FORM FUNCTIONS
+ * =================================
+ */
+
+/**
+ * Initialize User Detail Form
+ */
+function initUserDetailForm() {
+    console.log('initUserDetailForm called - AJAX DISABLED, using normal form submission');
+    // COMPLETELY DISABLE AJAX EVENT LISTENER
+    // Let form submit normally to save data to database
+    return;
+}
+
+/**
+ * Handle User Detail Form Submit
+ */
+function handleUserDetailSubmit(e) {
+    // DISABLE AJAX - Let form submit normally to save data to database
+    // e.preventDefault(); // COMMENTED OUT TO ALLOW NORMAL FORM SUBMISSION
+    
+    const submitBtn = document.getElementById('updateUserBtn');
+    if (!submitBtn) return;
+    
+    const originalText = submitBtn.textContent;
+    
+    // Disable button and show loading
+    submitBtn.textContent = 'Updating...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(e.target);
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('input[name="_token"]').value;
+    
+    fetch(e.target.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showUserDetailMessage('User updated successfully!', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showUserDetailMessage('Error: ' + (data.error || 'Failed to update user'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showUserDetailMessage('An error occurred while updating the user.', 'error');
+    })
+    .finally(() => {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+/**
+ * =================================
+ * PASSWORD TOGGLE FUNCTIONS
+ * =================================
+ */
+
+/**
+ * Initialize Password Toggles for User Detail
+ */
+function initUserDetailPasswordToggles() {
+    console.log('initUserDetailPasswordToggles called');
+    const toggles = document.querySelectorAll('.auth-password-toggle');
+    console.log('Found auth toggles:', toggles.length);
+    
+    toggles.forEach(toggle => {
+        console.log('Adding event listener to auth toggle:', toggle);
+        toggle.addEventListener('click', function() {
+            console.log('Auth Toggle clicked!');
+            const passwordContainer = this.parentNode;
+            const passwordField = passwordContainer.querySelector('input[type="password"], input[type="text"]');
+            if (passwordField) {
+                toggleAuthPassword(passwordField.id);
+            }
+        });
+    });
+}
+
+/**
+ * Toggle Password Visibility (Auth Style)
+ */
+function toggleAuthPassword(fieldId) {
+    console.log('toggleAuthPassword called with fieldId:', fieldId);
+    const field = document.getElementById(fieldId);
+    if (!field) {
+        console.log('Field not found:', fieldId);
+        return;
+    }
+    
+    console.log('Current field type:', field.type);
+    // Toggle between password and text
+    const isCurrentlyPassword = field.type === 'password';
+    field.type = isCurrentlyPassword ? 'text' : 'password';
+    console.log('New field type:', field.type);
+    
+    // Find the toggle button
+    const toggle = field.parentNode.querySelector('.auth-password-toggle');
+    if (!toggle) return;
+    
+    // Update the icon
+    updateAuthPasswordToggleIcon(toggle, !isCurrentlyPassword);
+}
+
+/**
+ * Update Auth Password Toggle Icon
+ */
+function updateAuthPasswordToggleIcon(toggleElement, isVisible) {
+    const icon = toggleElement.querySelector('svg');
+    if (!icon) return;
+    
+    if (isVisible) {
+        // Show "eye-off" icon (password is visible)
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+        `;
+    } else {
+        // Show "eye" icon (password is hidden)
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        `;
+    }
+}
+
+/**
+ * =================================
+ * USER ACTIONS FUNCTIONS
+ * =================================
+ */
+
+/**
+ * Confirm User Deletion
+ */
+function confirmUserDeletion(event, userName) {
+    event.preventDefault();
+    
+    const confirmed = confirm(`Are you sure you want to delete user "${userName}"?\n\nThis action cannot be undone and will permanently remove all user data.`);
+    
+    if (confirmed) {
+        // Find the form and submit it
+        const form = event.target.closest('form');
+        if (form) {
+            console.log('Submitting delete form for user:', userName);
+            form.submit();
+        }
+    } else {
+        console.log('User deletion cancelled');
+    }
+    
+    return false;
+}
+
+/**
+ * Handle User Verification
+ */
+function handleUserVerification(userId) {
+    const confirmed = confirm('Are you sure you want to verify this user?');
+    
+    if (confirmed) {
+        // You can implement AJAX call here if needed
+        console.log('Verifying user:', userId);
+        // For now, just submit the form
+        const form = document.querySelector(`form[action*="verify"][action*="${userId}"]`);
+        if (form) {
+            form.submit();
+        }
+    }
+}
+
+/**
+ * =================================
+ * MESSAGE FUNCTIONS
+ * =================================
+ */
+
+/**
+ * Show Message to User
+ */
+function showUserDetailMessage(message, type = 'info') {
+    // Remove existing messages
+    const existingMessages = document.querySelectorAll('.user-detail-message');
+    existingMessages.forEach(msg => msg.remove());
+    
+    // Create new message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `user-detail-message user-detail-${type}`;
+    messageDiv.textContent = message;
+    
+    // Insert at top of content
+    const container = document.querySelector('.admin-content-container') || 
+                     document.querySelector('.user-detail-container') ||
+                     document.body;
+    
+    if (container.firstChild) {
+        container.insertBefore(messageDiv, container.firstChild);
+    } else {
+        container.appendChild(messageDiv);
+    }
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, 5000);
+}
+
+/**
+ * =================================
+ * NAVIGATION FUNCTIONS
+ * =================================
+ */
+
+/**
+ * Go Back to Users List
+ */
+function goBackToUsers() {
+    // Use history.back() first, fallback to direct navigation
+    if (document.referrer.includes('users')) {
+        history.back();
+    } else {
+        window.location.href = getUsersListUrl();
+    }
+}
+
+/**
+ * Get Users List URL
+ */
+function getUsersListUrl() {
+    return window.usersListUrl || '/stock-analytics/admin/users';
+}
+
+/**
+ * =================================
+ * UTILITY FUNCTIONS
+ * =================================
+ */
+
+/**
+ * Format Date for Display
+ */
+function formatUserDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    } catch (e) {
+        return dateString;
+    }
+}
+
+/**
+ * Validate Email Format
+ */
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+/**
+ * =================================
+ * INITIALIZATION
+ * =================================
+ */
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM Content Loaded - User Detail.js starting...');
+    initUserDetailPage();
+});
+
+// Also try window.onload as fallback
+window.addEventListener('load', function() {
+    console.log('🪟 Window Load - User Detail.js fallback init...');
+    // Try again after a delay
+    setTimeout(() => {
+        console.log('⏰ Delayed init - User Detail.js...');
+        initUserDetailPasswordToggles();
+    }, 500);
+});
+
+// Immediate check
+console.log('🔧 User Detail.js file loaded!');
+
+// Global functions for backward compatibility
+window.toggleAuthPassword = function(fieldId) {
+    toggleAuthPassword(fieldId);
+};
+window.confirmUserDeletion = function(event, userName) {
+    return confirmUserDeletion(event, userName);
+};
+window.handleUserVerification = function(userId) {
+    return handleUserVerification(userId);
+};
+window.goBackToUsers = function() {
+    return goBackToUsers();
+};
