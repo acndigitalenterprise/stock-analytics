@@ -8,6 +8,7 @@ use App\Http\Requests\SignUpRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Jobs\SendResetPasswordEmail;
 
 class AuthController extends Controller
 {
@@ -245,15 +246,9 @@ class AuthController extends Controller
 
     private function sendResetPasswordEmail($user, $token)
     {
-        $data = [
-            'user' => $user,
-            'token' => $token,
-            'resetUrl' => route('auth.reset.page', $token),
-        ];
+        $resetUrl = route('auth.reset.page', $token);
 
-        Mail::send('emails.reset-password', $data, function ($message) use ($user) {
-            $message->to($user->email)
-                    ->subject('Reset Your Password - Stock Analytics');
-        });
+        // Dispatch job to queue for better performance and reliability
+        SendResetPasswordEmail::dispatch($user, $token, $resetUrl);
     }
 }
