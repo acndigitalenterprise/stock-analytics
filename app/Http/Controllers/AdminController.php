@@ -193,7 +193,7 @@ class AdminController extends Controller
                 
                 return response()->json([
                     'success' => true,
-                    'message' => 'AI advice generation started. Please refresh the page in a few moments.',
+                    'message' => 'Analysis started. Please refresh the page in a few moments.',
                     'has_advice' => false
                 ]);
             } catch (\Exception $queueException) {
