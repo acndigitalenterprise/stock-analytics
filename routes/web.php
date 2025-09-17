@@ -286,3 +286,34 @@ Route::get('/emails/sent', function () {
     $emails = []; // Add your email logic here
     return view('emails.view-sent', compact('emails'));
 })->name('emails.sent');
+
+// Emergency timeout processing (no auth required for urgent fixes)
+Route::post('/emergency/process-timeouts', function() {
+    try {
+        $monitoringService = app(\App\Services\PriceMonitoringService::class);
+        $timeoutCount = $monitoringService->processTimeoutRequests();
+
+        \Log::info('Emergency timeout processing triggered', [
+            'timeout_count' => $timeoutCount,
+            'triggered_by' => 'emergency_endpoint',
+            'ip' => request()->ip()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Emergency processing completed: {$timeoutCount} timeout requests processed",
+            'timeout_count' => $timeoutCount,
+            'timestamp' => now()->toDateTimeString()
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Emergency timeout processing failed', [
+            'error' => $e->getMessage(),
+            'ip' => request()->ip()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Emergency processing failed: ' . $e->getMessage()
+        ], 500);
+    }
+})->name('emergency.process.timeouts');
