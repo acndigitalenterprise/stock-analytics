@@ -21,11 +21,24 @@ class GenerateStockAdvice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run before timing out.
+     */
+    public $timeout = 180; // 3 minutes default, will be adjusted per timeframe
+
     protected StockRequest $stockRequest;
 
     public function __construct(StockRequest $stockRequest)
     {
         $this->stockRequest = $stockRequest;
+
+        // Adjust timeout based on timeframe to protect 1h requests
+        $this->timeout = $stockRequest->timeframe === '1d' ? 300 : 120; // 5min for 1d, 2min for 1h
     }
 
     public function handle(YahooFinanceService $yahooService, AlphaVantageService $alphaVantageService, TechnicalAnalysisService $technicalService, ChatGPTService $chatgptService, PriceMonitoringService $monitoringService): void
@@ -333,5 +346,22 @@ class GenerateStockAdvice implements ShouldQueue
                 // Fallback to 1 hour for unknown timeframes
                 return now()->addHour();
         }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('GenerateStockAdvice job failed permanently', [
+            'request_id' => $this->stockRequest->id,
+            'stock_code' => $this->stockRequest->stock_code,
+            'timeframe' => $this->stockRequest->timeframe,
+            'error' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString()
+        ]);
+
+        // Could optionally mark request as failed or notify admin
+        // But keeping existing data intact for manual retry
     }
 } 
