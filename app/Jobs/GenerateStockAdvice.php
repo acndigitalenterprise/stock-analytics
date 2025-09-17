@@ -297,12 +297,13 @@ class GenerateStockAdvice implements ShouldQueue
         
         // Add previous close data as second entry to ensure consistent price change calculation
         // This ensures technical analysis uses same previous_close as UI display
+        $previousClose = $meta['previousClose'] ?? $meta['chartPreviousClose'] ?? $meta['regularMarketPrice'] ?? 0;
         $previousData = [
             'date' => date('Y-m-d', strtotime('-1 day')),
-            'open' => $meta['previousClose'],
-            'high' => $meta['previousClose'],
-            'low' => $meta['previousClose'], 
-            'close' => $meta['previousClose'], // PREVIOUS PRICE = previousClose
+            'open' => $previousClose,
+            'high' => $previousClose,
+            'low' => $previousClose,
+            'close' => $previousClose, // PREVIOUS PRICE = previousClose with fallback
             'volume' => 0,
         ];
         
