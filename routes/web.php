@@ -203,13 +203,41 @@ Route::middleware(['auth.session'])->group(function () {
     // User Settings
     Route::get('/settings', [SettingsController::class, 'profile'])
         ->name('settings');
-    
+
     Route::post('/settings', [SettingsController::class, 'updateProfile'])
         ->name('settings.update');
-        
+
     // DEBUG ROUTE - Remove after fixing
     Route::post('/settings/debug', [SettingsController::class, 'debugForm'])
         ->name('settings.debug');
+
+    // Admin monitoring tools
+    Route::post('/admin/process-timeouts', function() {
+        try {
+            $monitoringService = app(\App\Services\PriceMonitoringService::class);
+            $timeoutCount = $monitoringService->processTimeoutRequests();
+
+            \Log::info('Manual timeout processing triggered', [
+                'timeout_count' => $timeoutCount,
+                'triggered_by' => 'admin'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Processed {$timeoutCount} timeout requests",
+                'timeout_count' => $timeoutCount
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Manual timeout processing failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('admin.process.timeouts');
 });
 
 // =================================
