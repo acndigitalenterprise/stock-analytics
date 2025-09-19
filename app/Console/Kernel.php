@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Monitor stock prices every 5 minutes during trading hours (9 AM - 4 PM WIB)
+        // Monitor stock prices every 5 minutes during trading hours (9 AM - 4 PM WIB) for active price checking
         $schedule->command('stock:monitor-prices')
                  ->everyFiveMinutes()
                  ->between('09:00', '16:00')
@@ -20,9 +20,11 @@ class Kernel extends ConsoleKernel
                  ->withoutOverlapping()
                  ->runInBackground();
 
-        // Process timeouts every hour to catch any missed timeouts
+        // TIMEOUT PROCESSING: Run every 10 minutes 24/7 to catch timeouts even outside trading hours
+        // This ensures requests timeout properly even when market is closed
         $schedule->command('stock:monitor-prices')
-                 ->hourly()
+                 ->everyTenMinutes()
+                 ->timezone('Asia/Jakarta')
                  ->withoutOverlapping()
                  ->runInBackground();
     }

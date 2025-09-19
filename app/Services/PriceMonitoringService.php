@@ -27,8 +27,11 @@ class PriceMonitoringService
      */
     public function monitorAllActiveRequests(): array
     {
+        // TIMEZONE FIX: Use Jakarta timezone for proper comparison with monitoring_until
+        $jakartaNow = now()->setTimezone('Asia/Jakarta');
+
         $activeRequests = StockRequest::where('result', 'MONITORING')
-            ->where('monitoring_until', '>', now())
+            ->where('monitoring_until', '>', $jakartaNow)
             ->whereNotNull('entry_price')
             ->get();
 
@@ -217,8 +220,11 @@ class PriceMonitoringService
      */
     public function processTimeoutRequests(): int
     {
+        // TIMEZONE FIX: Use Jakarta timezone for proper comparison with monitoring_until
+        $jakartaNow = now()->setTimezone('Asia/Jakarta');
+
         $timeoutRequests = StockRequest::where('result', 'MONITORING')
-            ->where('monitoring_until', '<=', now())
+            ->where('monitoring_until', '<=', $jakartaNow)
             ->get();
 
         foreach ($timeoutRequests as $request) {
