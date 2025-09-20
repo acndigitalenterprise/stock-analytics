@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "mcp__knowledge-graph__aim_create_entities",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
