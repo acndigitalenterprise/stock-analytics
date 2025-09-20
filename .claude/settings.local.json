@@ -4,7 +4,8 @@
       "mcp__knowledge-graph__aim_create_entities",
       "Bash(rm:*)",
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm prune:*)"
     ],
     "deny": [],
     "ask": []
