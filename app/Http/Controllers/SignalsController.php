@@ -21,7 +21,7 @@ class SignalsController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return view('signals.index', compact('signals'));
+        return view('Signals.index', compact('signals'));
     }
 
     /**
