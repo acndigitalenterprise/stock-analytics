@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\MarketController;
+use App\Http\Controllers\SignalsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -132,9 +133,22 @@ Route::middleware(['auth.session'])->group(function () {
     // Market Page
     Route::get('/market', [MarketController::class, 'index'])
         ->name('market.index');
-    
+
     Route::post('/market/refresh', [MarketController::class, 'refresh'])
         ->name('market.refresh');
+
+    // Signals Page
+    Route::get('/signals', [SignalsController::class, 'index'])
+        ->name('signals.index');
+
+    Route::get('/api/signals', [SignalsController::class, 'getSignals'])
+        ->name('api.signals.get');
+
+    Route::get('/api/signals/stats', [SignalsController::class, 'getStats'])
+        ->name('api.signals.stats');
+
+    Route::get('/api/signals/{signal}', [SignalsController::class, 'show'])
+        ->name('api.signals.show');
     
     // Stock Requests Management
     Route::get('/requests', [AdminController::class, 'stocks'])
