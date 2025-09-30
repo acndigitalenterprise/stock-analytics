@@ -7,6 +7,20 @@
     <title>Stock Signals - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('signals/signals.css') }}?v={{ time() }}">
+    <style>
+        /* Immediate override for admin layout */
+        body.admin-layout {
+            background: #f8fafc !important;
+        }
+        body.admin-layout::before {
+            display: none !important;
+        }
+        .admin-content-container {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            padding: 2rem !important;
+        }
+    </style>
 </head>
 <body class="admin-layout">
 

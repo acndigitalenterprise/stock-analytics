@@ -2,18 +2,33 @@
    SIGNALS PAGE STYLES
    ======================================== */
 
+/* Override admin layout background for Signals page */
+body.admin-layout {
+    background: #f8fafc !important;
+}
+
+body.admin-layout::before {
+    display: none !important;
+}
+
+.admin-content-container {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 2rem !important;
+}
+
 /* Header Section */
 .signals-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+    border: 1px solid #e2e8f0;
 }
 
 .signals-title {
-    color: #1a202c;
+    color: #2d3748;
     font-size: 2rem;
     font-weight: bold;
     margin: 0 0 0.5rem 0;
@@ -22,36 +37,44 @@
 .signals-subtitle {
     color: #718096;
     font-size: 1rem;
-    margin: 0;
+    margin: 0 0 2rem 0;
 }
 
 .signals-stats-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
-    flex-wrap: wrap;
 }
 
 .signals-stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    color: #2d3748;
+    padding: 1.5rem;
     border-radius: 12px;
     text-align: center;
-    min-width: 120px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.signals-stat-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.1);
 }
 
 .signals-stat-value {
     display: block;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: bold;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    color: #667eea;
 }
 
 .signals-stat-label {
     display: block;
     font-size: 0.875rem;
-    opacity: 0.9;
+    color: #718096;
+    font-weight: 500;
 }
 
 /* Filter Bar */
