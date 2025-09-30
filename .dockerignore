@@ -1,0 +1,78 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Laravel specific
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*
+
+# Environment files
+.env
+.env.backup
+.env.production
+.env.local
+
+# Documentation and development files
+README.md
+*.md
+docker-compose.override.yml
+
+# Test and development
+/tests
+phpunit.xml
+.phpunit.result.cache
+*.log
+
+# Composer
+composer.lock
+
+# NPM
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+/public/hot
+/public/mix-manifest.json
+/public/js/app.js
+/public/css/app.css
+
+# Coverage reports
+/coverage
+
+# Temporary files
+*.cache
+*.temp
+*.pid
+
+# Laravel Telescope (if installed)
+/storage/telescope
+
+# Backup files
+*.bak
+*.backup
+*.sql
+
+# MCP Knowledge Graph
+.aim/

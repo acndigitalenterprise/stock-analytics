@@ -7,6 +7,53 @@
     <title>Stock Signals - Ticker AI</title>
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('signals/signals.css') }}?v={{ time() }}">
+    <style>
+        /* AGGRESSIVE CSS OVERRIDE - MAXIMUM SPECIFICITY */
+        html body.admin-layout,
+        html body.admin-layout.admin-layout,
+        html body.admin-layout.admin-layout.admin-layout {
+            background: #f8fafc !important;
+            background-image: none !important;
+            background-attachment: initial !important;
+            background-blend-mode: initial !important;
+        }
+
+        html body.admin-layout::before,
+        html body.admin-layout.admin-layout::before,
+        html body.admin-layout.admin-layout.admin-layout::before {
+            display: none !important;
+            content: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        html .admin-content-container,
+        html .admin-layout .admin-content-container,
+        html .admin-layout.admin-layout .admin-content-container {
+            background: transparent !important;
+            background-image: none !important;
+            backdrop-filter: none !important;
+            padding: 2rem !important;
+            border-radius: 0 !important;
+        }
+
+        /* Force white background for entire page */
+        html, html body {
+            background: #f8fafc !important;
+        }
+
+        /* Override any gradients */
+        * {
+            background-image: none !important;
+        }
+
+        /* Ensure signals header stands out */
+        .signals-header {
+            background: white !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+    </style>
 </head>
 <body class="admin-layout">
 

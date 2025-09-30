@@ -1,0 +1,394 @@
+# STEP 1: Buat file Dockerfile
+# File: Dockerfile
+FROM ubuntu:24.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Jakarta
+
+# Update and install basic packages
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    curl \
+    wget \
+    git \
+    unzip \
+    supervisor \
+    nano \
+    cron \
+    tzdata
+
+# Install NGINX
+RUN apt-get install -y nginx
+
+# Install PHP 8.2 and extensions
+RUN add-apt-repository ppa:ondrej/php && \
+    apt-get update && \
+    apt-get install -y \
+    php8.2-fpm \
+    php8.2-cli \
+    php8.2-common \
+    php8.2-mysql \
+    php8.2-xml \
+    php8.2-xmlrpc \
+    php8.2-curl \
+    php8.2-gd \
+    php8.2-imagick \
+    php8.2-dev \
+    php8.2-imap \
+    php8.2-mbstring \
+    php8.2-opcache \
+    php8.2-soap \
+    php8.2-zip \
+    php8.2-redis \
+    php8.2-bcmath \
+    php8.2-intl
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Configure PHP-FPM
+RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/8.2/fpm/php.ini && \
+    sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 100M/' /etc/php/8.2/fpm/php.ini && \
+    sed -i 's/post_max_size = 8M/post_max_size = 100M/' /etc/php/8.2/fpm/php.ini && \
+    sed -i 's/;date.timezone =/date.timezone = Asia\/Jakarta/' /etc/php/8.2/fpm/php.ini
+
+# Create app directory
+WORKDIR /var/www/html
+
+# Copy application files
+COPY . /var/www/html
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy nginx configuration
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
+
+# Copy supervisor configuration
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose ports
+EXPOSE 80 443
+
+# Start services
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+
+---
+
+# STEP 2: Buat file docker-compose.yml
+# File: docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - laravel_network
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8080:80"
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+
+  mysql:
+    image: mysql:8.0.43
+    container_name: laravel_mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - laravel_network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: laravel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel_network
+    command: redis-server --appendonly yes
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+    networks:
+      - laravel_network
+    depends_on:
+      - mysql
+
+networks:
+  laravel_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+---
+
+# STEP 3: Buat struktur folder untuk Docker config
+# Buat folder: docker/nginx/default.conf
+server {
+    listen 80;
+    server_name localhost;
+    root /var/www/html/public;
+
+    index index.php index.html index.htm;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    client_max_body_size 100M;
+}
+
+---
+
+# STEP 4: Buat file supervisor config
+# File: docker/supervisor/supervisord.conf
+[supervisord]
+nodaemon=true
+user=root
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+
+[program:php-fpm]
+command=/usr/sbin/php-fpm8.2 -F
+autostart=true
+autorestart=true
+priority=5
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[program:nginx]
+command=/usr/sbin/nginx -g "daemon off;"
+autostart=true
+autorestart=true
+priority=10
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/html/artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/html/storage/logs/worker.log
+stopwaitsecs=3600
+
+[program:laravel-scheduler]
+process_name=%(program_name)s_%(process_num)02d
+command=/bin/bash -c "while [ true ]; do (php /var/www/html/artisan schedule:run --verbose --no-interaction &); sleep 60; done"
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/html/storage/logs/scheduler.log
+
+---
+
+# STEP 5: Buat file PHP config
+# File: docker/php/local.ini
+upload_max_filesize=100M
+post_max_size=100M
+memory_limit=512M
+max_execution_time=600
+max_input_vars=5000
+date.timezone=Asia/Jakarta
+
+---
+
+# STEP 6: Buat file MySQL config
+# File: docker/mysql/my.cnf
+[mysqld]
+general_log = 1
+general_log_file = /var/lib/mysql/general.log
+default_authentication_plugin=mysql_native_password
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+---
+
+# STEP 7: Buat file .env untuk Docker (copy dari .env Laravel Anda)
+# File: .env (untuk Docker, sesuaikan dengan .env production Anda)
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:YOUR_APP_KEY_HERE
+APP_DEBUG=true
+APP_URL=http://localhost:8080
+
+LOG_CHANNEL=stack
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=secret
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=redis
+FILESYSTEM_DRIVER=local
+QUEUE_CONNECTION=redis
+SESSION_DRIVER=redis
+SESSION_LIFETIME=120
+
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=null
+MAIL_FROM_NAME="${APP_NAME}"
+
+---
+
+# STEP 8: Buat Makefile untuk memudahkan command
+# File: Makefile
+.PHONY: help
+help:
+	@echo "Laravel Docker Commands:"
+	@echo "  make build    - Build Docker containers"
+	@echo "  make up       - Start containers"
+	@echo "  make down     - Stop containers"
+	@echo "  make restart  - Restart containers"
+	@echo "  make logs     - View logs"
+	@echo "  make bash     - Enter app container"
+	@echo "  make migrate  - Run migrations"
+	@echo "  make fresh    - Fresh migrate with seed"
+	@echo "  make tinker   - Run tinker"
+	@echo "  make test     - Run tests"
+	@echo "  make queue    - Run queue worker"
+	@echo "  make composer - Run composer install"
+
+build:
+	docker-compose build --no-cache
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+restart:
+	docker-compose down && docker-compose up -d
+
+logs:
+	docker-compose logs -f
+
+bash:
+	docker-compose exec app bash
+
+migrate:
+	docker-compose exec app php artisan migrate
+
+fresh:
+	docker-compose exec app php artisan migrate:fresh --seed
+
+tinker:
+	docker-compose exec app php artisan tinker
+
+test:
+	docker-compose exec app php artisan test
+
+queue:
+	docker-compose exec app php artisan queue:work
+
+composer:
+	docker-compose exec app composer install
+
+---
+
+# STEP 9: Buat .dockerignore
+# File: .dockerignore
+.git
+.gitignore
+.env.example
+.editorconfig
+node_modules
+vendor
+storage/app/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+bootstrap/cache/*
+.phpunit.result.cache
+docker-compose.yml
+Dockerfile
+.dockerignore
