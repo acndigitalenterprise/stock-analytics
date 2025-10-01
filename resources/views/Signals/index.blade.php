@@ -8,35 +8,158 @@
     <link rel="stylesheet" href="{{ asset('Admin/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('signals/signals.css') }}?v={{ time() }}">
     <style>
-        /* TARGETED CSS - ONLY FOR SIGNALS PAGE CONTENT */
+        /* TARGETED CSS - IMPROVED SIGNALS PAGE LAYOUT */
         .signals-header {
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            border-radius: 16px !important;
+            padding: 2rem !important;
+            margin-bottom: 2rem !important;
+        }
+
+        .signals-title {
+            color: #2d3748 !important;
+            font-size: 2rem !important;
+            font-weight: bold !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .signals-subtitle {
+            color: #718096 !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .signals-stats-container {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 1rem !important;
         }
 
         .signals-stat-card {
             background: rgba(255, 255, 255, 0.9) !important;
             backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border: 2px solid rgba(102, 126, 234, 0.2) !important;
+            border-radius: 12px !important;
+            padding: 1.5rem !important;
+            text-align: center !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .signals-stat-card:hover {
+            border-color: rgba(102, 126, 234, 0.4) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15) !important;
+        }
+
+        .signals-stat-value {
+            display: block !important;
+            font-size: 2rem !important;
+            font-weight: bold !important;
+            color: #667eea !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .signals-stat-label {
+            display: block !important;
+            font-size: 0.875rem !important;
+            color: #718096 !important;
+            font-weight: 500 !important;
         }
 
         .signals-filter-bar {
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 16px !important;
+            padding: 1.5rem !important;
+            margin-bottom: 2rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 2rem !important;
+            flex-wrap: wrap !important;
+        }
+
+        .signals-filter-group {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .signals-filter-group label {
+            font-weight: 600 !important;
+            color: #4a5568 !important;
+            font-size: 0.875rem !important;
+        }
+
+        .signals-filter-select {
+            padding: 0.5rem 1rem !important;
+            border: 1px solid #cbd5e0 !important;
+            border-radius: 8px !important;
+            background: white !important;
+            color: #2d3748 !important;
+            font-size: 0.875rem !important;
+        }
+
+        .signals-refresh-btn {
+            background: #48bb78 !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.75rem 1.5rem !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            transition: all 0.2s !important;
+        }
+
+        .signals-refresh-btn:hover {
+            background: #38a169 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .signals-last-update {
+            color: #718096 !important;
+            font-size: 0.875rem !important;
+            margin-left: auto !important;
         }
 
         .signals-no-data {
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 16px !important;
+            padding: 3rem !important;
+            text-align: center !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .signals-no-data-icon {
+            font-size: 4rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .signals-no-data h3 {
+            color: #2d3748 !important;
+            margin: 0 0 1rem 0 !important;
+            font-size: 1.5rem !important;
+        }
+
+        .signals-no-data p {
+            color: #718096 !important;
+            margin: 0 !important;
+            font-size: 1rem !important;
         }
 
         .signals-table {
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(10px) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            border-radius: 16px !important;
+            overflow: hidden !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
         }
     </style>
 </head>
