@@ -27,6 +27,15 @@ class Kernel extends ConsoleKernel
                  ->timezone('Asia/Jakarta')
                  ->withoutOverlapping()
                  ->runInBackground();
+
+        // SIGNAL GENERATION: Generate trading signals every 15 minutes during trading hours
+        // Scans top 50 IDX stocks and creates signals with confidence ≥70%
+        $schedule->job(new \App\Jobs\GenerateSignals)
+                 ->everyFifteenMinutes()
+                 ->between('09:00', '16:00')
+                 ->timezone('Asia/Jakarta')
+                 ->withoutOverlapping()
+                 ->runInBackground();
     }
 
     /**
