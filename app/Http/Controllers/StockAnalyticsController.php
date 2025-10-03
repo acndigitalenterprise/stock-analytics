@@ -147,24 +147,39 @@ class StockAnalyticsController extends Controller
                 if (isset($data['quotes'])) {
                     foreach ($data['quotes'] as $quote) {
                         if (isset($quote['symbol']) && isset($quote['shortname'])) {
-                            // Only include Indonesian stocks (IDX exchange or .JK suffix)
                             $symbol = $quote['symbol'];
                             $exchange = $quote['exchange'] ?? '';
-                            
-                            if ($exchange === 'IDX' || str_ends_with($symbol, '.JK')) {
+
+                            // Include Indonesian stocks with flexible matching:
+                            // 1. Exchange is IDX (primary)
+                            // 2. Symbol ends with .JK (most reliable)
+                            // 3. Exchange is JKT (Jakarta alternative)
+                            // 4. Symbol starts with query in uppercase (for EMAS, ANTM, etc without .JK)
+                            $queryUpper = strtoupper($query);
+                            $symbolUpper = strtoupper($symbol);
+
+                            $isIDXStock = $exchange === 'IDX'
+                                || str_ends_with($symbol, '.JK')
+                                || $exchange === 'JKT'
+                                || ($queryUpper === $symbolUpper) // Exact match like "EMAS" = "EMAS"
+                                || (strlen($queryUpper) >= 3 && str_starts_with($symbolUpper, $queryUpper)); // Partial match
+
+                            if ($isIDXStock) {
                                 $results[] = [
                                     'code' => $symbol,
                                     'name' => $quote['shortname'],
                                     'exchange' => $exchange,
                                     'type' => $quote['quoteType'] ?? 'EQUITY'
                                 ];
+
+                                // Log matched results for debugging
+                                Log::debug("Yahoo Finance matched result", [
+                                    'symbol' => $symbol,
+                                    'exchange' => $exchange,
+                                    'query' => $query,
+                                    'match_type' => $exchange === 'IDX' ? 'exchange_IDX' : (str_ends_with($symbol, '.JK') ? 'suffix_JK' : 'query_match')
+                                ]);
                             }
-                            // Log results for debugging
-                            Log::debug("Yahoo Finance result", [
-                                'symbol' => $symbol, 
-                                'exchange' => $exchange,
-                                'query' => $query
-                            ]);
                         }
                     }
                 }
