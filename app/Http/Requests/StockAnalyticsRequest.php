@@ -57,7 +57,7 @@ class StockAnalyticsRequest extends FormRequest
             ],
             'timeframe' => [
                 'required',
-                Rule::in(['1h', '1d']),
+                Rule::in(['1h', '1d', '1w', '1m']),
             ],
         ];
     }
@@ -89,7 +89,7 @@ class StockAnalyticsRequest extends FormRequest
             'stock_code.regex' => 'Stock code can only contain uppercase letters, numbers, and dots.',
             
             'timeframe.required' => 'Timeframe is required.',
-            'timeframe.in' => 'Timeframe must be either 1h or 1d.',
+            'timeframe.in' => 'Timeframe must be either 1h, 1d, 1w, or 1m.',
         ];
     }
 

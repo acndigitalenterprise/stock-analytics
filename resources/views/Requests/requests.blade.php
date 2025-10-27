@@ -338,6 +338,8 @@
                         <option value="">Select</option>
                         <option value="1h">1 Hour</option>
                         <option value="1d">1 Day</option>
+                        <option value="1w">1 Week</option>
+                        <option value="1m">1 Month</option>
                     </select>
                 </div>
                 

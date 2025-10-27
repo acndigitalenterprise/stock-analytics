@@ -37,8 +37,14 @@ class GenerateStockAdvice implements ShouldQueue
     {
         $this->stockRequest = $stockRequest;
 
-        // Adjust timeout based on timeframe to protect 1h requests
-        $this->timeout = $stockRequest->timeframe === '1d' ? 300 : 120; // 5min for 1d, 2min for 1h
+        // Adjust timeout based on timeframe to protect against long-running jobs
+        $this->timeout = match($stockRequest->timeframe) {
+            '1h' => 120,   // 2 minutes for hourly
+            '1d' => 300,   // 5 minutes for daily
+            '1w' => 600,   // 10 minutes for weekly (more data to analyze)
+            '1m' => 900,   // 15 minutes for monthly (much more data)
+            default => 120 // Fallback to 2 minutes
+        };
     }
 
     public function handle(YahooFinanceService $yahooService, AlphaVantageService $alphaVantageService, TechnicalAnalysisService $technicalService, ChatGPTService $chatgptService, PriceMonitoringService $monitoringService): void
@@ -81,7 +87,7 @@ class GenerateStockAdvice implements ShouldQueue
                     
                     // Use Alpha Vantage OHLCV data for scalping analysis
                     $ohlcvData = $alphaVantageData['daily_data'];
-                    $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code);
+                    $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code, $this->stockRequest->timeframe);
                     
                     // Merge Alpha Vantage technical indicators if available
                     if (isset($alphaVantageData['technical_indicators'])) {
@@ -95,7 +101,7 @@ class GenerateStockAdvice implements ShouldQueue
                     
                     // Fallback: use Yahoo Finance data for scalping analysis
                     $ohlcvData = $this->convertYahooToOHLCV($yahooData);
-                    $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code);
+                    $technicalAnalysis = $technicalService->getScalpingAnalysis($ohlcvData, $this->stockRequest->stock_code, $this->stockRequest->timeframe);
                 }
             } catch (\DivisionByZeroError $e) {
                 Log::error('Division by zero in technical analysis', [
@@ -337,15 +343,13 @@ class GenerateStockAdvice implements ShouldQueue
      */
     private function calculateMonitoringEndTime(string $timeframe): \Carbon\Carbon
     {
-        switch ($timeframe) {
-            case '1h':
-                return now()->addHour();
-            case '1d':
-                return now()->addDay();
-            default:
-                // Fallback to 1 hour for unknown timeframes
-                return now()->addHour();
-        }
+        return match($timeframe) {
+            '1h' => now()->addHour(),
+            '1d' => now()->addDay(),
+            '1w' => now()->addWeek(),
+            '1m' => now()->addMonth(),
+            default => now()->addHour() // Fallback
+        };
     }
 
     /**

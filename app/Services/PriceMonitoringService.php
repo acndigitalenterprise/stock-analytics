@@ -394,14 +394,12 @@ class PriceMonitoringService
      */
     private function calculateMonitoringEndTime(Carbon $createdAt, string $timeframe): Carbon
     {
-        switch ($timeframe) {
-            case '1h':
-                return $createdAt->copy()->addHour();
-            case '1d':
-                return $createdAt->copy()->addDay();
-            default:
-                // Fallback to 1 hour for unknown timeframes
-                return $createdAt->copy()->addHour();
-        }
+        return match($timeframe) {
+            '1h' => $createdAt->copy()->addHour(),
+            '1d' => $createdAt->copy()->addDay(),
+            '1w' => $createdAt->copy()->addWeek(),
+            '1m' => $createdAt->copy()->addMonth(),
+            default => $createdAt->copy()->addHour() // Fallback
+        };
     }
 }

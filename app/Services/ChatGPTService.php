@@ -96,14 +96,24 @@ class ChatGPTService
      */
     private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe): string
     {
-        $timeframeText = $timeframe === '1h' ? '1 hour' : '1 day';
+        // Map timeframe to descriptive text and trading strategy
+        $timeframeMapping = match($timeframe) {
+            '1h' => ['text' => '1 hour', 'strategy' => 'scalping'],
+            '1d' => ['text' => '1 day', 'strategy' => 'day trading'],
+            '1w' => ['text' => '1 week', 'strategy' => 'swing trading'],
+            '1m' => ['text' => '1 month', 'strategy' => 'position trading'],
+            default => ['text' => '1 hour', 'strategy' => 'scalping']
+        };
+
+        $timeframeText = $timeframeMapping['text'];
+        $strategyType = $timeframeMapping['strategy'];
         $scalpingScore = $technicalAnalysis['scalping_score'] ?? 0;
-        
+
         // Calculate price changes
         $priceChange = $stockData['current_price'] - $stockData['previous_close'];
         $priceChangePercent = $stockData['previous_close'] > 0 ? (($priceChange / $stockData['previous_close']) * 100) : 0;
-        
-        $prompt = "Analyze this stock for {$timeframeText} scalping/trading:\n\n";
+
+        $prompt = "Analyze this stock for {$timeframeText} {$strategyType}:\n\n";
         
         // Stock basic info
         $prompt .= "**Stock:** " . (isset($stockData['symbol']) ? $stockData['symbol'] : 'N/A') . "\n";
@@ -190,7 +200,7 @@ class ChatGPTService
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'You are an expert stock analyst specializing in technical analysis and scalping strategies for Indonesian (IDX) and global stocks. Provide concise, actionable trading advice based on real-time data and technical indicators. Always include a confidence level for your analysis.'
+                            'content' => 'You are an expert stock analyst specializing in technical analysis and trading strategies (scalping, day trading, swing trading, position trading) for Indonesian (IDX) and global stocks. Provide concise, actionable trading advice based on real-time data and technical indicators. Always include a confidence level for your analysis.'
                         ],
                         [
                             'role' => 'user', 
@@ -343,7 +353,16 @@ class ChatGPTService
      */
     private function buildTechnicalReason(array $stockData, array $technicalAnalysis, string $timeframe): string
     {
-        $reason = "The stock has a scalping score of {$technicalAnalysis['scalping_score']}/10. ";
+        // Map timeframe to strategy description
+        $strategyDescription = match($timeframe) {
+            '1h' => 'scalping strategy with 1-hour timeframe',
+            '1d' => 'day trading strategy with 1-day timeframe',
+            '1w' => 'swing trading strategy with 1-week timeframe',
+            '1m' => 'position trading strategy with 1-month timeframe',
+            default => 'scalping strategy'
+        };
+
+        $reason = "The stock has a technical score of {$technicalAnalysis['scalping_score']}/10 for {$strategyDescription}. ";
         
         // VWAP analysis
         if (isset($technicalAnalysis['vwap'])) {

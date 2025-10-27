@@ -29,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
         switch ($timeframe) {
             case '1h': return '1h';
             case '1d': return '1d';
+            case '1w': return '1w';
+            case '1m': return '1m';
             default: return $timeframe;
         }
     }

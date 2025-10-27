@@ -8,10 +8,25 @@ use Illuminate\Support\Facades\Cache;
 
 class YahooFinanceService
 {
+    /**
+     * Map our timeframe format to Yahoo Finance API interval format
+     */
+    private function mapTimeframeToYahooInterval(string $timeframe): array
+    {
+        return match($timeframe) {
+            '1h' => ['interval' => '1h', 'range' => '1d'],
+            '1d' => ['interval' => '1d', 'range' => '1d'],
+            '1w' => ['interval' => '1wk', 'range' => '1mo'],  // Weekly data over 1 month
+            '1m' => ['interval' => '1mo', 'range' => '3mo'],  // Monthly data over 3 months
+            default => ['interval' => '1h', 'range' => '1d'], // Fallback to hourly
+        };
+    }
+
     public function getStockData(string $stockCode, string $timeframe): ?array
     {
         try {
-            $url = "https://query1.finance.yahoo.com/v8/finance/chart/{$stockCode}?interval={$timeframe}&range=1d";
+            $params = $this->mapTimeframeToYahooInterval($timeframe);
+            $url = "https://query1.finance.yahoo.com/v8/finance/chart/{$stockCode}?interval={$params['interval']}&range={$params['range']}";
             
             $response = Http::timeout(5)->get($url);
             

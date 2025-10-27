@@ -312,9 +312,10 @@ class TechnicalAnalysisService
     }
 
     /**
-     * Get scalping-specific technical analysis optimized for 1h/1d timeframes
+     * Get scalping-specific technical analysis optimized for multiple timeframes
+     * Now supports: 1h/1d (scalping), 1w (swing), 1m (position)
      */
-    public function getScalpingAnalysis(array $ohlcvData, ?string $stockSymbol = null): array
+    public function getScalpingAnalysis(array $ohlcvData, ?string $stockSymbol = null, string $timeframe = '1h'): array
     {
         $closes = array_column($ohlcvData, 'close');
         $highs = array_column($ohlcvData, 'high');
@@ -340,14 +341,13 @@ class TechnicalAnalysisService
             'sar_signal' => $this->getSARSignal($closes, $this->calculateParabolicSAR($highs, $lows)),
             'cpr' => $this->calculateCPR($ohlcvData),
             'cpr_signal' => $this->getCPRSignal($closes, $this->calculateCPR($ohlcvData)),
-            
+
             // Combined scalping signals
             'scalping_score' => $this->calculateScalpingScore($ohlcvData, $stockSymbol),
             'scalping_action' => $this->getScalpingAction($ohlcvData, $stockSymbol),
-            'entry_price' => $this->calculateEntryPrice($ohlcvData),
-            'target_1' => $this->calculateTarget1($ohlcvData),
-            'target_2' => $this->calculateTarget2($ohlcvData),
-            'stop_loss' => $this->calculateStopLoss($ohlcvData)
+
+            // Use timeframe-aware targets for entry, targets, and stop loss
+            ...$this->calculateTimeframeTargets($ohlcvData, $timeframe)
         ];
     }
 
@@ -933,5 +933,33 @@ class TechnicalAnalysisService
             // Fallback: just use 2% below current price
             return round($percentageStop, 2);
         }
+    }
+
+    /**
+     * Calculate targets based on timeframe (1h/1d = scalping, 1w = swing, 1m = position)
+     * User requirements:
+     * - 1h/1d: 1.5-3% targets (scalping)
+     * - 1w: 5-10% targets (swing trading)
+     * - 1m: 15-25% targets (position trading)
+     */
+    public function calculateTimeframeTargets(array $ohlcvData, string $timeframe): array
+    {
+        $closes = array_column($ohlcvData, 'close');
+        $currentPrice = $closes[0];
+
+        // Define target percentages based on timeframe
+        [$target1Pct, $target2Pct, $stopLossPct] = match($timeframe) {
+            '1h', '1d' => [1.5, 3.0, 2.0],   // Scalping: 1.5% and 3% targets, 2% stop
+            '1w' => [5.0, 10.0, 3.0],         // Swing: 5% and 10% targets, 3% stop
+            '1m' => [15.0, 25.0, 7.0],        // Position: 15% and 25% targets, 7% stop
+            default => [1.5, 3.0, 2.0]        // Fallback to scalping
+        };
+
+        return [
+            'entry_price' => round($currentPrice, 2),
+            'target_1' => round($currentPrice * (1 + $target1Pct/100), 2),
+            'target_2' => round($currentPrice * (1 + $target2Pct/100), 2),
+            'stop_loss' => round($currentPrice * (1 - $stopLossPct/100), 2),
+        ];
     }
 }
