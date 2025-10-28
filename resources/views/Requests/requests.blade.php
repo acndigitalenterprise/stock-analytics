@@ -43,20 +43,23 @@
             $currentDay = $jakartaTime->format('N'); // 1=Monday, 5=Friday, 6=Saturday, 7=Sunday
             $currentTime = $jakartaTime->format('H:i:s');
 
-            // Market hours logic
-            $isTradingHours = false;
+            // TEMPORARY BYPASS FOR TESTING - REMOVE AFTER TESTING
+            $isTradingHours = true;
 
-            if ($currentDay >= 1 && $currentDay <= 4) { // Monday-Thursday
-                $isTradingHours = (
-                    ($currentTime >= '09:00:00' && $currentTime <= '12:00:00') ||
-                    ($currentTime >= '13:30:00' && $currentTime <= '15:49:59')
-                );
-            } elseif ($currentDay == 5) { // Friday
-                $isTradingHours = (
-                    ($currentTime >= '09:00:00' && $currentTime <= '11:30:00') ||
-                    ($currentTime >= '14:00:00' && $currentTime <= '15:49:59')
-                );
-            }
+            // Market hours logic (DISABLED FOR TESTING)
+            // $isTradingHours = false;
+
+            // if ($currentDay >= 1 && $currentDay <= 4) { // Monday-Thursday
+            //     $isTradingHours = (
+            //         ($currentTime >= '09:00:00' && $currentTime <= '12:00:00') ||
+            //         ($currentTime >= '13:30:00' && $currentTime <= '15:49:59')
+            //     );
+            // } elseif ($currentDay == 5) { // Friday
+            //     $isTradingHours = (
+            //         ($currentTime >= '09:00:00' && $currentTime <= '11:30:00') ||
+            //         ($currentTime >= '14:00:00' && $currentTime <= '15:49:59')
+            //     );
+            // }
             // Saturday and Sunday: $isTradingHours remains false
         @endphp
         
