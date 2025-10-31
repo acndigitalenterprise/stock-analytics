@@ -156,7 +156,14 @@ class ChatGPTService
         $priceChangePercentFromOneHour = $oneHourAgoPrice > 0 ? (($priceChangeFromOneHour / $oneHourAgoPrice) * 100) : 0;
         $changeSignOneHour = $priceChangeFromOneHour >= 0 ? '+' : '';
         
-        $useHoldFormat = $scalpingScore < 4;
+        // Timeframe-aware threshold for HOLD vs BUY format
+        $buyThreshold = match($timeframe) {
+            '1h', '1d' => 4,  // Scalping: score >= 4 for BUY
+            '1w' => 3,         // Swing: score >= 3 for BUY
+            '1m' => 2,         // Position: score >= 2 for BUY
+            default => 4
+        };
+        $useHoldFormat = $scalpingScore < $buyThreshold;
         
         if ($useHoldFormat) {
             $prompt .= "\n**Please provide your analysis with confidence level:**\n";
@@ -258,8 +265,19 @@ class ChatGPTService
         $priceChangePercentFromThirtyMin = $thirtyMinAgoPrice > 0 ? (($priceChangeFromThirtyMin / $thirtyMinAgoPrice) * 100) : 0;
         $changeSignThirtyMin = $priceChangeFromThirtyMin >= 0 ? '+' : '';
 
-        // Determine action based on score
-        $isHold = $technicalAnalysis['scalping_score'] < 4;
+        // Determine action based on score with timeframe-aware threshold
+        // Different strategies need different thresholds:
+        // - Scalping (1h/1d): Requires score >= 4 (more selective, quick trades)
+        // - Swing (1w): Requires score >= 3 (medium-term, more lenient)
+        // - Position (1m): Requires score >= 2 (long-term, most lenient)
+        $buyThreshold = match($timeframe) {
+            '1h', '1d' => 4,  // Scalping: higher threshold (more selective)
+            '1w' => 3,         // Swing: medium threshold
+            '1m' => 2,         // Position: lower threshold (more signals)
+            default => 4
+        };
+
+        $isHold = $technicalAnalysis['scalping_score'] < $buyThreshold;
         $action = $isHold ? 'Hold' : 'Buy';
         
         // Build advice string
