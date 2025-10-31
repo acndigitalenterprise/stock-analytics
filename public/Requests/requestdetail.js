@@ -11,6 +11,7 @@ function initRequestDetailPage() {
     initUserDropdown();
     initSidebarAccordion();
     initMobileMenu();
+    initAITabs();
     console.log('✅ Request Detail page initialized');
 }
 
@@ -19,6 +20,45 @@ function initRequestDetailPage() {
  * REQUEST DETAIL FUNCTIONS
  * =================================
  */
+
+/**
+ * AI Tabs Functionality
+ */
+function initAITabs() {
+    const tabButtons = document.querySelectorAll('.ai-tab-btn');
+    const tabPanels = document.querySelectorAll('.ai-tab-panel');
+
+    if (tabButtons.length === 0) return;
+
+    tabButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+
+            // Remove active class from all buttons
+            tabButtons.forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+
+            // Remove active class from all panels
+            tabPanels.forEach(function(panel) {
+                panel.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            // Show corresponding panel
+            const targetPanel = document.getElementById('tab-' + targetTab);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+
+            console.log('✅ Switched to ' + targetTab + ' tab');
+        });
+    });
+
+    console.log('✅ AI Tabs initialized with ' + tabButtons.length + ' tabs');
+}
 
 /**
  * Confirm Request Deletion
