@@ -31,7 +31,7 @@ class AdminController extends Controller
             $validated = $request->validate([
                 'stock_code' => 'required|string|max:10',
                 'company_name' => 'nullable|string|max:255',
-                'timeframe' => 'required|in:1h,1d',
+                'timeframe' => 'required|in:1h,1d,1w,1m',
             ]);
 
             $user = session('user');
