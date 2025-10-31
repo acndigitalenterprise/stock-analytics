@@ -334,10 +334,26 @@ function checkAdvice(requestId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Reload page to show new advice
-            window.location.reload();
+            if (data.has_advice) {
+                // Advice already exists or just generated - reload page
+                window.location.reload();
+            } else {
+                // Analysis started in background - show friendly message
+                showRequestsMessage('Analysis started! The page will refresh automatically when ready.', 'info');
+
+                // Auto-refresh after 10 seconds to check if analysis is done
+                setTimeout(() => {
+                    window.location.reload();
+                }, 10000);
+            }
         } else {
             alert(data.error || 'Failed to generate advice');
+            // Reset button state on error
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Analyze';
+                button.classList.remove('requests-loading');
+            }
         }
     })
     .catch(error => {
