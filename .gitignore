@@ -30,3 +30,9 @@ yarn-error.log
 test-*.js
 simple-*.js
 verify-*.js
+
+# Puppeteer Test Screenshots
+tests/puppeteer/screenshots/*.png
+
+# Test Credentials (NEVER COMMIT)
+.env.testing
