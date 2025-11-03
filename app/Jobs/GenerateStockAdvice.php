@@ -13,6 +13,7 @@ use App\Services\YahooFinanceService;
 use App\Services\AlphaVantageService;
 use App\Services\TechnicalAnalysisService;
 use App\Services\ChatGPTService;
+use App\Services\QwenService;
 use App\Services\PriceMonitoringService;
 use App\Jobs\SendStockAdviceEmail;
 use Illuminate\Support\Facades\Log;
@@ -47,7 +48,7 @@ class GenerateStockAdvice implements ShouldQueue
         };
     }
 
-    public function handle(YahooFinanceService $yahooService, AlphaVantageService $alphaVantageService, TechnicalAnalysisService $technicalService, ChatGPTService $chatgptService, PriceMonitoringService $monitoringService): void
+    public function handle(YahooFinanceService $yahooService, AlphaVantageService $alphaVantageService, TechnicalAnalysisService $technicalService, ChatGPTService $chatgptService, QwenService $qwenService, PriceMonitoringService $monitoringService): void
     {
         try {
             Log::info('Starting stock advice generation', [
@@ -129,15 +130,30 @@ class GenerateStockAdvice implements ShouldQueue
                 'indicators_count' => count($technicalAnalysis)
             ]);
 
-            // Generate dual advice (Claude + ChatGPT) with comprehensive technical analysis
+            // Generate triple advice (Claude + ChatGPT + Qwen) with comprehensive technical analysis
             try {
-                Log::info('About to call generateStockAdvice', ['request_id' => $this->stockRequest->id]);
+                Log::info('About to call generateStockAdvice for all 3 AI services', ['request_id' => $this->stockRequest->id]);
+
+                // Get Claude + ChatGPT advice
                 $dualAdvice = $chatgptService->generateStockAdvice(
-                    $stockData, 
+                    $stockData,
                     $technicalAnalysis,
                     $this->stockRequest->timeframe
                 );
-                Log::info('generateStockAdvice completed successfully', ['request_id' => $this->stockRequest->id]);
+
+                // Get Qwen advice separately
+                $qwenAdvice = $qwenService->generateStockAdvice(
+                    $stockData,
+                    $technicalAnalysis,
+                    $this->stockRequest->timeframe
+                );
+
+                Log::info('All AI services completed successfully', [
+                    'request_id' => $this->stockRequest->id,
+                    'claude_success' => isset($dualAdvice['claude']),
+                    'chatgpt_success' => isset($dualAdvice['chatgpt']),
+                    'qwen_success' => !empty($qwenAdvice)
+                ]);
             } catch (\DivisionByZeroError $e) {
                 Log::error('Division by zero in generateStockAdvice', [
                     'request_id' => $this->stockRequest->id,
@@ -173,11 +189,12 @@ class GenerateStockAdvice implements ShouldQueue
 
             // Extract targets from Claude advice (deterministic format)
             $targets = $monitoringService->extractTargetsFromAdvice($claudeAdvice);
-            
-            // Update the request with both advice types and targets
+
+            // Update the request with all 3 advice types and targets
             $updateData = [
                 'advice' => $claudeAdvice,
-                'advice_chatgpt' => $chatgptAdvice
+                'advice_chatgpt' => $chatgptAdvice,
+                'advice_qwen' => $qwenAdvice ?? null
             ];
             
             if ($targets['entry_price']) {
@@ -197,10 +214,11 @@ class GenerateStockAdvice implements ShouldQueue
             
             $this->stockRequest->update($updateData);
 
-            Log::info('Successfully generated dual advice with targets', [
+            Log::info('Successfully generated triple advice with targets', [
                 'request_id' => $this->stockRequest->id,
                 'claude_advice_length' => strlen($claudeAdvice),
                 'chatgpt_advice_length' => $chatgptAdvice ? strlen($chatgptAdvice) : 0,
+                'qwen_advice_length' => $qwenAdvice ? strlen($qwenAdvice) : 0,
                 'entry_price' => $targets['entry_price'] ?? null,
                 'target_1' => $targets['target_1'] ?? null,
                 'target_2' => $targets['target_2'] ?? null,

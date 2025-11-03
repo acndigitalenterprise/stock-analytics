@@ -266,7 +266,12 @@ class ChatGPTService
         $changeSignThirtyMin = $priceChangeFromThirtyMin >= 0 ? '+' : '';
 
         // Determine action based on score with timeframe-aware threshold
-        // Different strategies need different thresholds:
+        // Three-level action system:
+        // - BUY: score >= buyThreshold (bullish signals with entry/targets/stop loss)
+        // - HOLD: 1 <= score < buyThreshold (neutral, wait for better setup)
+        // - SELL: score < 1 (bearish signals, exit signal for existing positions)
+        //
+        // Timeframe-aware thresholds:
         // - Scalping (1h/1d): Requires score >= 4 (more selective, quick trades)
         // - Swing (1w): Requires score >= 3 (medium-term, more lenient)
         // - Position (1m): Requires score >= 2 (long-term, most lenient)
@@ -277,40 +282,61 @@ class ChatGPTService
             default => 4
         };
 
-        $isHold = $technicalAnalysis['scalping_score'] < $buyThreshold;
-        $action = $isHold ? 'Hold' : 'Buy';
-        
+        $scalpingScore = $technicalAnalysis['scalping_score'];
+
+        // Determine action based on score
+        if ($scalpingScore >= $buyThreshold) {
+            $action = 'Buy';
+        } elseif ($scalpingScore >= 1) {
+            $action = 'Hold';
+        } else {
+            $action = 'Sell';
+        }
+
         // Build advice string
         $advice = "Current Price: {$stockData['currency']} " . number_format($stockData['current_price'], 2) . "\n";
         $advice .= "Price 1 hour ago: {$stockData['currency']} " . number_format($oneHourAgoPrice, 2) . " ({$changeSignOneHour}" . number_format($priceChangePercentFromOneHour, 2) . "%)\n";
         $advice .= "Price 30 minutes: {$stockData['currency']} " . number_format($thirtyMinAgoPrice, 2) . " ({$changeSignThirtyMin}" . number_format($priceChangePercentFromThirtyMin, 2) . "%)\n";
         $advice .= "Traded Volume: " . number_format($stockData['volume']) . " shares\n";
-        if (!$isHold) {
+
+        if ($action === 'Buy') {
             // BUY format with rounded numbers
             $advice .= "Action: Buy at {$stockData['currency']} " . number_format($technicalAnalysis['entry_price'], 0) . "\n";
-            
+
             $entryPrice = $technicalAnalysis['entry_price'];
             $target1Profit = ($entryPrice > 0) ? ((($technicalAnalysis['target_1'] - $entryPrice) / $entryPrice) * 100) : 0;
             $target2Profit = ($entryPrice > 0) ? ((($technicalAnalysis['target_2'] - $entryPrice) / $entryPrice) * 100) : 0;
             $stopLossPercent = ($entryPrice > 0) ? ((($entryPrice - $technicalAnalysis['stop_loss']) / $entryPrice) * 100) : 0;
-            
+
             $advice .= "Target 1: {$stockData['currency']} " . number_format($technicalAnalysis['target_1'], 0) . " (~" . number_format($target1Profit, 1) . "%)\n";
             $advice .= "Target 2: {$stockData['currency']} " . number_format($technicalAnalysis['target_2'], 0) . " (~" . number_format($target2Profit, 1) . "%)\n";
             $advice .= "Stop Loss: {$stockData['currency']} " . number_format($technicalAnalysis['stop_loss'], 0) . " (~" . number_format($stopLossPercent, 1) . "%)\n";
-            
+
             // Calculate confidence level based on technical indicators
             $confidenceLevel = $this->calculateConfidenceLevel($technicalAnalysis);
             $advice .= "Confidence Level: {$confidenceLevel}%\n";
-            
+
             // Build technical reason without overconfident language
             $advice .= "Reason:\n";
             $advice .= $this->buildTechnicalReason($stockData, $technicalAnalysis, $timeframe);
-        } else {
+        } elseif ($action === 'Hold') {
             // HOLD format - no entry/targets/reason needed, just Action: Hold
             // User specification: HOLD should only show price info and Action: Hold
             $advice .= "Action: Hold\n";
+        } else {
+            // SELL format - exit signal for existing positions
+            // Shows bearish reasoning but no targets (exit only)
+            $advice .= "Action: Sell\n";
+
+            // Calculate confidence level for SELL signal
+            $confidenceLevel = $this->calculateConfidenceLevel($technicalAnalysis);
+            $advice .= "Confidence Level: {$confidenceLevel}%\n";
+
+            // Build bearish reason
+            $advice .= "Reason:\n";
+            $advice .= $this->buildBearishReason($stockData, $technicalAnalysis, $timeframe);
         }
-        
+
         return $advice;
     }
     
@@ -440,7 +466,7 @@ class ChatGPTService
     private function buildBasicTechnicalReason(array $stockData, array $technicalAnalysis): string
     {
         $reason = "Technical indicators suggest mixed signals with limited scalping opportunities. ";
-        
+
         if (isset($technicalAnalysis['rsi_7'])) {
             $rsi = $technicalAnalysis['rsi_7'];
             if ($rsi < 30) {
@@ -449,9 +475,86 @@ class ChatGPTService
                 $reason .= "RSI indicates overbought conditions, suggesting caution. ";
             }
         }
-        
+
         $reason .= "Consider waiting for clearer technical signals before entering a position.";
-        
+
+        return $reason;
+    }
+
+    /**
+     * Build bearish technical reason for SELL recommendations
+     */
+    private function buildBearishReason(array $stockData, array $technicalAnalysis, string $timeframe): string
+    {
+        // Map timeframe to strategy description
+        $strategyDescription = match($timeframe) {
+            '1h' => 'scalping strategy with 1-hour timeframe',
+            '1d' => 'day trading strategy with 1-day timeframe',
+            '1w' => 'swing trading strategy with 1-week timeframe',
+            '1m' => 'position trading strategy with 1-month timeframe',
+            default => 'scalping strategy'
+        };
+
+        $reason = "The stock has a bearish technical score of {$technicalAnalysis['scalping_score']}/10 for {$strategyDescription}. ";
+
+        // VWAP analysis (bearish perspective)
+        if (isset($technicalAnalysis['vwap'])) {
+            $vwapPosition = $stockData['current_price'] > $technicalAnalysis['vwap'] ? 'above' : 'below';
+            if ($stockData['current_price'] < $technicalAnalysis['vwap']) {
+                $reason .= "The price is trading below the VWAP, indicating selling pressure";
+            } else {
+                $reason .= "Despite being above VWAP, other indicators show weakness";
+            }
+        }
+
+        // EMA analysis (bearish perspective)
+        if (isset($technicalAnalysis['ema_9'])) {
+            if ($stockData['current_price'] < $technicalAnalysis['ema_9']) {
+                $reason .= " and below the EMA (9), confirming bearish momentum. ";
+            } else {
+                $reason .= ". ";
+            }
+        } else {
+            $reason .= ". ";
+        }
+
+        // RSI analysis (bearish perspective)
+        if (isset($technicalAnalysis['rsi_7'])) {
+            $rsi = $technicalAnalysis['rsi_7'];
+            if ($rsi > 70) {
+                $reason .= "The RSI is overbought at {$rsi}, suggesting a potential reversal downward. ";
+            } elseif ($rsi < 30) {
+                $reason .= "The RSI is oversold at {$rsi}, but downward momentum continues. ";
+            } else {
+                $reason .= "The RSI at {$rsi} shows neutral to bearish sentiment. ";
+            }
+        }
+
+        // Stochastic analysis (bearish perspective)
+        if (isset($technicalAnalysis['stochastic_scalping'])) {
+            $stoch = $technicalAnalysis['stochastic_scalping'];
+            if ($stoch['%K'] > 80) {
+                $reason .= "The Stochastic indicators are extremely overbought, signaling potential sell-off. ";
+            } elseif ($stoch['%K'] < 20) {
+                $reason .= "The Stochastic indicators are oversold but showing continued weakness. ";
+            } else {
+                $reason .= "The Stochastic indicators support bearish outlook. ";
+            }
+        }
+
+        // Bollinger Bands analysis (bearish perspective)
+        if (isset($technicalAnalysis['bollinger_bands_scalping'])) {
+            $bb = $technicalAnalysis['bollinger_bands_scalping'];
+            if ($stockData['current_price'] > $bb['upper']) {
+                $reason .= "Price is above upper Bollinger Band, indicating overextension and likely pullback. ";
+            } elseif ($stockData['current_price'] < $bb['middle']) {
+                $reason .= "Price is below middle Bollinger Band, confirming bearish trend. ";
+            }
+        }
+
+        // Exit recommendation
+        $reason .= "Consider exiting existing positions to protect capital and avoid further downside risk.";
+
         return $reason;
     }
 

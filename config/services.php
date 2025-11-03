@@ -43,6 +43,14 @@ return [
         'timeout' => env('OPENAI_TIMEOUT', 60),
     ],
 
+    'qwen' => [
+        'api_key' => env('QWEN_API_KEY'),
+        'base_url' => env('QWEN_BASE_URL', 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation'),
+        'model' => env('QWEN_MODEL', 'qwen-plus'),
+        'max_tokens' => env('QWEN_MAX_TOKENS', 1000),
+        'timeout' => env('QWEN_TIMEOUT', 30),
+    ],
+
     'alphavantage' => [
         'key' => env('ALPHA_VANTAGE_API_KEY'),
         'timeout' => env('ALPHA_VANTAGE_TIMEOUT', 10),

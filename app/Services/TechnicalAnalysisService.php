@@ -938,9 +938,15 @@ class TechnicalAnalysisService
     /**
      * Calculate targets based on timeframe (1h/1d = scalping, 1w = swing, 1m = position)
      * User requirements:
-     * - 1h/1d: 1.5-3% targets (scalping)
-     * - 1w: 5-10% targets (swing trading)
-     * - 1m: 15-25% targets (position trading)
+     * - 1h: 1.5-3% targets, 2-3% stop loss (scalping)
+     * - 1d: 1.5-3% targets, 3-5% stop loss (day trading)
+     * - 1w: 5-10% targets, 8-10% stop loss (swing trading)
+     * - 1m: 15-25% targets, 12-15% stop loss (position trading)
+     *
+     * Conservative stop loss approach (Option A):
+     * - Provides breathing room for longer timeframes
+     * - Protects capital while allowing for natural volatility
+     * - Balance between risk management and opportunity cost
      */
     public function calculateTimeframeTargets(array $ohlcvData, string $timeframe): array
     {
@@ -948,11 +954,13 @@ class TechnicalAnalysisService
         $currentPrice = $closes[0];
 
         // Define target percentages based on timeframe
+        // Format: [target1%, target2%, stopLoss%]
         [$target1Pct, $target2Pct, $stopLossPct] = match($timeframe) {
-            '1h', '1d' => [1.5, 3.0, 2.0],   // Scalping: 1.5% and 3% targets, 2% stop
-            '1w' => [5.0, 10.0, 3.0],         // Swing: 5% and 10% targets, 3% stop
-            '1m' => [15.0, 25.0, 7.0],        // Position: 15% and 25% targets, 7% stop
-            default => [1.5, 3.0, 2.0]        // Fallback to scalping
+            '1h' => [1.5, 3.0, 2.5],          // Scalping: 1.5% and 3% targets, 2.5% stop
+            '1d' => [1.5, 3.0, 4.0],          // Day Trading: 1.5% and 3% targets, 4% stop
+            '1w' => [5.0, 10.0, 9.0],         // Swing: 5% and 10% targets, 9% stop
+            '1m' => [15.0, 25.0, 13.5],       // Position: 15% and 25% targets, 13.5% stop
+            default => [1.5, 3.0, 2.5]        // Fallback to scalping
         };
 
         return [

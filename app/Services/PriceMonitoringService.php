@@ -294,11 +294,14 @@ class PriceMonitoringService
             'stop_loss' => null
         ];
 
-        // Check if action is Hold first - if Hold, don't extract any targets for monitoring
-        if (preg_match('/Action:\s*Hold/i', $advice) || 
+        // Check if action is Hold or Sell - if so, don't extract any targets for monitoring
+        // Hold = neutral signal (wait for better setup)
+        // Sell = bearish signal (exit recommendation, no position to monitor)
+        if (preg_match('/Action:\s*(Hold|Sell)/i', $advice) ||
             strpos(strtolower($advice), 'recommendation: hold') !== false ||
-            strpos(strtolower($advice), 'action: hold') !== false) {
-            // For Hold recommendations, return all null targets (no monitoring needed)
+            strpos(strtolower($advice), 'action: hold') !== false ||
+            strpos(strtolower($advice), 'action: sell') !== false) {
+            // For Hold/Sell recommendations, return all null targets (no monitoring needed)
             return $targets;
         }
 
