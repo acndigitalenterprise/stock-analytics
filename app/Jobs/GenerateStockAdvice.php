@@ -138,14 +138,16 @@ class GenerateStockAdvice implements ShouldQueue
                 $dualAdvice = $chatgptService->generateStockAdvice(
                     $stockData,
                     $technicalAnalysis,
-                    $this->stockRequest->timeframe
+                    $this->stockRequest->timeframe,
+                    $this->stockRequest->action ?? 'BUY'
                 );
 
                 // Get Qwen advice separately
                 $qwenAdvice = $qwenService->generateStockAdvice(
                     $stockData,
                     $technicalAnalysis,
-                    $this->stockRequest->timeframe
+                    $this->stockRequest->timeframe,
+                    $this->stockRequest->action ?? 'BUY'
                 );
 
                 Log::info('All AI services completed successfully', [

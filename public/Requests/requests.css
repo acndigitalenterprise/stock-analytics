@@ -1074,3 +1074,34 @@ h2 {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
 }
+
+/* =================================
+   ACTION BADGE STYLES (BUY/SELL)
+   ================================= */
+
+.requests-action-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.requests-action-buy {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    border: 1px solid #4CAF50;
+}
+
+.requests-action-sell {
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+    border: 1px solid #F44336;
+}
+
+.requests-action-column-header {
+    width: 80px;
+    text-align: center;
+}

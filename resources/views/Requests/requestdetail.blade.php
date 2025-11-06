@@ -74,6 +74,20 @@
                 <label class="requests-detail-label">Timeframe</label>
                 <div class="requests-detail-value">{{ \App\Providers\AppServiceProvider::formatTimeframe($stockRequest->timeframe) }}</div>
             </div>
+
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
+                <label class="requests-detail-label">Action Type</label>
+                <div class="requests-detail-value">
+                    @if(isset($stockRequest->action))
+                        <span class="requests-action-badge {{ $stockRequest->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
+                            {{ $stockRequest->action == 'BUY' ? '🟢 BUY (Entry Analysis)' : '🔴 SELL (Exit Analysis)' }}
+                        </span>
+                    @else
+                        <span class="requests-action-badge requests-action-buy">🟢 BUY (Entry Analysis)</span>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 

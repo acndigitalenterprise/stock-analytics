@@ -17,12 +17,12 @@ class ChatGPTService
         $this->organizationId = config('services.openai.organization_id');
     }
     
-    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe): array
+    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): array
     {
         // Generate both Claude (deterministic) and ChatGPT advice
-        $claudeAdvice = $this->buildDeterministicAdvice($stockData, $technicalAnalysis, $timeframe);
-        $chatgptAdvice = $this->generateChatGPTAdvice($stockData, $technicalAnalysis, $timeframe);
-        
+        $claudeAdvice = $this->buildDeterministicAdvice($stockData, $technicalAnalysis, $timeframe, $action);
+        $chatgptAdvice = $this->generateChatGPTAdvice($stockData, $technicalAnalysis, $timeframe, $action);
+
         return [
             'claude' => $claudeAdvice,
             'chatgpt' => $chatgptAdvice
@@ -94,7 +94,7 @@ class ChatGPTService
     /**
      * Build AI prompt with comprehensive technical analysis context
      */
-    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe): string
+    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): string
     {
         // Map timeframe to descriptive text and trading strategy
         $timeframeMapping = match($timeframe) {
@@ -113,7 +113,8 @@ class ChatGPTService
         $priceChange = $stockData['current_price'] - $stockData['previous_close'];
         $priceChangePercent = $stockData['previous_close'] > 0 ? (($priceChange / $stockData['previous_close']) * 100) : 0;
 
-        $prompt = "Analyze this stock for {$timeframeText} {$strategyType}:\n\n";
+        $actionText = $action == 'SELL' ? 'SELL/EXIT analysis' : 'BUY/ENTRY analysis';
+        $prompt = "Analyze this stock for {$timeframeText} {$strategyType} - {$actionText}:\n\n";
         
         // Stock basic info
         $prompt .= "**Stock:** " . (isset($stockData['symbol']) ? $stockData['symbol'] : 'N/A') . "\n";
@@ -156,37 +157,52 @@ class ChatGPTService
         $priceChangePercentFromOneHour = $oneHourAgoPrice > 0 ? (($priceChangeFromOneHour / $oneHourAgoPrice) * 100) : 0;
         $changeSignOneHour = $priceChangeFromOneHour >= 0 ? '+' : '';
         
-        // Timeframe-aware threshold for HOLD vs BUY format
-        $buyThreshold = match($timeframe) {
-            '1h', '1d' => 4,  // Scalping: score >= 4 for BUY
-            '1w' => 3,         // Swing: score >= 3 for BUY
-            '1m' => 2,         // Position: score >= 2 for BUY
-            default => 4
-        };
-        $useHoldFormat = $scalpingScore < $buyThreshold;
-        
-        if ($useHoldFormat) {
-            $prompt .= "\n**Please provide your analysis with confidence level:**\n";
-            $prompt .= "Start with basic info, then give your reasoning and confidence.\n";
-            $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
-            $prompt .= "Format is free - provide natural language analysis.\n";
+        // Different prompts for BUY vs SELL action
+        if ($action == 'SELL') {
+            // SELL/EXIT analysis
+            $prompt .= "\n**SELL/EXIT ANALYSIS REQUEST:**\n";
+            $prompt .= "Analyze whether this is a good time to SELL/EXIT this position:\n\n";
+            $prompt .= "• Should I sell now or hold longer?\n";
+            $prompt .= "• What exit price levels do you recommend?\n";
+            $prompt .= "• Are profit targets reasonable for this timeframe?\n";
+            $prompt .= "• What are the technical signals for exit?\n";
+            $prompt .= "• Should I use trailing stop loss? At what level?\n";
+            $prompt .= "• What are the risks of holding vs selling now?\n\n";
+            $prompt .= "Provide specific price recommendations and reasoning.\n";
             $prompt .= "End with: Confidence Level: X%\n";
         } else {
-            $prompt .= "\n**Please provide your analysis with confidence level:**\n";
-            $prompt .= "Start with basic info, then provide your BUY recommendation with entry/target prices.\n";
-            $prompt .= "Include technical reasoning and risk assessment.\n";
-            $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
-            $prompt .= "Format is free - provide natural language analysis with specific price levels.\n";
-            $prompt .= "End with: Confidence Level: X%\n";
+            // BUY/ENTRY analysis (existing logic)
+            $buyThreshold = match($timeframe) {
+                '1h', '1d' => 4,  // Scalping: score >= 4 for BUY
+                '1w' => 3,         // Swing: score >= 3 for BUY
+                '1m' => 2,         // Position: score >= 2 for BUY
+                default => 4
+            };
+            $useHoldFormat = $scalpingScore < $buyThreshold;
+
+            if ($useHoldFormat) {
+                $prompt .= "\n**Please provide your analysis with confidence level:**\n";
+                $prompt .= "Start with basic info, then give your reasoning and confidence.\n";
+                $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
+                $prompt .= "Format is free - provide natural language analysis.\n";
+                $prompt .= "End with: Confidence Level: X%\n";
+            } else {
+                $prompt .= "\n**Please provide your analysis with confidence level:**\n";
+                $prompt .= "Start with basic info, then provide your BUY recommendation with entry/target prices.\n";
+                $prompt .= "Include technical reasoning and risk assessment.\n";
+                $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
+                $prompt .= "Format is free - provide natural language analysis with specific price levels.\n";
+                $prompt .= "End with: Confidence Level: X%\n";
+            }
         }
-        
+
         return $prompt;
     }
 
     /**
      * Generate ChatGPT advice with confidence level
      */
-    private function generateChatGPTAdvice(array $stockData, array $technicalAnalysis, string $timeframe): ?string
+    private function generateChatGPTAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): ?string
     {
         if (!$this->apiKey) {
             Log::warning('OpenAI API key not configured');
@@ -194,7 +210,7 @@ class ChatGPTService
         }
 
         // Build context prompt for AI
-        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe);
+        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe, $action);
         
         try {
             $response = Http::timeout(config('services.openai.timeout', 30))
@@ -207,7 +223,7 @@ class ChatGPTService
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'You are an expert stock analyst specializing in technical analysis and trading strategies (scalping, day trading, swing trading, position trading) for Indonesian (IDX) and global stocks. Provide concise, actionable trading advice based on real-time data and technical indicators. Always include a confidence level for your analysis.'
+                            'content' => 'You are an expert stock analyst specializing in technical analysis and trading strategies (scalping, day trading, swing trading, position trading) for Indonesian (IDX) and global stocks. Provide concise, actionable trading advice for both BUY (entry) and SELL (exit) decisions based on real-time data and technical indicators. Always include a confidence level for your analysis.'
                         ],
                         [
                             'role' => 'user', 
@@ -251,7 +267,7 @@ class ChatGPTService
     /**
      * Build deterministic advice (fallback when AI is not available)
      */
-    private function buildDeterministicAdvice(array $stockData, array $technicalAnalysis, string $timeframe): string
+    private function buildDeterministicAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $actionType = 'BUY'): string
     {
         // Calculate price changes
         $oneHourAgoPrice = $this->calculateOneHourAgoPrice($stockData);
@@ -284,13 +300,28 @@ class ChatGPTService
 
         $scalpingScore = $technicalAnalysis['scalping_score'];
 
-        // Determine action based on score
-        if ($scalpingScore >= $buyThreshold) {
-            $action = 'Buy';
-        } elseif ($scalpingScore >= 1) {
-            $action = 'Hold';
+        // Determine action based on user's requested action type and technical score
+        if ($actionType == 'SELL') {
+            // SELL/EXIT Analysis Logic (inverse of BUY logic)
+            // High score = HOLD (still strong, don't exit yet)
+            // Low score = SELL NOW (weakening, exit position)
+            // Medium score = PARTIAL SELL (take some profit)
+            if ($scalpingScore >= $buyThreshold) {
+                $action = 'Hold'; // Strong technicals, keep position
+            } elseif ($scalpingScore >= 1) {
+                $action = 'Partial Sell'; // Neutral, take some profit
+            } else {
+                $action = 'Sell Now'; // Weak technicals, exit position
+            }
         } else {
-            $action = 'Sell';
+            // BUY/ENTRY Analysis Logic (original logic)
+            if ($scalpingScore >= $buyThreshold) {
+                $action = 'Buy';
+            } elseif ($scalpingScore >= 1) {
+                $action = 'Hold';
+            } else {
+                $action = 'Sell';
+            }
         }
 
         // Build advice string
@@ -323,8 +354,46 @@ class ChatGPTService
             // HOLD format - no entry/targets/reason needed, just Action: Hold
             // User specification: HOLD should only show price info and Action: Hold
             $advice .= "Action: Hold\n";
+
+            // If this is SELL action type request with HOLD recommendation
+            if ($actionType == 'SELL') {
+                $confidenceLevel = $this->calculateConfidenceLevel($technicalAnalysis);
+                $advice .= "Confidence Level: {$confidenceLevel}%\n";
+                $advice .= "Reason:\n";
+                $advice .= "Technical indicators remain strong. Consider holding position or using trailing stop loss at {$stockData['currency']} " . number_format($technicalAnalysis['stop_loss'], 0) . " to protect gains.\n";
+            }
+        } elseif ($action === 'Partial Sell') {
+            // PARTIAL SELL format - exit recommendation with suggested exit levels
+            $advice .= "Action: Partial Sell\n";
+
+            // Suggest exit levels based on current price
+            $exitLevel1 = $stockData['current_price'] * 1.01; // 1% above current
+            $exitLevel2 = $stockData['current_price'] * 1.02; // 2% above current
+            $trailingStop = $technicalAnalysis['stop_loss'];
+
+            $advice .= "Exit Level 1: {$stockData['currency']} " . number_format($exitLevel1, 0) . " (sell 50%)\n";
+            $advice .= "Exit Level 2: {$stockData['currency']} " . number_format($exitLevel2, 0) . " (sell remaining)\n";
+            $advice .= "Trailing Stop: {$stockData['currency']} " . number_format($trailingStop, 0) . "\n";
+
+            $confidenceLevel = $this->calculateConfidenceLevel($technicalAnalysis);
+            $advice .= "Confidence Level: {$confidenceLevel}%\n";
+
+            $advice .= "Reason:\n";
+            $advice .= "Neutral technical signals suggest taking partial profits. Use trailing stop to protect gains while allowing for potential upside.\n";
+        } elseif ($action === 'Sell Now') {
+            // SELL NOW format - urgent exit signal
+            $advice .= "Action: Sell Now\n";
+
+            $exitPrice = $stockData['current_price'];
+            $advice .= "Exit Price: {$stockData['currency']} " . number_format($exitPrice, 0) . " (current market price)\n";
+
+            $confidenceLevel = $this->calculateConfidenceLevel($technicalAnalysis);
+            $advice .= "Confidence Level: {$confidenceLevel}%\n";
+
+            $advice .= "Reason:\n";
+            $advice .= $this->buildBearishReason($stockData, $technicalAnalysis, $timeframe);
         } else {
-            // SELL format - exit signal for existing positions
+            // SELL format - exit signal for existing positions (original BUY request with bearish signal)
             // Shows bearish reasoning but no targets (exit only)
             $advice .= "Action: Sell\n";
 

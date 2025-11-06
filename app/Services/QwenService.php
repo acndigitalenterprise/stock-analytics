@@ -24,7 +24,7 @@ class QwenService
     /**
      * Generate Qwen AI advice for stock analysis
      */
-    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe): ?string
+    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): ?string
     {
         if (!$this->apiKey) {
             Log::warning('Qwen API key not configured');
@@ -32,7 +32,7 @@ class QwenService
         }
 
         // Build context prompt for AI
-        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe);
+        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe, $action);
 
         try {
             $response = Http::timeout(config('services.qwen.timeout', 30))
@@ -46,7 +46,7 @@ class QwenService
                         'messages' => [
                             [
                                 'role' => 'system',
-                                'content' => 'You are an expert stock analyst specializing in technical analysis and trading strategies (scalping, day trading, swing trading, position trading) for Indonesian (IDX) and global stocks. Provide concise, actionable trading advice based on real-time data and technical indicators. Always include a confidence level for your analysis.'
+                                'content' => 'You are an expert stock analyst specializing in technical analysis and trading strategies (scalping, day trading, swing trading, position trading) for Indonesian (IDX) and global stocks. Provide concise, actionable trading advice for both BUY (entry) and SELL (exit) decisions based on real-time data and technical indicators. Always include a confidence level for your analysis.'
                             ],
                             [
                                 'role' => 'user',
@@ -95,7 +95,7 @@ class QwenService
     /**
      * Build AI prompt with comprehensive technical analysis context
      */
-    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe): string
+    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): string
     {
         // Map timeframe to descriptive text and trading strategy
         $timeframeMapping = match($timeframe) {
@@ -114,7 +114,8 @@ class QwenService
         $priceChange = $stockData['current_price'] - $stockData['previous_close'];
         $priceChangePercent = $stockData['previous_close'] > 0 ? (($priceChange / $stockData['previous_close']) * 100) : 0;
 
-        $prompt = "Analyze this stock for {$timeframeText} {$strategyType}:\n\n";
+        $actionText = $action == 'SELL' ? 'SELL/EXIT analysis' : 'BUY/ENTRY analysis';
+        $prompt = "Analyze this stock for {$timeframeText} {$strategyType} - {$actionText}:\n\n";
 
         // Stock basic info
         $prompt .= "**Stock:** " . (isset($stockData['symbol']) ? $stockData['symbol'] : 'N/A') . "\n";
@@ -151,43 +152,54 @@ class QwenService
             $prompt .= "• Stochastic: %K {$stoch['%K']}, %D {$stoch['%D']} - " . ($technicalAnalysis['stoch_scalping_signal'] ?? 'N/A') . "\n";
         }
 
-        // Timeframe-aware threshold for HOLD vs BUY format (same as ChatGPTService)
-        $buyThreshold = match($timeframe) {
-            '1h', '1d' => 4,  // Scalping: score >= 4 for BUY
-            '1w' => 3,         // Swing: score >= 3 for BUY
-            '1m' => 2,         // Position: score >= 2 for BUY
-            default => 4
-        };
-
-        // Determine action based on score
-        // BUY: score >= threshold
-        // HOLD: 1 <= score < threshold
-        // SELL: score < 1
-        if ($scalpingScore >= $buyThreshold) {
-            // BUY format
-            $prompt .= "\n**Please provide your BUY analysis with confidence level:**\n";
-            $prompt .= "Start with basic info, then provide your BUY recommendation with entry/target prices.\n";
-            $prompt .= "Include technical reasoning and risk assessment.\n";
-            $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
-            $prompt .= "Format is free - provide natural language analysis with specific price levels.\n";
-            $prompt .= "End with: Confidence Level: X%\n";
-        } elseif ($scalpingScore >= 1) {
-            // HOLD format
-            $prompt .= "\n**Please provide your HOLD analysis with confidence level:**\n";
-            $prompt .= "Start with basic info, then give your reasoning and confidence.\n";
-            $prompt .= "Explain why the stock should be held (neutral signals, waiting for better setup).\n";
-            $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
-            $prompt .= "Format is free - provide natural language analysis.\n";
+        // Different prompts for BUY vs SELL action
+        if ($action == 'SELL') {
+            // SELL/EXIT analysis
+            $prompt .= "\n**SELL/EXIT ANALYSIS REQUEST:**\n";
+            $prompt .= "Analyze whether this is a good time to SELL/EXIT this position:\n\n";
+            $prompt .= "• Should I sell now or hold longer?\n";
+            $prompt .= "• What exit price levels do you recommend?\n";
+            $prompt .= "• Are profit targets reasonable for this timeframe?\n";
+            $prompt .= "• What are the technical signals for exit?\n";
+            $prompt .= "• Should I use trailing stop loss? At what level?\n";
+            $prompt .= "• What are the risks of holding vs selling now?\n\n";
+            $prompt .= "Provide specific price recommendations and reasoning.\n";
             $prompt .= "End with: Confidence Level: X%\n";
         } else {
-            // SELL format (bearish)
-            $prompt .= "\n**Please provide your SELL analysis with confidence level:**\n";
-            $prompt .= "Start with basic info, then explain why this is a SELL signal (exit recommendation).\n";
-            $prompt .= "Include bearish technical reasoning and risk assessment.\n";
-            $prompt .= "This is an exit signal for existing positions, not a short selling recommendation.\n";
-            $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
-            $prompt .= "Format is free - provide natural language analysis.\n";
-            $prompt .= "End with: Confidence Level: X%\n";
+            // BUY/ENTRY analysis (existing logic)
+            $buyThreshold = match($timeframe) {
+                '1h', '1d' => 4,  // Scalping: score >= 4 for BUY
+                '1w' => 3,         // Swing: score >= 3 for BUY
+                '1m' => 2,         // Position: score >= 2 for BUY
+                default => 4
+            };
+
+            if ($scalpingScore >= $buyThreshold) {
+                // BUY format
+                $prompt .= "\n**Please provide your BUY analysis with confidence level:**\n";
+                $prompt .= "Start with basic info, then provide your BUY recommendation with entry/target prices.\n";
+                $prompt .= "Include technical reasoning and risk assessment.\n";
+                $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
+                $prompt .= "Format is free - provide natural language analysis with specific price levels.\n";
+                $prompt .= "End with: Confidence Level: X%\n";
+            } elseif ($scalpingScore >= 1) {
+                // HOLD format
+                $prompt .= "\n**Please provide your HOLD analysis with confidence level:**\n";
+                $prompt .= "Start with basic info, then give your reasoning and confidence.\n";
+                $prompt .= "Explain why the stock should be held (neutral signals, waiting for better setup).\n";
+                $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
+                $prompt .= "Format is free - provide natural language analysis.\n";
+                $prompt .= "End with: Confidence Level: X%\n";
+            } else {
+                // SELL format (bearish)
+                $prompt .= "\n**Please provide your SELL analysis with confidence level:**\n";
+                $prompt .= "Start with basic info, then explain why this is a SELL signal (exit recommendation).\n";
+                $prompt .= "Include bearish technical reasoning and risk assessment.\n";
+                $prompt .= "This is an exit signal for existing positions, not a short selling recommendation.\n";
+                $prompt .= "Include a confidence level (0-100%) for your analysis.\n";
+                $prompt .= "Format is free - provide natural language analysis.\n";
+                $prompt .= "End with: Confidence Level: X%\n";
+            }
         }
 
         return $prompt;

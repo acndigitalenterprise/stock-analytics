@@ -16,6 +16,7 @@ class Request extends Model
         'stock_code',
         'company_name',
         'timeframe',
+        'action',
         'advice',
         'advice_chatgpt',
         'user_id',

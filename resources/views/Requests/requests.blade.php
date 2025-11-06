@@ -149,6 +149,9 @@
                 <th class="requests-timeframe-column">
                     TF
                 </th>
+                <th class="requests-action-column-header">
+                    Type
+                </th>
                 <th class="requests-insight-column">
                     Analytics
                 </th>
@@ -175,6 +178,15 @@
                     <td>{{ $request->stock_code }}</td>
                     <td>{{ $request->company_name }}</td>
                     <td>{{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}</td>
+                    <td>
+                        @if(isset($request->action))
+                            <span class="requests-action-badge {{ $request->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
+                                {{ $request->action == 'BUY' ? '🟢 BUY' : '🔴 SELL' }}
+                            </span>
+                        @else
+                            <span class="requests-action-badge requests-action-buy">🟢 BUY</span>
+                        @endif
+                    </td>
                     <td>
                         <div id="advice-text-{{ $request->id }}" class="requests-advice-content">
                             {{ \App\Providers\AppServiceProvider::extractAnalyticsSummary($request->advice, $request->entry_price) }}
@@ -219,7 +231,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? '8' : '7' }}" class="requests-no-results">
+                    <td colspan="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? '9' : '8' }}" class="requests-no-results">
                         No requests found.
                     </td>
                 </tr>
@@ -253,7 +265,19 @@
                 <div class="requests-mobile-field">
                     <b>Timeframe</b><br>{{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}
                 </div>
-                
+
+                <!-- Action Type -->
+                <div class="requests-mobile-field">
+                    <b>Type</b><br>
+                    @if(isset($request->action))
+                        <span class="requests-action-badge {{ $request->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
+                            {{ $request->action == 'BUY' ? '🟢 BUY' : '🔴 SELL' }}
+                        </span>
+                    @else
+                        <span class="requests-action-badge requests-action-buy">🟢 BUY</span>
+                    @endif
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="requests-mobile-actions" onclick="event.stopPropagation();">
                     <a href="{{ route('requests.show', $request->id) }}" class="requests-action-btn requests-btn-view">View</a>
@@ -345,7 +369,21 @@
                         <option value="1m">1 Month</option>
                     </select>
                 </div>
-                
+
+                <div class="auth-form-group">
+                    <label>Action<span class="auth-required">*</span></label>
+                    <div style="display: flex; gap: 20px; margin-top: 8px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="action" value="BUY" checked required style="margin-right: 8px;">
+                            <span>🟢 BUY (Entry Analysis)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="action" value="SELL" required style="margin-right: 8px;">
+                            <span>🔴 SELL (Exit Analysis)</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="requests-modal-actions">
                     <button type="submit" class="auth-btn auth-btn-primary requests-modal-btn-primary">Submit</button>
                     <button type="button" class="auth-btn requests-modal-btn-cancel" onclick="closeRequestModal()">Cancel</button>
