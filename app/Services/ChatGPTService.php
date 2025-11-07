@@ -202,7 +202,7 @@ class ChatGPTService
     /**
      * Generate ChatGPT advice with confidence level
      */
-    private function generateChatGPTAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): ?string
+    public function generateChatGPTAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): ?string
     {
         if (!$this->apiKey) {
             Log::warning('OpenAI API key not configured');
