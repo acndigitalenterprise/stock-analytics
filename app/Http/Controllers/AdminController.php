@@ -32,6 +32,7 @@ class AdminController extends Controller
                 'stock_code' => 'required|string|max:10',
                 'company_name' => 'nullable|string|max:255',
                 'timeframe' => 'required|in:1h,1d,1w,1m',
+                'action' => 'required|in:BUY,SELL',
             ]);
 
             $user = session('user');
@@ -53,6 +54,7 @@ class AdminController extends Controller
                 'stock_code' => StockService::ensureJKFormat($validated['stock_code']),
                 'company_name' => $companyName,
                 'timeframe' => $validated['timeframe'],
+                'action' => $validated['action'],
                 'user_id' => $user->id,
             ]);
 
