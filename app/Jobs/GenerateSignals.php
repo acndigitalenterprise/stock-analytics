@@ -11,6 +11,7 @@ use App\Models\Signal;
 use App\Services\YahooFinanceService;
 use App\Services\TechnicalAnalysisService;
 use App\Services\StockService;
+use App\Services\ChatGPTService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
@@ -52,7 +53,7 @@ class GenerateSignals implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(YahooFinanceService $yahooService, TechnicalAnalysisService $technicalService, StockService $stockService): void
+    public function handle(YahooFinanceService $yahooService, TechnicalAnalysisService $technicalService, StockService $stockService, ChatGPTService $chatgptService): void
     {
         try {
             Log::info('Starting signals generation', [
@@ -71,9 +72,9 @@ class GenerateSignals implements ShouldQueue
                     $timeframes = ['1h', '1d'];
 
                     foreach ($timeframes as $timeframe) {
-                        $signal = $this->analyzeStock($stockCode, $timeframe, $yahooService, $technicalService, $stockService);
+                        $signal = $this->analyzeStock($stockCode, $timeframe, $yahooService, $technicalService, $stockService, $chatgptService);
 
-                        if ($signal && $signal['confidence_percentage'] >= 70) {
+                        if ($signal && $signal['confidence_percentage'] >= 60) {
                             $this->storeSignal($signal);
                             $signalsGenerated++;
 
@@ -114,7 +115,7 @@ class GenerateSignals implements ShouldQueue
     /**
      * Analyze a stock for trading signals
      */
-    private function analyzeStock($stockCode, $timeframe, $yahooService, $technicalService, $stockService)
+    private function analyzeStock($stockCode, $timeframe, $yahooService, $technicalService, $stockService, $chatgptService)
     {
         // Skip if we already have a recent signal for this stock/timeframe
         $existingSignal = Signal::where('stock_code', $stockCode)
@@ -179,12 +180,24 @@ class GenerateSignals implements ShouldQueue
         // Calculate signal score and confidence
         $analysis = $this->calculateSignalScore($currentPrice, $rsi, $macd, $bb, $sma9, $ema9, $stoch, $volume);
 
-        if (!$analysis || $analysis['confidence_percentage'] < 70) {
+        if (!$analysis || $analysis['confidence_percentage'] < 60) {
             return null;
         }
 
         // Calculate entry, targets, and stop loss
         $levels = $this->calculateTradingLevels($currentPrice, $bb, $timeframe);
+
+        // Get ChatGPT analysis for signal
+        $chatgptAnalysis = $this->getChatGPTSignalAnalysis(
+            $stockCode,
+            $currentPrice,
+            $levels,
+            $rsi,
+            $macd,
+            $volume,
+            $timeframe,
+            $chatgptService
+        );
 
         return [
             'stock_code' => $stockCode,
@@ -199,6 +212,8 @@ class GenerateSignals implements ShouldQueue
             'confidence_level' => $analysis['confidence_level'],
             'confidence_percentage' => $analysis['confidence_percentage'],
             'analysis_reason' => $analysis['reason'],
+            'chatgpt_reason' => $chatgptAnalysis['reason'] ?? null,
+            'chatgpt_confidence_percentage' => $chatgptAnalysis['confidence'] ?? null,
             'rsi' => $rsi,
             'macd_signal' => $macd['macd'] > 0 ? 'Buy' : 'Sell',
             'volume' => $volume,
@@ -294,7 +309,7 @@ class GenerateSignals implements ShouldQueue
         }
 
         // Only return signals with decent confidence
-        if ($confidencePercentage < 70) {
+        if ($confidencePercentage < 60) {
             return null;
         }
 
@@ -340,6 +355,96 @@ class GenerateSignals implements ShouldQueue
             'stop_loss' => round($stopLoss, 2),
             'risk_reward' => "1:{$rr1} - 1:{$rr2}"
         ];
+    }
+
+    /**
+     * Get ChatGPT analysis for signal
+     */
+    private function getChatGPTSignalAnalysis($stockCode, $currentPrice, $levels, $rsi, $macd, $volume, $timeframe, $chatgptService)
+    {
+        try {
+            // Build prompt for ChatGPT
+            $prompt = $this->buildChatGPTSignalPrompt($stockCode, $currentPrice, $levels, $rsi, $macd, $volume, $timeframe);
+
+            // Call ChatGPT API (simplified version)
+            $response = $chatgptService->generateChatGPTAdvice(
+                [
+                    'symbol' => $stockCode,
+                    'current_price' => $currentPrice,
+                    'volume' => $volume,
+                    'currency' => 'IDR',
+                    'previous_close' => $currentPrice
+                ],
+                [
+                    'entry_price' => $levels['entry'],
+                    'target_1' => $levels['target_1'],
+                    'target_2' => $levels['target_2'],
+                    'stop_loss' => $levels['stop_loss'],
+                    'rsi_7' => $rsi,
+                    'scalping_score' => 7
+                ],
+                $timeframe,
+                'BUY' // Signals are always BUY recommendations
+            );
+
+            // Extract confidence from response
+            $confidence = $this->extractConfidenceFromChatGPT($response);
+
+            return [
+                'reason' => $response,
+                'confidence' => $confidence
+            ];
+        } catch (\Exception $e) {
+            Log::warning('ChatGPT signal analysis failed', [
+                'stock_code' => $stockCode,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'reason' => null,
+                'confidence' => null
+            ];
+        }
+    }
+
+    /**
+     * Build prompt for ChatGPT signal analysis
+     */
+    private function buildChatGPTSignalPrompt($stockCode, $currentPrice, $levels, $rsi, $macd, $volume, $timeframe)
+    {
+        $timeframeText = $timeframe === '1h' ? '1 hour scalping' : '1 day trading';
+
+        return "Trading Signal Analysis for {$stockCode}:\n\n" .
+               "Timeframe: {$timeframeText}\n" .
+               "Current Price: IDR " . number_format($currentPrice, 2) . "\n" .
+               "Entry: IDR " . number_format($levels['entry'], 2) . "\n" .
+               "Target 1: IDR " . number_format($levels['target_1'], 2) . "\n" .
+               "Target 2: IDR " . number_format($levels['target_2'], 2) . "\n" .
+               "Stop Loss: IDR " . number_format($levels['stop_loss'], 2) . "\n" .
+               "RSI: {$rsi}\n" .
+               "MACD: " . ($macd['macd'] > 0 ? 'Bullish' : 'Bearish') . "\n" .
+               "Volume: " . number_format($volume) . "\n\n" .
+               "Analyze this trading signal and provide your assessment. " .
+               "Include confidence level (0-100%) at the end.";
+    }
+
+    /**
+     * Extract confidence percentage from ChatGPT response
+     */
+    private function extractConfidenceFromChatGPT($response)
+    {
+        // Try to find "Confidence Level: XX%" pattern
+        if (preg_match('/Confidence Level:\s*(\d+)%/i', $response, $matches)) {
+            return (int)$matches[1];
+        }
+
+        // Try to find just "XX%" at the end
+        if (preg_match('/(\d+)%\s*$/i', $response, $matches)) {
+            return (int)$matches[1];
+        }
+
+        // Default confidence if not found
+        return 70;
     }
 
     /**

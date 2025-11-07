@@ -23,6 +23,8 @@ class Signal extends Model
         'confidence_level',
         'confidence_percentage',
         'analysis_reason',
+        'chatgpt_reason',
+        'chatgpt_confidence_percentage',
         'rsi',
         'macd_signal',
         'volume',
@@ -46,6 +48,7 @@ class Signal extends Model
         'result_achieved_at' => 'datetime',
         'volume' => 'integer',
         'confidence_percentage' => 'integer',
+        'chatgpt_confidence_percentage' => 'integer',
     ];
 
     // Scopes for filtering

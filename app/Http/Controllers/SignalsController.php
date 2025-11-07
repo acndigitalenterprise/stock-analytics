@@ -14,9 +14,9 @@ class SignalsController extends Controller
      */
     public function index()
     {
-        // Get active signals with high confidence (≥70%) ordered by confidence
+        // Get active signals with high confidence (≥60%) ordered by confidence
         $signals = Signal::active()
-            ->highConfidence(70)
+            ->highConfidence(60)
             ->orderByDesc('confidence_percentage')
             ->orderByDesc('created_at')
             ->paginate(20);
@@ -30,7 +30,7 @@ class SignalsController extends Controller
     public function getSignals(Request $request)
     {
         $timeframe = $request->get('timeframe', 'all');
-        $confidence = $request->get('confidence', 70);
+        $confidence = $request->get('confidence', 60);
 
         $query = Signal::active()
             ->highConfidence($confidence)
