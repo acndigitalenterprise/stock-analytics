@@ -67,6 +67,8 @@ class SignalsController extends Controller
                     'potential_profit_target_1' => round($signal->potential_profit_target_1, 2),
                     'potential_profit_target_2' => round($signal->potential_profit_target_2, 2),
                     'potential_loss' => round($signal->potential_loss, 2),
+                    'chatgpt_reason' => $signal->chatgpt_reason,
+                    'chatgpt_confidence_percentage' => $signal->chatgpt_confidence_percentage,
                     'expires_at' => $signal->expires_at->format('Y-m-d H:i:s'),
                     'created_at' => $signal->created_at->format('Y-m-d H:i:s'),
                 ];

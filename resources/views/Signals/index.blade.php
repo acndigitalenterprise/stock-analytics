@@ -161,6 +161,55 @@
             overflow: hidden !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
         }
+
+        /* AI TABS STYLES */
+        .signals-ai-tabs-nav {
+            display: flex !important;
+            gap: 0.5rem !important;
+            margin-bottom: 1rem !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        .signals-ai-tab-btn {
+            padding: 0.75rem 1.5rem !important;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            color: #718096 !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            font-size: 0.95rem !important;
+        }
+
+        .signals-ai-tab-btn:hover {
+            color: #2d3748 !important;
+            background: rgba(102, 126, 234, 0.05) !important;
+        }
+
+        .signals-ai-tab-btn.active {
+            color: #667eea !important;
+            border-bottom-color: #667eea !important;
+            background: rgba(102, 126, 234, 0.1) !important;
+        }
+
+        .signals-ai-tab-content {
+            display: none !important;
+            padding: 1rem !important;
+            background: rgba(247, 250, 252, 0.5) !important;
+            border-radius: 8px !important;
+            line-height: 1.6 !important;
+            white-space: pre-wrap !important;
+        }
+
+        .signals-ai-tab-content.active {
+            display: block !important;
+        }
+
+        .signals-ai-tab-content p {
+            margin: 0 !important;
+            color: #2d3748 !important;
+        }
     </style>
 </head>
 <body class="admin-layout">
@@ -552,17 +601,58 @@ async function showSignalDetails(signalId) {
             </div>
 
             <div class="signals-detail-reason">
-                <h4>Analysis Reason</h4>
-                <p>${signal.analysis_reason}</p>
+                <h4>AI Analysis</h4>
+
+                <!-- AI Tabs Navigation -->
+                <div class="signals-ai-tabs-nav">
+                    <button class="signals-ai-tab-btn active" data-tab="claude">
+                        Claude
+                    </button>
+                    <button class="signals-ai-tab-btn" data-tab="chatgpt">
+                        ChatGPT
+                    </button>
+                </div>
+
+                <!-- AI Tab Contents -->
+                <div class="signals-ai-tab-content active" id="signals-tab-claude">
+                    <p>${signal.analysis_reason || 'No Claude analysis available'}</p>
+                </div>
+                <div class="signals-ai-tab-content" id="signals-tab-chatgpt">
+                    <p>${signal.chatgpt_reason || 'ChatGPT analysis not available yet'}</p>
+                    ${signal.chatgpt_confidence_percentage ? `<p style="margin-top: 10px;"><strong>Confidence:</strong> ${signal.chatgpt_confidence_percentage}%</p>` : ''}
+                </div>
             </div>
         `;
 
         document.getElementById('signal-detail-modal').style.display = 'block';
 
+        // Setup tab switching for AI analysis
+        setupSignalsAITabs();
+
     } catch (error) {
         console.error('Error loading signal details:', error);
         showError('Failed to load signal details.');
     }
+}
+
+// Setup AI tabs switching
+function setupSignalsAITabs() {
+    const tabButtons = document.querySelectorAll('.signals-ai-tab-btn');
+    const tabContents = document.querySelectorAll('.signals-ai-tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            document.getElementById(`signals-tab-${targetTab}`).classList.add('active');
+        });
+    });
 }
 
 // Close signal modal
