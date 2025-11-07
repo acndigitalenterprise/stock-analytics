@@ -149,9 +149,6 @@
                 <th class="requests-timeframe-column">
                     TF
                 </th>
-                <th class="requests-action-column-header">
-                    Type
-                </th>
                 <th class="requests-insight-column">
                     Analytics
                 </th>
@@ -178,15 +175,6 @@
                     <td>{{ $request->stock_code }}</td>
                     <td>{{ $request->company_name }}</td>
                     <td>{{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}</td>
-                    <td>
-                        @if(isset($request->action))
-                            <span class="requests-action-badge {{ $request->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
-                                {{ $request->action == 'BUY' ? 'Buy' : 'Sell' }}
-                            </span>
-                        @else
-                            <span class="requests-action-badge requests-action-buy">Buy</span>
-                        @endif
-                    </td>
                     <td>
                         <div id="advice-text-{{ $request->id }}" class="requests-advice-content">
                             {{ \App\Providers\AppServiceProvider::extractAnalyticsSummary($request->advice, $request->entry_price) }}
@@ -231,7 +219,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? '9' : '8' }}" class="requests-no-results">
+                    <td colspan="{{ isset($user) && in_array($user->role, ['admin', 'super_admin']) ? '8' : '7' }}" class="requests-no-results">
                         No requests found.
                     </td>
                 </tr>
@@ -264,18 +252,6 @@
                 <!-- Timeframe -->
                 <div class="requests-mobile-field">
                     <b>Timeframe</b><br>{{ \App\Providers\AppServiceProvider::formatTimeframe($request->timeframe) }}
-                </div>
-
-                <!-- Action Type -->
-                <div class="requests-mobile-field">
-                    <b>Type</b><br>
-                    @if(isset($request->action))
-                        <span class="requests-action-badge {{ $request->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
-                            {{ $request->action == 'BUY' ? 'Buy' : 'Sell' }}
-                        </span>
-                    @else
-                        <span class="requests-action-badge requests-action-buy">Buy</span>
-                    @endif
                 </div>
 
                 <!-- Action Buttons -->
