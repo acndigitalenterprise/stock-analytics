@@ -17,11 +17,11 @@ class ChatGPTService
         $this->organizationId = config('services.openai.organization_id');
     }
     
-    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): array
+    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY', ?float $purchasePrice = null): array
     {
         // Generate both Claude (deterministic) and ChatGPT advice
-        $claudeAdvice = $this->buildDeterministicAdvice($stockData, $technicalAnalysis, $timeframe, $action);
-        $chatgptAdvice = $this->generateChatGPTAdvice($stockData, $technicalAnalysis, $timeframe, $action);
+        $claudeAdvice = $this->buildDeterministicAdvice($stockData, $technicalAnalysis, $timeframe, $action, $purchasePrice);
+        $chatgptAdvice = $this->generateChatGPTAdvice($stockData, $technicalAnalysis, $timeframe, $action, $purchasePrice);
 
         return [
             'claude' => $claudeAdvice,
@@ -94,7 +94,7 @@ class ChatGPTService
     /**
      * Build AI prompt with comprehensive technical analysis context
      */
-    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): string
+    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY', ?float $purchasePrice = null): string
     {
         // Map timeframe to descriptive text and trading strategy
         $timeframeMapping = match($timeframe) {
@@ -115,7 +115,7 @@ class ChatGPTService
 
         $actionText = $action == 'SELL' ? 'SELL/EXIT analysis' : 'BUY/ENTRY analysis';
         $prompt = "Analyze this stock for {$timeframeText} {$strategyType} - {$actionText}:\n\n";
-        
+
         // Stock basic info
         $prompt .= "**Stock:** " . (isset($stockData['symbol']) ? $stockData['symbol'] : 'N/A') . "\n";
         $prompt .= "**Current Price:** {$stockData['currency']} " . number_format($stockData['current_price'], 2) . "\n";
@@ -123,7 +123,18 @@ class ChatGPTService
         $prompt .= "**Price Change:** " . ($priceChange >= 0 ? '+' : '') . number_format($priceChangePercent, 2) . "%\n";
         $prompt .= "**Volume:** " . number_format($stockData['volume']) . " shares\n";
         $marketType = (strpos((isset($stockData['symbol']) ? $stockData['symbol'] : ''), '.JK') !== false) ? 'IDX (Indonesian)' : 'Global';
-        $prompt .= "**Market:** " . $marketType . "\n\n";
+        $prompt .= "**Market:** " . $marketType . "\n";
+
+        // Add purchase price info for SELL analysis
+        if ($action == 'SELL' && $purchasePrice !== null && $purchasePrice > 0) {
+            $profitLoss = $stockData['current_price'] - $purchasePrice;
+            $profitLossPercent = (($profitLoss / $purchasePrice) * 100);
+            $profitLossSign = $profitLoss >= 0 ? '+' : '';
+            $prompt .= "**Purchase Price:** {$stockData['currency']} " . number_format($purchasePrice, 2) . "\n";
+            $prompt .= "**Current Profit/Loss:** {$stockData['currency']} " . number_format($profitLoss, 2) . " ({$profitLossSign}" . number_format($profitLossPercent, 2) . "%)\n";
+        }
+
+        $prompt .= "\n";
         
         // Technical indicators
         $prompt .= "**Technical Analysis Summary:**\n";
@@ -202,7 +213,7 @@ class ChatGPTService
     /**
      * Generate ChatGPT advice with confidence level
      */
-    public function generateChatGPTAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): ?string
+    public function generateChatGPTAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY', ?float $purchasePrice = null): ?string
     {
         if (!$this->apiKey) {
             Log::warning('OpenAI API key not configured');
@@ -210,7 +221,7 @@ class ChatGPTService
         }
 
         // Build context prompt for AI
-        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe, $action);
+        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe, $action, $purchasePrice);
         
         try {
             $response = Http::timeout(config('services.openai.timeout', 30))
@@ -267,19 +278,29 @@ class ChatGPTService
     /**
      * Build deterministic advice (fallback when AI is not available)
      */
-    private function buildDeterministicAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $actionType = 'BUY'): string
+    private function buildDeterministicAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $actionType = 'BUY', ?float $purchasePrice = null): string
     {
         // Calculate price changes
         $oneHourAgoPrice = $this->calculateOneHourAgoPrice($stockData);
         $thirtyMinAgoPrice = $this->calculateThirtyMinAgoPrice($stockData);
-        
+
         $priceChangeFromOneHour = $stockData['current_price'] - $oneHourAgoPrice;
         $priceChangePercentFromOneHour = $oneHourAgoPrice > 0 ? (($priceChangeFromOneHour / $oneHourAgoPrice) * 100) : 0;
         $changeSignOneHour = $priceChangeFromOneHour >= 0 ? '+' : '';
-        
+
         $priceChangeFromThirtyMin = $stockData['current_price'] - $thirtyMinAgoPrice;
         $priceChangePercentFromThirtyMin = $thirtyMinAgoPrice > 0 ? (($priceChangeFromThirtyMin / $thirtyMinAgoPrice) * 100) : 0;
         $changeSignThirtyMin = $priceChangeFromThirtyMin >= 0 ? '+' : '';
+
+        // Calculate profit/loss from purchase price if provided (for SELL analysis)
+        $profitLoss = null;
+        $profitLossPercent = null;
+        $profitLossSign = '';
+        if ($purchasePrice !== null && $purchasePrice > 0) {
+            $profitLoss = $stockData['current_price'] - $purchasePrice;
+            $profitLossPercent = (($profitLoss / $purchasePrice) * 100);
+            $profitLossSign = $profitLoss >= 0 ? '+' : '';
+        }
 
         // Determine action based on score with timeframe-aware threshold
         // Three-level action system:
@@ -329,6 +350,12 @@ class ChatGPTService
         $advice .= "Price 1 hour ago: {$stockData['currency']} " . number_format($oneHourAgoPrice, 2) . " ({$changeSignOneHour}" . number_format($priceChangePercentFromOneHour, 2) . "%)\n";
         $advice .= "Price 30 minutes: {$stockData['currency']} " . number_format($thirtyMinAgoPrice, 2) . " ({$changeSignThirtyMin}" . number_format($priceChangePercentFromThirtyMin, 2) . "%)\n";
         $advice .= "Traded Volume: " . number_format($stockData['volume']) . " shares\n";
+
+        // Add purchase price and profit/loss if provided (for SELL requests)
+        if ($purchasePrice !== null && $profitLossPercent !== null) {
+            $advice .= "Purchase Price: {$stockData['currency']} " . number_format($purchasePrice, 2) . "\n";
+            $advice .= "Profit/Loss: {$stockData['currency']} " . number_format($profitLoss, 2) . " ({$profitLossSign}" . number_format($profitLossPercent, 2) . "%)\n";
+        }
 
         if ($action === 'Buy') {
             // BUY format with rounded numbers

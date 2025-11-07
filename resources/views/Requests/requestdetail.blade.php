@@ -88,6 +88,14 @@
                     @endif
                 </div>
             </div>
+
+            @if($stockRequest->action == 'SELL' && $stockRequest->purchase_price)
+            <div class="requests-detail-divider"></div>
+            <div class="requests-detail-field-item">
+                <label class="requests-detail-label">Purchase Price</label>
+                <div class="requests-detail-value">IDR {{ number_format($stockRequest->purchase_price, 2) }}</div>
+            </div>
+            @endif
         </div>
     </div>
 

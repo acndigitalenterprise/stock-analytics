@@ -17,6 +17,7 @@ class Request extends Model
         'company_name',
         'timeframe',
         'action',
+        'purchase_price',
         'advice',
         'advice_chatgpt',
         'user_id',

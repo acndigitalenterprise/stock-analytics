@@ -118,13 +118,58 @@ function resetNewRequestForm() {
     const form = document.getElementById('newRequestForm');
     if (form) {
         form.reset();
-        
+
         // Clear any search results
         const resultsContainer = document.getElementById('stockSearchResults');
         if (resultsContainer) {
             resultsContainer.innerHTML = '';
             resultsContainer.style.display = 'none';
         }
+
+        // Hide purchase price field on reset
+        hidePurchasePriceField();
+    }
+}
+
+/**
+ * Toggle Purchase Price Field Visibility
+ * Shows the purchase price field only when SELL action is selected
+ */
+function togglePurchasePrice() {
+    const sellRadio = document.querySelector('input[name="action"][value="SELL"]');
+    const purchasePriceField = document.getElementById('purchase-price-field');
+
+    if (sellRadio && sellRadio.checked) {
+        showPurchasePriceField();
+    } else {
+        hidePurchasePriceField();
+    }
+}
+
+/**
+ * Show Purchase Price Field
+ */
+function showPurchasePriceField() {
+    const purchasePriceField = document.getElementById('purchase-price-field');
+    if (purchasePriceField) {
+        purchasePriceField.style.display = 'block';
+    }
+}
+
+/**
+ * Hide Purchase Price Field
+ */
+function hidePurchasePriceField() {
+    const purchasePriceField = document.getElementById('purchase-price-field');
+    const purchasePriceInput = document.getElementById('purchase_price');
+
+    if (purchasePriceField) {
+        purchasePriceField.style.display = 'none';
+    }
+
+    // Clear the value when hiding
+    if (purchasePriceInput) {
+        purchasePriceInput.value = '';
     }
 }
 
@@ -334,10 +379,26 @@ function checkAdvice(requestId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Reload page to show new advice
-            window.location.reload();
+            if (data.has_advice) {
+                // Advice already exists or just generated - reload page
+                window.location.reload();
+            } else {
+                // Analysis started in background - show friendly message
+                showRequestsMessage('Analysis started! The page will refresh automatically when ready.', 'info');
+
+                // Auto-refresh after 10 seconds to check if analysis is done
+                setTimeout(() => {
+                    window.location.reload();
+                }, 10000);
+            }
         } else {
             alert(data.error || 'Failed to generate advice');
+            // Reset button state on error
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Analyze';
+                button.classList.remove('requests-loading');
+            }
         }
     })
     .catch(error => {
@@ -722,6 +783,7 @@ window.closeMobileMenu = closeMobileMenu;
 window.changeRequestsPerPage = changeRequestsPerPage;
 window.confirmRequestDeletion = confirmRequestDeletion;
 window.checkAdvice = checkAdvice;
+window.togglePurchasePrice = togglePurchasePrice;
 
 // Export functions for testing and external access
 // Global form handler

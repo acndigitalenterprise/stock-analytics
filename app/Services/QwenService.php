@@ -24,7 +24,7 @@ class QwenService
     /**
      * Generate Qwen AI advice for stock analysis
      */
-    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): ?string
+    public function generateStockAdvice(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY', ?float $purchasePrice = null): ?string
     {
         if (!$this->apiKey) {
             Log::warning('Qwen API key not configured');
@@ -32,7 +32,7 @@ class QwenService
         }
 
         // Build context prompt for AI
-        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe, $action);
+        $prompt = $this->buildAIPrompt($stockData, $technicalAnalysis, $timeframe, $action, $purchasePrice);
 
         try {
             $response = Http::timeout(config('services.qwen.timeout', 30))
@@ -95,7 +95,7 @@ class QwenService
     /**
      * Build AI prompt with comprehensive technical analysis context
      */
-    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY'): string
+    private function buildAIPrompt(array $stockData, array $technicalAnalysis, string $timeframe, string $action = 'BUY', ?float $purchasePrice = null): string
     {
         // Map timeframe to descriptive text and trading strategy
         $timeframeMapping = match($timeframe) {
@@ -124,7 +124,18 @@ class QwenService
         $prompt .= "**Price Change:** " . ($priceChange >= 0 ? '+' : '') . number_format($priceChangePercent, 2) . "%\n";
         $prompt .= "**Volume:** " . number_format($stockData['volume']) . " shares\n";
         $marketType = (strpos((isset($stockData['symbol']) ? $stockData['symbol'] : ''), '.JK') !== false) ? 'IDX (Indonesian)' : 'Global';
-        $prompt .= "**Market:** " . $marketType . "\n\n";
+        $prompt .= "**Market:** " . $marketType . "\n";
+
+        // Add purchase price info for SELL analysis
+        if ($action == 'SELL' && $purchasePrice !== null && $purchasePrice > 0) {
+            $profitLoss = $stockData['current_price'] - $purchasePrice;
+            $profitLossPercent = (($profitLoss / $purchasePrice) * 100);
+            $profitLossSign = $profitLoss >= 0 ? '+' : '';
+            $prompt .= "**Purchase Price:** {$stockData['currency']} " . number_format($purchasePrice, 2) . "\n";
+            $prompt .= "**Current Profit/Loss:** {$stockData['currency']} " . number_format($profitLoss, 2) . " ({$profitLossSign}" . number_format($profitLossPercent, 2) . "%)\n";
+        }
+
+        $prompt .= "\n";
 
         // Technical indicators
         $prompt .= "**Technical Analysis Summary:**\n";

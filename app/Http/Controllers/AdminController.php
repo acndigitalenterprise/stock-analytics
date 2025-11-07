@@ -33,6 +33,7 @@ class AdminController extends Controller
                 'company_name' => 'nullable|string|max:255',
                 'timeframe' => 'required|in:1h,1d,1w,1m',
                 'action' => 'required|in:BUY,SELL',
+                'purchase_price' => 'nullable|numeric|min:0',
             ]);
 
             $user = session('user');
@@ -55,6 +56,7 @@ class AdminController extends Controller
                 'company_name' => $companyName,
                 'timeframe' => $validated['timeframe'],
                 'action' => $validated['action'],
+                'purchase_price' => $validated['purchase_price'] ?? null,
                 'user_id' => $user->id,
             ]);
 

@@ -139,7 +139,8 @@ class GenerateStockAdvice implements ShouldQueue
                     $stockData,
                     $technicalAnalysis,
                     $this->stockRequest->timeframe,
-                    $this->stockRequest->action ?? 'BUY'
+                    $this->stockRequest->action ?? 'BUY',
+                    $this->stockRequest->purchase_price
                 );
 
                 // Get Qwen advice separately
@@ -147,7 +148,8 @@ class GenerateStockAdvice implements ShouldQueue
                     $stockData,
                     $technicalAnalysis,
                     $this->stockRequest->timeframe,
-                    $this->stockRequest->action ?? 'BUY'
+                    $this->stockRequest->action ?? 'BUY',
+                    $this->stockRequest->purchase_price
                 );
 
                 Log::info('All AI services completed successfully', [
