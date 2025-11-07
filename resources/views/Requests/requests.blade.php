@@ -181,10 +181,10 @@
                     <td>
                         @if(isset($request->action))
                             <span class="requests-action-badge {{ $request->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
-                                {{ $request->action == 'BUY' ? '🟢 BUY' : '🔴 SELL' }}
+                                {{ $request->action == 'BUY' ? 'Buy' : 'Sell' }}
                             </span>
                         @else
-                            <span class="requests-action-badge requests-action-buy">🟢 BUY</span>
+                            <span class="requests-action-badge requests-action-buy">Buy</span>
                         @endif
                     </td>
                     <td>
@@ -271,10 +271,10 @@
                     <b>Type</b><br>
                     @if(isset($request->action))
                         <span class="requests-action-badge {{ $request->action == 'BUY' ? 'requests-action-buy' : 'requests-action-sell' }}">
-                            {{ $request->action == 'BUY' ? '🟢 BUY' : '🔴 SELL' }}
+                            {{ $request->action == 'BUY' ? 'Buy' : 'Sell' }}
                         </span>
                     @else
-                        <span class="requests-action-badge requests-action-buy">🟢 BUY</span>
+                        <span class="requests-action-badge requests-action-buy">Buy</span>
                     @endif
                 </div>
 
