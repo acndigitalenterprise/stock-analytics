@@ -383,7 +383,7 @@
     // Set URLs for JavaScript
     window.stockSearchUrl = '{{ route("api.stocks.search") }}';
 </script>
-<script src="{{ asset('Requests/requests.js') }}"></script>
+<script src="{{ asset('requests/requests.js') }}"></script>
 
 </body>
 </html>
