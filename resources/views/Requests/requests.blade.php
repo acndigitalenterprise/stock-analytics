@@ -382,6 +382,22 @@
 <script>
     // Set URLs for JavaScript
     window.stockSearchUrl = '{{ route("api.stocks.search") }}';
+
+    // HOTFIX: Inline toggle function until deployment works
+    window.togglePurchasePrice = function() {
+        const sellRadio = document.querySelector('input[name="action"][value="SELL"]');
+        const purchasePriceField = document.getElementById('purchase-price-field');
+        const purchasePriceInput = document.getElementById('purchase_price');
+
+        if (sellRadio && sellRadio.checked && purchasePriceField) {
+            purchasePriceField.style.display = 'block';
+        } else if (purchasePriceField) {
+            purchasePriceField.style.display = 'none';
+            if (purchasePriceInput) {
+                purchasePriceInput.value = '';
+            }
+        }
+    };
 </script>
 <script src="{{ asset('requests/requests.js') }}?v={{ time() }}"></script>
 
