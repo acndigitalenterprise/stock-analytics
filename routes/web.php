@@ -331,3 +331,33 @@ Route::post('/emergency/process-timeouts', function() {
         ], 500);
     }
 })->name('emergency.process.timeouts');
+
+// =================================
+// TEMPORARY: Cache Clear Route
+// TODO: Remove after deployment issue resolved
+// =================================
+Route::get('/clear-cache-temp-fix-20251110', function() {
+    try {
+        \Artisan::call('view:clear');
+        \Artisan::call('cache:clear');
+        \Artisan::call('config:clear');
+        \Artisan::call('route:clear');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All caches cleared successfully!',
+            'cleared' => [
+                'view_cache' => '✅',
+                'application_cache' => '✅',
+                'config_cache' => '✅',
+                'route_cache' => '✅'
+            ],
+            'timestamp' => now()->toDateTimeString()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Cache clear failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
