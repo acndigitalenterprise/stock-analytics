@@ -351,19 +351,18 @@
                     <div style="display: flex; gap: 20px; margin-top: 8px;">
                         <label style="display: flex; align-items: center; cursor: pointer;">
                             <input type="radio" name="action" value="BUY" checked required style="margin-right: 8px;" onchange="togglePurchasePrice()">
-                            <span>🟢 BUY (Entry Analysis)</span>
+                            <span>Buy</span>
                         </label>
                         <label style="display: flex; align-items: center; cursor: pointer;">
                             <input type="radio" name="action" value="SELL" required style="margin-right: 8px;" onchange="togglePurchasePrice()">
-                            <span>🔴 SELL (Exit Analysis)</span>
+                            <span>Sell</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="auth-form-group" id="purchase-price-field" style="display: none;">
-                    <label for="purchase_price">Harga Beli (Optional)</label>
-                    <input type="number" name="purchase_price" id="purchase_price" step="0.01" placeholder="Contoh: 7500" min="0">
-                    <small style="color: #718096; font-size: 0.85rem; margin-top: 4px; display: block;">Berapa harga Anda beli saham ini? Info ini membantu AI memberikan rekomendasi yang lebih akurat.</small>
+                    <label for="purchase_price">Your Purchase Price</label>
+                    <input type="number" name="purchase_price" id="purchase_price" step="0.01" placeholder="e.g., 7500" min="0">
                 </div>
 
                 <div class="requests-modal-actions">
