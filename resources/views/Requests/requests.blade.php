@@ -362,7 +362,7 @@
 
                 <div class="auth-form-group" id="purchase-price-field" style="display: none;">
                     <label for="purchase_price">Purchase Price</label>
-                    <input type="number" name="purchase_price" id="purchase_price" step="0.01" placeholder="e.g., 7500" min="0" style="width: 100%; box-sizing: border-box;">
+                    <input type="number" name="purchase_price" id="purchase_price" step="0.01" placeholder="e.g., 7500" min="0">
                 </div>
 
                 <div class="requests-modal-actions">

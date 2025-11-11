@@ -127,7 +127,8 @@ body {
 
 .auth-form-group input[type="text"],
 .auth-form-group input[type="email"],
-.auth-form-group input[type="password"] {
+.auth-form-group input[type="password"],
+.auth-form-group input[type="number"] {
     width: 100%;
     padding: 16px 20px;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -143,7 +144,8 @@ body {
 
 .auth-form-group input[type="text"]::placeholder,
 .auth-form-group input[type="email"]::placeholder,
-.auth-form-group input[type="password"]::placeholder {
+.auth-form-group input[type="password"]::placeholder,
+.auth-form-group input[type="number"]::placeholder {
     color: rgba(255, 255, 255, 0.6);
 }
 
@@ -310,7 +312,8 @@ body {
     
     .auth-form-group input[type="text"],
     .auth-form-group input[type="email"],
-    .auth-form-group input[type="password"] {
+    .auth-form-group input[type="password"],
+    .auth-form-group input[type="number"] {
         padding: 14px 16px;
     }
 }
